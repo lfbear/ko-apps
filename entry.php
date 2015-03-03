@@ -1,10 +1,16 @@
 <?php
 
-require_once('/usr/share/php/ko/ko.class.php');
-
 define('COMMON_CLASS_PATH', '/usr/share/php/apps/include/');
 define('COMMON_CONF_PATH', '/usr/share/php/apps/conf/');
 define('COMMON_RUNDATA_PATH', '/usr/share/php/apps/rundata/');
+
+define('KO_DB_HOST', 'rdsuurafiuurafi.mysql.rds.aliyuncs.com');
+define('KO_DB_USER', 'demo');
+define('KO_DB_PASS', 'demodemo');
+define('KO_DB_NAME', 'demo');
+define('KO_MC_HOST', 'e77874bc68b911e4.m.cnbjalicm12pub001.ocs.aliyuncs.com:11211');
+define('KO_INCLUDE_DIR', COMMON_CLASS_PATH);
+require_once('/usr/share/php/ko/ko.class.php');
 
 Ko_Web_Event::On('ko.bootstrap', 'before', function()
 {
