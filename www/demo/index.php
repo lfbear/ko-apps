@@ -1,4 +1,3 @@
 <?php
 
-echo 'demo123';
-
+phpinfo();
