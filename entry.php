@@ -1,8 +1,9 @@
 <?php
 
-define('COMMON_CLASS_PATH', '/usr/share/php/apps/include/');
-define('COMMON_CONF_PATH', '/usr/share/php/apps/conf/');
-define('COMMON_RUNDATA_PATH', '/usr/share/php/apps/rundata/');
+define('CODE_ROOT', '/usr/share/php/');
+define('COMMON_CLASS_PATH', CODE_ROOT.'apps/include/');
+define('COMMON_CONF_PATH', CODE_ROOT.'apps/conf/');
+define('COMMON_RUNDATA_PATH', CODE_ROOT.'apps/rundata/');
 
 define('KO_INCLUDE_DIR', COMMON_CLASS_PATH);
 //mysql -hrdsuurafiuurafi.mysql.rds.aliyuncs.com -udemo -pdemodemo demo
@@ -11,7 +12,9 @@ define('KO_DB_USER', 'demo');
 define('KO_DB_PASS', 'demodemo');
 define('KO_DB_NAME', 'demo');
 define('KO_MC_HOST', 'e77874bc68b911e4.m.cnbjalicm12pub001.ocs.aliyuncs.com:11211');
-require_once('/usr/share/php/ko/ko.class.php');
+define('KO_SMARTY_INC', CODE_ROOT.'Smarty-3.1.21/libs/Smarty.class.php');
+define('KO_TEMPLATE_C_DIR', COMMON_RUNDATA_PATH.'templates_c/');
+require_once(CODE_ROOT.'ko/ko.class.php');
 
 Ko_Web_Event::On('ko.bootstrap', 'before', function()
 {
@@ -31,4 +34,3 @@ Ko_Web_Event::On('ko.dispatch', '404', function()
 });
 
 require_once(KO_DIR.'web/Bootstrap.php');
-
