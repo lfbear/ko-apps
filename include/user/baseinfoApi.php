@@ -15,14 +15,14 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 			'uid' => $uid,
 			'nickname' => $userinfo['nickname'],
 		);
-/*		if (strlen($userinfo['logo']))
+		if (strlen($userinfo['logo']))
 		{
 			$api = new KStorage_Api;
 			if ($api->BWebUrl2Storage($userinfo['logo'], $logo))
 			{
 				$data['logo'] = $logo;
 			}
-		}*/
+		}
 		$this->aInsert($data, $data);
 		return true;
 	}
