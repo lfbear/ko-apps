@@ -1,6 +1,9 @@
 <?php
 
 define('MAIN_DOMAIN', 'yuxiaoyan.cn');
+define('KO_DOMAIN', 'ko.'.MAIN_DOMAIN);
+define('XHPROF_DOMAIN', 'xhprof.'.MAIN_DOMAIN);
+define('IMG_DOMAIN', 'img.'.MAIN_DOMAIN);
 
 define('CODE_ROOT', '/usr/share/php/');
 define('COMMON_CLASS_PATH', CODE_ROOT.'apps/include/');
@@ -18,7 +21,7 @@ define('KO_SMARTY_INC', CODE_ROOT.'Smarty-3.1.21/libs/Smarty.class.php');
 define('KO_TEMPLATE_C_DIR', COMMON_RUNDATA_PATH.'templates_c/');
 define('KO_XHPROF', true);
 define('KO_XHPROF_LIBDIR', CODE_ROOT.'xhprof/xhprof_lib/');
-define('KO_XHPROF_WEBBASE', 'http://xhprof.'.MAIN_DOMAIN.':'.getenv('SERVER_PORT').'/xhprof_html/');
+define('KO_XHPROF_WEBBASE', 'http://'.XHPROF_DOMAIN.'/xhprof_html/');
 define('KO_XHPROF_TMPDIR', COMMON_RUNDATA_PATH.'xhprof/');
 require_once(CODE_ROOT.'ko/ko.class.php');
 
