@@ -4,22 +4,28 @@ class KUser_Oauth2_qqApi extends Ko_Busi_Api
 {
 	public function bGetUserinfoByTokeninfo($aSrcConf, $aTokeninfo, &$sUsername, &$aUserinfo)
 	{
-		if (0 == strlen($aTokeninfo['name']))
+		$uri = 'https://graph.qq.com/oauth2.0/me?access_token='.urlencode($aTokeninfo['access_token']);
+		$response = file_get_contents($uri);
+		$response = trim(str_replace(array('callback(', ');'), '', $response));
+		$meinfo = json_decode($response, true);
+		if (!isset($meinfo['openid']))
 		{
 			return false;
 		}
-		$sUsername = $aTokeninfo['name'];
-		
-		$qstr = getenv('QUERY_STRING');
-		parse_str($qstr, $astr);
-		$uri = 'https://open.t.qq.com/api/user/info?format=json&oauth_consumer_key='.urlencode($aSrcConf['client_id']).'&access_token='.urlencode($aTokeninfo['access_token']).'&openid='.urlencode($astr['openid']).'&oauth_version=2.a';
+		$uri = 'https://graph.qq.com/user/get_user_info?access_token='.urlencode($aTokeninfo['access_token']).'&oauth_consumer_key='.urlencode($meinfo['client_id']).'&openid='.urlencode($meinfo['openid']);
 		$response = file_get_contents($uri);
 		$aUserinfo = json_decode($response, true);
 		if (0 != $aUserinfo['ret'])
 		{
 			return false;
 		}
-		$aUserinfo = array('showname' => $aUserinfo['data']['name'], 'logo' => $aUserinfo['data']['head'].'/100');
+		$sUsername = $meinfo['openid'];
+		$logo = $aUserinfo['figureurl_qq_2'];
+		if (empty($logo))
+		{
+			$logo = $aUserinfo['figureurl_qq_1'];
+		}
+		$aUserinfo = array('showname' => $aUserinfo['nickname'], 'logo' => $logo);
 		return true;
 	}
 	
