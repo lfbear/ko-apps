@@ -29,5 +29,15 @@ class KUser_Dao extends Ko_Dao_Factory
 			'split' => 'uid',
 			'key' => 'series',
 		),
+		'changelog' => array(
+			'type' => 'db_single',
+			'kind' => 'user_changelog',
+			'key' => 'id',
+		),
+		'baseinfo' => array(
+			'type' => 'db_one',
+			'kind' => 'user_baseinfo',
+			'split' => 'uid',
+		),
 	);
 }

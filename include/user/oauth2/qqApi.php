@@ -25,7 +25,7 @@ class KUser_Oauth2_qqApi extends Ko_Busi_Api
 		{
 			$logo = $aUserinfo['figureurl_qq_1'];
 		}
-		$aUserinfo = array('showname' => $aUserinfo['nickname'], 'logo' => $logo);
+		$aUserinfo = array('nickname' => $aUserinfo['nickname'], 'logo' => $logo);
 		return true;
 	}
 	

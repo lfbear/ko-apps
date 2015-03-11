@@ -12,7 +12,7 @@ class KUser_Oauth2_weiboApi extends Ko_Busi_Api
 			return false;
 		}
 		$sUsername = $aUserinfo['id'];
-		$aUserinfo = array('showname' => $aUserinfo['screen_name'], 'logo' => $aUserinfo['avatar_large']);
+		$aUserinfo = array('nickname' => $aUserinfo['screen_name'], 'logo' => $aUserinfo['avatar_large']);
 		return true;
 	}
 	

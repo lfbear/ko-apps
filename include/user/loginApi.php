@@ -34,6 +34,7 @@ class KUser_loginApi extends Ko_Mode_User
 		if ($uid)
 		{
 			$this->oauth2_Api->bSaveUserToken($sSrc, $uid, $aTokeninfo);
+			$this->baseinfoApi->bUpdateOauth2info($uid, $aUserinfo);
 		}
 		return $uid;
 	}

@@ -12,7 +12,7 @@ class KUser_Oauth2_baiduApi extends Ko_Busi_Api
 			return false;
 		}
 		$sUsername = $aUserinfo['userid'];
-		$aUserinfo = array('showname' => $aUserinfo['username'], 'logo' => 'http://himg.bdimg.com/sys/portrait/item/'.$aUserinfo['portrait'].'.jpg');
+		$aUserinfo = array('nickname' => $aUserinfo['username'], 'logo' => 'http://himg.bdimg.com/sys/portrait/item/'.$aUserinfo['portrait'].'.jpg');
 		return true;
 	}
 }
