@@ -2,6 +2,8 @@
 
 class KUser_loginApi extends Ko_Mode_User
 {
+	const SESSION_TOKEN_NAME = 's';
+	
 	protected $_aConf = array(
 		'username' => 'username',
 		'bindlog' => 'bindlog',
@@ -11,21 +13,27 @@ class KUser_loginApi extends Ko_Mode_User
 		'persistent_strict' => false,
 	);
 	
+	public function iGetLoginUid(&$exinfo = '')
+	{
+		static $s_iUid;
+		if (is_null($s_iUid))
+		{
+			$token = Ko_Web_Request::SCookie(self::SESSION_TOKEN_NAME);
+			$s_iUid = $this->iCheckSessionToken($token, $exinfo, $iErrno);
+			$this->vSetLoginUid($s_iUid, $exinfo);
+		}
+		return $s_iUid;
+	}
+	
+	public function vSetLoginUid($uid, $exinfo = '')
+	{
+		$token = $uid ? $this->sGetSessionToken($uid, $exinfo) : '';
+		Ko_Web_Response::VSetCookie(self::SESSION_TOKEN_NAME, $token);
+	}
+	
 	public function iOauth2Login($sSrc)
 	{
-		switch($sSrc)
-		{
-		case 'qq':
-			$fnGetToken = array('KUser_Oauth2_qqApi', 'AGetAccessToken');
-			break;
-		case 'weibo':
-			$fnGetToken = array('KUser_Oauth2_weiboApi', 'AGetAccessToken');
-			break;
-		case 'baidu':
-			$fnGetToken = 'file_get_contents';
-			break;
-		}
-		$aTokeninfo = $this->oauth2_Api->vMain($sSrc, $fnGetToken);
+		$aTokeninfo = $this->oauth2_Api->aGetTokenInfo($sSrc);
 		if (!$this->oauth2_Api->bGetUserinfoByTokeninfo($sSrc, $aTokeninfo, $sUsername, $aUserinfo))
 		{
 			return 0;

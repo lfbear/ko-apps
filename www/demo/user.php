@@ -1,10 +1,11 @@
 <?php
 
-Ko_Web_Route::VGet('test', function()
+Ko_Web_Route::VPost('logout', function()
 {
-	$ret = call_user_func_array(array('KUser_loginFacade', 'iLogin'), array('zhangchu', 'zhangchu', &$iErrno));
-	var_dump($ret);
-	var_dump($iErrno);
+	$api = new KUser_loginApi;
+	$api->vSetLoginUid(0);
+	Ko_Web_Response::VSetRedirect('/');
+	Ko_Web_Response::VSend();
 });
 
 Ko_Web_Route::VGet('login', function()

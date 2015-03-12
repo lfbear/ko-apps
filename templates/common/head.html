@@ -2,8 +2,18 @@
 <html>
 <head>
 <title>KO框架</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 </head>
 <body>
+<center>
 <header>
-KO框架
+<form action="/user/logout" method="POST" id="logoutform">
+</form>
+{if $baseinfo.uid}
+{$baseinfo.nickname} <img src="{$baseinfo.logo32}"> <a href="javascript:void(0);" id="logoutlink">退出</a>
+{else}
+<a href="/oauth2/qq"><img src="http://{$IMG_DOMAIN}/oauth2/qq.png"></a>
+<a href="/oauth2/weibo"><img src="http://{$IMG_DOMAIN}/oauth2/weibo.png"></a>
+<a href="/oauth2/baidu"><img src="http://{$IMG_DOMAIN}/oauth2/baidu.png"></a>
+{/if}
 </header>

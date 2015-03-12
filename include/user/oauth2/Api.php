@@ -41,6 +41,23 @@ class KUser_Oauth2_Api extends Ko_Mode_OAuth2Client
 		}
 		unset($v);
 	}
+	
+	public function aGetTokenInfo($sSrc)
+	{
+		switch($sSrc)
+		{
+		case 'qq':
+			$fnGetToken = array('KUser_Oauth2_qqApi', 'AGetAccessToken');
+			break;
+		case 'weibo':
+			$fnGetToken = array('KUser_Oauth2_weiboApi', 'AGetAccessToken');
+			break;
+		case 'baidu':
+			$fnGetToken = 'file_get_contents';
+			break;
+		}
+		return $this->vMain($sSrc, $fnGetToken);
+	}
 
 	public function bGetUserinfoByTokeninfo($sSrc, $aTokeninfo, &$sUsername, &$aUserinfo)
 	{
