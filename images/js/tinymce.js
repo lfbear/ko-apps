@@ -11,7 +11,16 @@
 			toolbar2: 'visualblocks visualchars | anchor insertdatetime nonbreaking hr pagebreak charmap emoticons table link unlink imageko media | print searchreplace fullscreen code preview',
 			toolbar3: 'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | forecolor backcolor | blockquote subscript superscript | ltr rtl | removeformat',
 			save_onsavecallback: function(editor) {
-				//todo
+				var content = editor.getBody().innerHTML;
+				$.post('/user/draft', {'content':content}, function(data, status){
+					if (data.errno) {
+						alert(data.error);
+						editor.isNotDirty = false;
+						return false;
+					} else {
+						return true;
+					}
+				}, 'json');
 			},
 			setup: function(editor) {
 				editor.on('init', function(e) {
