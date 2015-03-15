@@ -3,10 +3,16 @@
 		tinymce.init({
 			selector: '.htmleditor_common',
 			language: 'zh_CN',
+			width: 800,
 			height: 600,
 			menubar: false,
-			plugins: 'code',
-			toolbar: 'undo redo code imageko',
+			plugins: 'advlist anchor charmap colorpicker code directionality emoticons fullscreen hr insertdatetime link media nonbreaking pagebreak preview print save searchreplace table textcolor visualblocks visualchars',
+			toolbar1: 'undo redo | styleselect formatselect fontselect fontsizeselect | save',
+			toolbar2: 'visualblocks visualchars | anchor insertdatetime nonbreaking hr pagebreak charmap emoticons table link unlink imageko media | print searchreplace fullscreen code preview',
+			toolbar3: 'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | forecolor backcolor | blockquote subscript superscript | ltr rtl | removeformat',
+			save_onsavecallback: function(editor) {
+				//todo
+			},
 			setup: function(editor) {
 				editor.on('init', function(e) {
 					initplupload(editor);
