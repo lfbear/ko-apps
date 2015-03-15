@@ -7,7 +7,7 @@ Ko_Web_Route::VPost('upload', function()
 	if ($api->bUpload2Storage($file, $sDest))
 	{
 		$data = array(
-			'err' => 0,
+			'errno' => 0,
 			'data' => array(
 				'file' => $sDest,
 				'file600' => $api->sGetUrl($sDest, 'imageView2/2/w/600/h/600'),
@@ -17,7 +17,8 @@ Ko_Web_Route::VPost('upload', function()
 	else
 	{
 		$data = array(
-			'err' => 1,
+			'errno' => 1,
+			'error' => '文件上传失败',
 		);
 	}
 	$render = new Ko_View_Render_JSON;

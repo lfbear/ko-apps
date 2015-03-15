@@ -81,7 +81,7 @@
 				},
 				FileUploaded: function(up, file, info) {
 					eval('var data = ' + info.response);
-					if (data.err) {
+					if (data.errno) {
 						editor.dom.select('#imageko_' + file.id)[0].remove();
 					} else {
 						editor.dom.select('#imageko_' + file.id)[0].src = data.data.file600;
