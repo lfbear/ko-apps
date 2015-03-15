@@ -13,6 +13,8 @@ class KContent_Dao extends Ko_Dao_Factory
 			'kind' => 'common_content',
 			'split' => 'id',
 			'key' => 'aid',
+			'useuo' => true,
+			'uofields' => array('*'),
 		),
 	);
 }
