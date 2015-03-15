@@ -15,7 +15,7 @@ Ko_Web_Route::VPost('draft', function()
 	if ($uid)
 	{
 		$contentApi = new KContent_Api;
-		if ($contentApi->bSet(0, $uid, Ko_Web_Request::SPost('content')))
+		if ($contentApi->bSet(KContent_Api::DRAFT, $uid, Ko_Web_Request::SPost('content')))
 		{
 			$data = array(
 				'errno' => 0,
