@@ -3,9 +3,10 @@
 class KStorage_Api extends Ko_Data_Qiniu
 {
 	protected $_aConf = array(
-		'uni' => 'uni',
 		'urlmap' => 'urlmap',
+		'uni' => 'uni',
 		'size' => 'size',
+		'fileinfo' => 'fileinfo',
 	);
 	
 	public function __construct()

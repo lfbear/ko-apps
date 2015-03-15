@@ -3,25 +3,25 @@
 class KStorage_Dao extends Ko_Dao_Factory
 {
 	protected $_aDaoConf = array(
+		'urlmap' => array(
+			'type' => 'db_single',
+			'kind' => 'image_urlmap',
+			'key' => 'url',
+		),
 		'uni' => array(
 			'type' => 'db_single',
 			'kind' => 'image_uni',
-			'key' => array('md5'),
-		),
-		'info' => array(
-			'type' => 'db_single',
-			'kind' => 'image_info',
-			'key' => array('dest'),
+			'key' => 'md5',
 		),
 		'size' => array(
 			'type' => 'db_single',
 			'kind' => 'image_size',
-			'key' => array('dest'),
+			'key' => 'dest',
 		),
-		'urlmap' => array(
+		'fileinfo' => array(
 			'type' => 'db_single',
-			'kind' => 'image_urlmap',
-			'key' => array('url'),
+			'kind' => 'image_fileinfo',
+			'key' => 'dest',
 		),
 	);
 }

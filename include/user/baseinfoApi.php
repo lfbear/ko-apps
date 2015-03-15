@@ -33,7 +33,7 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 		if (strlen($userinfo['logo']))
 		{
 			$api = new KStorage_Api;
-			if ($api->BWebUrl2Storage($userinfo['logo'], $logo))
+			if ($api->bWebUrl2Storage($userinfo['logo'], $logo))
 			{
 				$data['logo'] = $logo;
 			}
