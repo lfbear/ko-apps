@@ -2,27 +2,24 @@
 
 Ko_Web_Route::VGet('qq', function()
 {
-	$api = new KUser_loginApi;
-	$uid = $api->iOauth2Login('qq');
-	$api->vSetLoginUid($uid, 'qq');
-	Ko_Web_Response::VSetRedirect('/');
-	Ko_Web_Response::VSend();
+	oauth2login('qq');
 });
 
 Ko_Web_Route::VGet('weibo', function()
 {
-	$api = new KUser_loginApi;
-	$uid = $api->iOauth2Login('weibo');
-	$api->vSetLoginUid($uid, 'weibo');
-	Ko_Web_Response::VSetRedirect('/');
-	Ko_Web_Response::VSend();
+	oauth2login('weibo');
 });
 
 Ko_Web_Route::VGet('baidu', function()
 {
+	oauth2login('baidu');
+});
+
+function oauth2login($src)
+{
 	$api = new KUser_loginApi;
-	$uid = $api->iOauth2Login('baidu');
-	$api->vSetLoginUid($uid, 'baidu');
+	$uid = $api->iOauth2Login($src);
+	$api->vSetLoginUid($uid, $src);
 	Ko_Web_Response::VSetRedirect('/');
 	Ko_Web_Response::VSend();
-});
+}

@@ -5,9 +5,10 @@ $render->oSetTemplate('index.html');
 
 $loginApi = new KUser_loginApi;
 $uid = $loginApi->iGetLoginUid();
-if ($uid)
+$contentApi = new KContent_Api;
+if ($uid && '' !== trim($contentApi->sGetHtml(KContent_Api::USER_DRAFT, $uid)))
 {
-	$htmlrender = new Ko_View_Render_HTML(new KContent_Api);
+	$htmlrender = new Ko_View_Render_HTML($contentApi);
 	$htmlrender->oSetData(KContent_Api::USER_DRAFT, $uid);
 	$render->oSetData('draft', $htmlrender);
 }
@@ -17,7 +18,7 @@ else
 	$draftid = $uuidApi->iGetId();
 	if ($draftid)
 	{
-		$htmlrender = new Ko_View_Render_HTML(new KContent_Api);
+		$htmlrender = new Ko_View_Render_HTML($contentApi);
 		$htmlrender->oSetData(KContent_Api::UUID_DRAFT, $draftid);
 		$render->oSetData('draft', $htmlrender);
 	}
