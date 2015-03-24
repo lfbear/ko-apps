@@ -14,11 +14,11 @@ if ($uid)
 else
 {
 	$uuidApi = new KUser_uuidApi;
-	$uuid = $uuidApi->iGetId();
-	if ($uuid)
+	$draftid = $uuidApi->iGetId();
+	if ($draftid)
 	{
 		$htmlrender = new Ko_View_Render_HTML(new KContent_Api);
-		$htmlrender->oSetData(KContent_Api::UUID_DRAFT, $uuid);
+		$htmlrender->oSetData(KContent_Api::UUID_DRAFT, $draftid);
 		$render->oSetData('draft', $htmlrender);
 	}
 }
