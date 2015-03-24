@@ -2,12 +2,16 @@
 
 class KContent_Api extends Ko_Mode_Content
 {
-	const DRAFT = 1;
+	const USER_DRAFT = 1;
+	const UUID_DRAGT = 2;
 	
 	protected $_aConf = array(
 		'contentApi' => 'Func',
 		'app' => array(
-			self::DRAFT => array(
+			self::USER_DRAFT => array(
+				'type' => 'html',
+			),
+			self::UUID_DRAGT => array(
 				'type' => 'html',
 			),
 		),

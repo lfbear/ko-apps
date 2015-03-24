@@ -14,26 +14,27 @@ Ko_Web_Route::VPost('draft', function()
 	$uid = $loginApi->iGetLoginUid();
 	if ($uid)
 	{
-		$contentApi = new KContent_Api;
-		if ($contentApi->bSet(KContent_Api::DRAFT, $uid, Ko_Web_Request::SPost('content')))
-		{
-			$data = array(
-				'errno' => 0,
-			);
-		}
-		else
-		{
-			$data = array(
-				'errno' => 2,
-				'error' => '保存失败',
-			);
-		}
+		$draftid = $uid;
+		$aid = KContent_Api::USER_DRAFT;
+	}
+	else
+	{
+		$uuidApi = new KUser_uuidApi;
+		$draftid = $uuidApi->iGetId(true);
+		$aid = KContent_Api::UUID_DRAFT;
+	}
+	$contentApi = new KContent_Api;
+	if ($contentApi->bSet($aid, $draftid, Ko_Web_Request::SPost('content')))
+	{
+		$data = array(
+			'errno' => 0,
+		);
 	}
 	else
 	{
 		$data = array(
-			'errno' => 1,
-			'error' => '请先登录',
+			'errno' => 2,
+			'error' => '保存失败',
 		);
 	}
 	$render = new Ko_View_Render_JSON;

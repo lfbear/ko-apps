@@ -39,5 +39,10 @@ class KUser_Dao extends Ko_Dao_Factory
 			'kind' => 'user_baseinfo',
 			'split' => 'uid',
 		),
+		'uuid' => array(
+			'type' => 'db_single',
+			'kind' => 'user_uuid',
+			'key' => 'uuid',
+		),
 	);
 }

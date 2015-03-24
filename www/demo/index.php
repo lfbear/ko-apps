@@ -8,8 +8,19 @@ $uid = $loginApi->iGetLoginUid();
 if ($uid)
 {
 	$htmlrender = new Ko_View_Render_HTML(new KContent_Api);
-	$htmlrender->oSetData(KContent_Api::DRAFT, $uid);
+	$htmlrender->oSetData(KContent_Api::USER_DRAFT, $uid);
 	$render->oSetData('draft', $htmlrender);
+}
+else
+{
+	$uuidApi = new KUser_uuidApi;
+	$uuid = $uuidApi->iGetId();
+	if ($uuid)
+	{
+		$htmlrender = new Ko_View_Render_HTML(new KContent_Api);
+		$htmlrender->oSetData(KContent_Api::UUID_DRAFT, $uuid);
+		$render->oSetData('draft', $htmlrender);
+	}
 }
 
 Ko_Web_Response::VAppendBody($render);
