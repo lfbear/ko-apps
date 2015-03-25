@@ -15,8 +15,8 @@ class KUser_Oauth2_Api extends Ko_Mode_OAuth2Client
 				'request_method' => 'GET',
 				),
 			'weibo' => array(
-				'client_id' => '3702295420',
-				'client_secret' => 'a517a10d7de758ede4393284ec936356',
+				'client_id' => '1181647305',
+				'client_secret' => 'd0b047ef06f2ca86e7911175a43d0543',
 				'authorize_uri' => 'https://api.weibo.com/oauth2/authorize',
 				'token_uri' => 'https://api.weibo.com/oauth2/access_token',
 //				'redirect_uri' => 'http://'.KO_DOMAIN.'/oauth2/weibo',
