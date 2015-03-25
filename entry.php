@@ -1,6 +1,6 @@
 <?php
 
-define('MAIN_DOMAIN', 'zlog.cc');
+define('MAIN_DOMAIN', 'yuxiaoyan.cn');
 define('KO_DOMAIN', 'ko.'.MAIN_DOMAIN);
 define('XHPROF_DOMAIN', 'xhprof.'.MAIN_DOMAIN);
 define('IMG_DOMAIN', 'img.'.MAIN_DOMAIN);
