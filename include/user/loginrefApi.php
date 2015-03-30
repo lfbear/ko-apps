@@ -10,7 +10,9 @@ class KUser_loginrefApi
 		if ('' != $referer)
 		{
 			$rinfo = parse_url($referer);
-			if (PASSPORT_DOMAIN !== $rinfo['host'])
+			if (PASSPORT_DOMAIN !== $rinfo['host']
+				&& (MAIN_DOMAIN === $rinfo['host']
+					|| '.'.MAIN_DOMAIN === substr($rinfo['host'], -1 - strlen(MAIN_DOMAIN))))
 			{
 				Ko_Web_Response::VSetCookie(self::COOKIE_NAME, $referer);
 			}
