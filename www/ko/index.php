@@ -1,7 +1,7 @@
 <?php
 
 $render = new KRender_default;
-$render->oSetTemplate('index.html');
+$render->oSetTemplate('ko/index.html');
 
 $loginApi = new KUser_loginApi;
 $uid = $loginApi->iGetLoginUid();
