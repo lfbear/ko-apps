@@ -15,8 +15,8 @@ class KUser_Oauth2_Api extends Ko_Mode_OAuth2Client
 				'request_method' => 'GET',
 				),
 			'weibo' => array(
-				'client_id' => '2072077207',
-				'client_secret' => 'f2954dae8c5022fe84b991cc273a6034',
+				'client_id' => '2465119042',
+				'client_secret' => 'ffc1bd72f23cb08d3c09f1599b8ac001',
 				'authorize_uri' => 'https://api.weibo.com/oauth2/authorize',
 				'token_uri' => 'https://api.weibo.com/oauth2/access_token',
 //				'redirect_uri' => 'http://'.PASSPORT_DOMAIN.'/oauth2/weibo',
