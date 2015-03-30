@@ -10,12 +10,12 @@
 </head>
 <body>
 	<header>
-	<form action="/user/logout" method="POST" id="logoutform"></form>
+	<form action="http://{$PASSPORT_DOMAIN}/user/logout" method="POST" id="logoutform"></form>
 	{if $baseinfo.uid}
 	<span>{$baseinfo.nickname}</span> <img src="{$baseinfo.logo32}" title="{$baseinfo.uid}"> <a href="javascript:;" id="logoutlink">退出</a>
 	{else}
-	<a href="/oauth2/qq"><img src="http://{$IMG_DOMAIN}/oauth2/qq.png"></a>
-	<a href="/oauth2/weibo"><img src="http://{$IMG_DOMAIN}/oauth2/weibo.png"></a>
-	<a href="/oauth2/baidu"><img src="http://{$IMG_DOMAIN}/oauth2/baidu.png"></a>
+	<a href="http://{$PASSPORT_DOMAIN}/oauth2/qq"><img src="http://{$IMG_DOMAIN}/oauth2/qq.png"></a>
+	<a href="http://{$PASSPORT_DOMAIN}/oauth2/weibo"><img src="http://{$IMG_DOMAIN}/oauth2/weibo.png"></a>
+	<a href="http://{$PASSPORT_DOMAIN}/oauth2/baidu"><img src="http://{$IMG_DOMAIN}/oauth2/baidu.png"></a>
 	{/if}
 	</header>

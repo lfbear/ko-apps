@@ -11,7 +11,7 @@ class KUser_Oauth2_Api extends Ko_Mode_OAuth2Client
 				'client_secret' => '5f024b109b679f4a9245a009c7321776',
 				'authorize_uri' => 'https://graph.qq.com/oauth2.0/authorize',
 				'token_uri' => 'https://graph.qq.com/oauth2.0/token',
-//				'redirect_uri' => 'http://'.KO_DOMAIN.'/oauth2/qq',
+//				'redirect_uri' => 'http://'.PASSPORT_DOMAIN.'/oauth2/qq',
 				'request_method' => 'GET',
 				),
 			'weibo' => array(
@@ -19,7 +19,7 @@ class KUser_Oauth2_Api extends Ko_Mode_OAuth2Client
 				'client_secret' => 'f2954dae8c5022fe84b991cc273a6034',
 				'authorize_uri' => 'https://api.weibo.com/oauth2/authorize',
 				'token_uri' => 'https://api.weibo.com/oauth2/access_token',
-//				'redirect_uri' => 'http://'.KO_DOMAIN.'/oauth2/weibo',
+//				'redirect_uri' => 'http://'.PASSPORT_DOMAIN.'/oauth2/weibo',
 				'request_method' => 'POST',
 				),
 			'baidu' => array(
@@ -27,7 +27,7 @@ class KUser_Oauth2_Api extends Ko_Mode_OAuth2Client
 				'client_secret' => 'IbB7GXNfB3mG5eDD2kRfIAbUgYtCgvM1',
 				'authorize_uri' => 'https://openapi.baidu.com/oauth/2.0/authorize',
 				'token_uri' => 'https://openapi.baidu.com/oauth/2.0/token',
-//				'redirect_uri' => 'http://'.KO_DOMAIN.'/oauth2/baidu',
+//				'redirect_uri' => 'http://'.PASSPORT_DOMAIN.'/oauth2/baidu',
 				'request_method' => 'GET',
 				),
 			),
@@ -37,7 +37,7 @@ class KUser_Oauth2_Api extends Ko_Mode_OAuth2Client
 	{
 		foreach ($this->_aConf['srclist'] as $k => &$v)
 		{
-			$v['redirect_uri'] = 'http://'.KO_DOMAIN.'/oauth2/'.$k;
+			$v['redirect_uri'] = 'http://'.PASSPORT_DOMAIN.'/oauth2/'.$k;
 		}
 		unset($v);
 	}

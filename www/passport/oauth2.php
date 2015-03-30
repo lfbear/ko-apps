@@ -20,6 +20,6 @@ function oauth2login($src)
 	$api = new KUser_loginApi;
 	$uid = $api->iOauth2Login($src);
 	$api->vSetLoginUid($uid, $src);
-	Ko_Web_Response::VSetRedirect('/');
+	Ko_Web_Response::VSetRedirect('http://'.KO_DOMAIN);
 	Ko_Web_Response::VSend();
 }
