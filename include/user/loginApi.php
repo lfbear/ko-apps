@@ -28,7 +28,7 @@ class KUser_loginApi extends Ko_Mode_User
 	public function vSetLoginUid($uid, $exinfo = '')
 	{
 		$token = $uid ? $this->sGetSessionToken($uid, $exinfo) : '';
-		Ko_Web_Response::VSetCookie(self::SESSION_TOKEN_NAME, $token);
+		Ko_Web_Response::VSetCookie(self::SESSION_TOKEN_NAME, $token, 0, '/', '.'.MAIN_DOMAIN);
 	}
 	
 	public function iOauth2Login($sSrc)
