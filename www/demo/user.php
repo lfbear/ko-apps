@@ -42,24 +42,3 @@ Ko_Web_Route::VPost('draft', function()
 	Ko_Web_Response::VAppendBody($render);
 	Ko_Web_Response::VSend();
 });
-
-
-
-
-
-
-Ko_Web_Route::VGet('login', function()
-{
-	$render = new KRender_default;
-	$render->oSetTemplate('user/login.html');
-	Ko_Web_Response::VAppendBody($render);
-	Ko_Web_Response::VSend();
-});
-
-Ko_Web_Route::VGet('regist', function()
-{
-	$render = new KRender_default;
-	$render->oSetTemplate('user/regist.html');
-	Ko_Web_Response::VAppendBody($render);
-	Ko_Web_Response::VSend();
-});

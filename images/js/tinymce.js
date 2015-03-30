@@ -4,7 +4,7 @@
 			selector: '.htmleditor_common',
 			language: 'zh_CN',
 			width: 800,
-			height: 600,
+			height: 300,
 			menubar: false,
 			plugins: 'advlist anchor charmap colorpicker code directionality emoticons fullscreen hr insertdatetime link media nonbreaking pagebreak preview print save searchreplace table textcolor visualblocks visualchars',
 			toolbar1: 'undo redo | styleselect formatselect fontselect fontsizeselect | save',
