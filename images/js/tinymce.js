@@ -1,10 +1,46 @@
 (function() {
 	$(document).ready(function() {
 		tinymce.init({
+			selector: '.htmleditor_blog',
+			language: 'zh_CN',
+			width: 800,
+			height: 400,
+			menubar: false,
+			plugins: 'advlist anchor charmap colorpicker code directionality emoticons fullscreen hr insertdatetime link media nonbreaking pagebreak preview print save searchreplace table textcolor visualblocks visualchars',
+			toolbar1: 'styleselect fontselect fontsizeselect forecolor backcolor | bullist numlist outdent indent | link imageko preview',
+			save_onsavecallback: function(editor) {
+				var content = editor.getBody().innerHTML;
+				$.post('/user/draft', {'content':content}, function(data, status){
+					if (data.errno) {
+						alert(data.error);
+						editor.isNotDirty = false;
+						return false;
+					} else {
+						return true;
+					}
+				}, 'json');
+			},
+			setup: function(editor) {
+				editor.on('init', function(e) {
+					initplupload(editor);
+				});
+				editor.on('ProgressState', function(e) {
+					if (e.state) {
+						$('#mceu_imageko').css('z-index', 'auto');
+					}
+				});
+				editor.addButton('imageko', {
+					id: 'mceu_imageko',
+					icon: 'image',
+					tooltip: '插入图片'
+				});
+			}
+		});
+		tinymce.init({
 			selector: '.htmleditor_common',
 			language: 'zh_CN',
 			width: 800,
-			height: 300,
+			height: 600,
 			menubar: false,
 			plugins: 'advlist anchor charmap colorpicker code directionality emoticons fullscreen hr insertdatetime link media nonbreaking pagebreak preview print save searchreplace table textcolor visualblocks visualchars',
 			toolbar1: 'undo redo | styleselect formatselect fontselect fontsizeselect | save',
