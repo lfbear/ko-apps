@@ -32,6 +32,22 @@ Ko_Web_Event::On('ko.bootstrap', 'before', function()
 	Ko_Web_Config::VSetConf(COMMON_CONF_PATH.'all.ini', COMMON_RUNDATA_PATH.'all.php');
 });
 
+Ko_Web_Event::On('ko.config', 'after', function()
+{
+	$appname = Ko_Web_Config::SGetAppName();
+	if ('' === $appname)
+	{
+		Ko_Web_Response::VSetRedirect('http://'.KO_DOMAIN);
+		Ko_Web_Response::VSend();
+		exit;
+	}
+	$host = Ko_Web_Request::SHttpHost();
+	if (PASSPORT_DOMAIN === $host)
+	{
+		KUser_loginrefApi::VInit();
+	}
+});
+
 Ko_Web_Event::On('ko.error', '500', function($errno, $errstr, $errfile, $errline, $errcontext)
 {
 	Ko_Web_Error::V500($errno, $errstr, $errfile, $errline, $errcontext);
