@@ -1,10 +1,10 @@
 <?php
 
-define('MAIN_DOMAIN', 'yuxiaoyan.cn');
+define('MAIN_DOMAIN', 'zlog.cc');
 define('KO_DOMAIN', 'ko.'.MAIN_DOMAIN);
 define('PASSPORT_DOMAIN', 'passport.'.MAIN_DOMAIN);
 define('XHPROF_DOMAIN', 'xhprof.'.MAIN_DOMAIN);
-define('IMG_DOMAIN', 'img.'.MAIN_DOMAIN);
+define('IMG_DOMAIN', 'img.zhangchu.cc');
 
 define('CODE_ROOT', '/usr/share/php/');
 define('COMMON_CLASS_PATH', CODE_ROOT.'apps/include/');
@@ -42,7 +42,7 @@ Ko_Web_Event::On('ko.config', 'after', function()
 		Ko_Web_Response::VSend();
 		exit;
 	}
-	if (!Ko_Tool_Safe::BCheckMethod())
+	if (!Ko_Tool_Safe::BCheckMethod(array('*.'.MAIN_DOMAIN)))
 	{
 		Ko_Web_Response::VSetHttpCode(403);
 		Ko_Web_Response::VSend();
