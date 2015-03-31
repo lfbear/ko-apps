@@ -10,7 +10,7 @@ class KBlog_Api extends Ko_Busi_Api
 		{
 			$data = array(
 				'uid' => $uid,
-				'ctime' => data('Y-m-d H:i:s'),
+				'ctime' => date('Y-m-d H:i:s'),
 			);
 			$blogid = $this->blogDao->iInsert($data);
 			if ($blogid)
