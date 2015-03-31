@@ -1,80 +1,54 @@
 (function() {
 	$(document).ready(function() {
-		tinymce.init({
-			selector: '.htmleditor_blog',
-			language: 'zh_CN',
-			width: 800,
-			height: 400,
-			menubar: false,
-			plugins: 'advlist anchor charmap colorpicker code directionality emoticons fullscreen hr insertdatetime link media nonbreaking pagebreak preview print save searchreplace table textcolor visualblocks visualchars',
-			toolbar1: 'styleselect fontselect fontsizeselect forecolor backcolor | bullist numlist outdent indent | link imageko preview',
-			save_onsavecallback: function(editor) {
-				var content = editor.getBody().innerHTML;
-				$.post('/user/draft', {'content':content}, function(data, status){
-					if (data.errno) {
-						alert(data.error);
-						editor.isNotDirty = false;
-						return false;
-					} else {
-						return true;
-					}
-				}, 'json');
-			},
-			setup: function(editor) {
-				editor.on('init', function(e) {
-					initplupload(editor);
-				});
-				editor.on('ProgressState', function(e) {
-					if (e.state) {
-						$('#mceu_imageko').css('z-index', 'auto');
-					}
-				});
-				editor.addButton('imageko', {
-					id: 'mceu_imageko',
-					icon: 'image',
-					tooltip: '插入图片'
-				});
-			}
-		});
-		tinymce.init({
-			selector: '.htmleditor_common',
-			language: 'zh_CN',
-			width: 800,
-			height: 600,
-			menubar: false,
-			plugins: 'advlist anchor charmap colorpicker code directionality emoticons fullscreen hr insertdatetime link media nonbreaking pagebreak preview print save searchreplace table textcolor visualblocks visualchars',
-			toolbar1: 'undo redo | styleselect formatselect fontselect fontsizeselect | save',
-			toolbar2: 'visualblocks visualchars | anchor insertdatetime nonbreaking hr pagebreak charmap emoticons table link unlink imageko media | print searchreplace fullscreen code preview',
-			toolbar3: 'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | forecolor backcolor | blockquote subscript superscript | ltr rtl | removeformat',
-			save_onsavecallback: function(editor) {
-				var content = editor.getBody().innerHTML;
-				$.post('/user/draft', {'content':content}, function(data, status){
-					if (data.errno) {
-						alert(data.error);
-						editor.isNotDirty = false;
-						return false;
-					} else {
-						return true;
-					}
-				}, 'json');
-			},
-			setup: function(editor) {
-				editor.on('init', function(e) {
-					initplupload(editor);
-				});
-				editor.on('ProgressState', function(e) {
-					if (e.state) {
-						$('#mceu_imageko').css('z-index', 'auto');
-					}
-				});
-				editor.addButton('imageko', {
-					id: 'mceu_imageko',
-					icon: 'image',
-					tooltip: '插入图片'
-				});
-			}
-		});
+		inittinymce('basic', '.htmleditor_basic', 800, 400);
+		inittinymce('full', '.htmleditor_full', 800, 600);
 	});
+	function inittinymce(mode, selector, width, height) {
+		var config = {
+			'selector': selector,
+			'language': 'zh_CN',
+			'width': width,
+			'height': height,
+			'menubar': false,
+			'save_onsavecallback': function(editor) {
+				var content = editor.getBody().innerHTML;
+				$.post('/user/draft', {'content':content}, function(data, status){
+					if (data.errno) {
+						alert(data.error);
+						editor.isNotDirty = false;
+						return false;
+					} else {
+						return true;
+					}
+				}, 'json');
+			},
+			'setup': function(editor) {
+				editor.on('init', function(e) {
+					initplupload(editor);
+				});
+				editor.on('ProgressState', function(e) {
+					if (e.state) {
+						$('#mceu_imageko').css('z-index', 'auto');
+					}
+				});
+				editor.addButton('imageko', {
+					id: 'mceu_imageko',
+					icon: 'image',
+					tooltip: '插入图片'
+				});
+			}
+		};
+		if ('full' == mode) {
+			config.plugins = 'advlist anchor charmap colorpicker code directionality emoticons fullscreen hr insertdatetime link media nonbreaking pagebreak preview print save searchreplace table textcolor visualblocks visualchars';
+			config.toolbar1 = 'undo redo | styleselect formatselect fontselect fontsizeselect | save';
+			config.toolbar2 = 'visualblocks visualchars | anchor insertdatetime nonbreaking hr pagebreak charmap emoticons table link unlink imageko media | print searchreplace fullscreen code preview';
+			config.toolbar3 = 'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | forecolor backcolor | blockquote subscript superscript | ltr rtl | removeformat';
+		} else {
+			config.plugins = 'advlist colorpicker link preview textcolor';
+			config.toolbar1 = 'styleselect fontselect fontsizeselect forecolor backcolor | bullist numlist outdent indent | link imageko preview';
+		}
+		tinymce.init(config);
+	}
 	function initplupload(editor) {
 		var imgsize = 600;
 		var uploader = new plupload.Uploader({
