@@ -42,6 +42,12 @@ Ko_Web_Event::On('ko.config', 'after', function()
 		Ko_Web_Response::VSend();
 		exit;
 	}
+	if (!Ko_Tool_Safe::BCheckMethod())
+	{
+		Ko_Web_Response::VSetHttpCode(403);
+		Ko_Web_Response::VSend();
+		exit;
+	}
 	$host = Ko_Web_Request::SHttpHost();
 	if (PASSPORT_DOMAIN === $host)
 	{
