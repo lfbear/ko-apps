@@ -11,6 +11,7 @@ define('COMMON_CLASS_PATH', CODE_ROOT.'apps/include/');
 define('COMMON_CONF_PATH', CODE_ROOT.'apps/conf/');
 define('COMMON_RUNDATA_PATH', CODE_ROOT.'apps/rundata/');
 
+define('KO_DEBUG', 1);
 define('KO_TEMPDIR', COMMON_RUNDATA_PATH.'kotmp/');
 define('KO_INCLUDE_DIR', COMMON_CLASS_PATH);
 //mysql -hrdsuurafiuurafi.mysql.rds.aliyuncs.com -udemo -pdemodemo demo

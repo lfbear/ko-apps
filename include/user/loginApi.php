@@ -19,8 +19,11 @@ class KUser_loginApi extends Ko_Mode_User
 		if (is_null($s_iUid))
 		{
 			$token = Ko_Web_Request::SCookie(self::SESSION_TOKEN_NAME);
-			$s_iUid = $this->iCheckSessionToken($token, $exinfo, $iErrno);
-			$this->vSetLoginUid($s_iUid, $exinfo);
+			$s_iUid = $token ? $this->iCheckSessionToken($token, $exinfo, $iErrno) : 0;
+			if ($s_iUid)
+			{
+				$this->vSetLoginUid($s_iUid, $exinfo);
+			}
 		}
 		return $s_iUid;
 	}

@@ -16,6 +16,10 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 			$loginApi = new KUser_loginApi;
 			$uid = $loginApi->iGetLoginUid();
 		}
+		if (!$uid)
+		{
+			return array();
+		}
 		$info = parent::aGet($uid);
 		if (!empty($info))
 		{
