@@ -2,6 +2,11 @@
 
 class KBlog_Api extends Ko_Busi_Api
 {
+	public function aGet($blogid)
+	{
+		return $this->blogDao->aGet($blogid);
+	}
+	
 	public function iInsert($title, $content)
 	{
 		$loginApi = new KUser_loginApi;
@@ -12,6 +17,7 @@ class KBlog_Api extends Ko_Busi_Api
 				'uid' => $uid,
 				'ctime' => date('Y-m-d H:i:s'),
 			);
+			$data['mtime'] = $data['ctime'];
 			$blogid = $this->blogDao->iInsert($data);
 			if ($blogid)
 			{
@@ -30,14 +36,13 @@ class KBlog_Api extends Ko_Busi_Api
 		$uid = $loginApi->iGetLoginUid();
 		if ($uid)
 		{
-			$key = compact('uid', 'blogid');
-			$info = $this->blogDao->aGet($key);
-			if (!empty($info))
+			$info = $this->blogDao->aGet($blogid);
+			if (!empty($info) && $uid == $info['uid'])
 			{
 				$contentApi = new KContent_Api;
 				$contentApi->bSet(KContent_Api::BLOG_TITLE, $blogid, $title);
 				$contentApi->bSet(KContent_Api::BLOG_CONTENT, $blogid, $content);
-				return $this->blogDao->iUpdate($key, array('mtime' => date('Y-m-d H:i:s')));
+				return $this->blogDao->iUpdate($blogid, array('mtime' => date('Y-m-d H:i:s')));
 			}
 		}
 		return 0;
@@ -49,8 +54,8 @@ class KBlog_Api extends Ko_Busi_Api
 		$uid = $loginApi->iGetLoginUid();
 		if ($uid)
 		{
-			$key = compact('uid', 'blogid');
-			return $this->blogDao->iDelete($key);
+			$option = new Ko_Tool_SQL;
+			return $this->blogDao->iDelete($blogid, $option->oWhere('uid = ?', $uid));
 		}
 		return 0;
 	}

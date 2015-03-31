@@ -1,5 +1,32 @@
 <?php
 
+Ko_Web_Route::VGet('item', function()
+{
+	$blogid = Ko_Web_Request::IGet('blogid');
+	
+	$blogApi = new KBlog_Api;
+	$bloginfo = $blogApi->aGet($blogid);
+	if (empty($bloginfo))
+	{
+		Ko_Web_Response::VSetRedirect('/');
+		Ko_Web_Response::VSend();
+		exit;
+	}
+	
+	$contentApi = new KContent_Api;
+	$htmlrender = new Ko_View_Render_HTML($contentApi);
+	$htmlrender->oSetData(KContent_Api::BLOG_TITLE, $blogid);
+	$htmlrender->oSetData(KContent_Api::BLOG_CONTENT, $blogid);
+	
+	$render = new KRender_default;
+	$render->oSetTemplate('ko/blog/item.html');
+	$render->oSetData('bloginfo', $bloginfo);
+	$render->oSetData('htmlinfo', $htmlrender);
+	
+	Ko_Web_Response::VAppendBody($render);
+	Ko_Web_Response::VSend();
+});
+
 Ko_Web_Route::VPost('post', function()
 {
 	$title = Ko_Web_Request::SPost('title');
