@@ -61,6 +61,11 @@ Ko_Web_Event::On('ko.error', '500', function($errno, $errstr, $errfile, $errline
 	exit;
 });
 
+Ko_Web_Event::On('ko.dispatch', 'before', function()
+{
+	Ko_Tool_Adapter::VOn('user_baseinfo', array('KUser_baseinfoApi', 'AAdapter'));
+});
+
 Ko_Web_Event::On('ko.dispatch', '404', function()
 {
 	Ko_Web_Route::V404();

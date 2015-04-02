@@ -9,23 +9,24 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 		'itemlog_idfield' => 'infoid',
 	);
 	
-	public function aGetMoreInfo($uid = 0, $aMore = array('logo32'))
+	public static function AAdapter($datalist)
 	{
-		if (!$uid)
+		$newdatalist = array();
+		$uids = array();
+		foreach ($datalist as $v)
 		{
-			$loginApi = new KUser_loginApi;
-			$uid = $loginApi->iGetLoginUid();
+			$uids[] = $v[0];
 		}
-		if (!$uid)
+		$infos = Ko_Tool_Singleton::OInstance('KUser_baseinfoApi')->aGetListByKeys($uids);
+		foreach ($datalist as $k => $v)
 		{
-			return array();
+			$newdatalist[$k] = isset($infos[$v[0]]) ? $infos[$v[0]] : array();
+			if (!empty($newdatalist[$k]))
+			{
+				self::_VFillMoreInfo($newdatalist[$k], $v[1]);
+			}
 		}
-		$info = parent::aGet($uid);
-		if (!empty($info))
-		{
-			$this->_vFillMoreInfo($info, $aMore);
-		}
-		return $info;
+		return $newdatalist;
 	}
 	
 	public function bUpdateOauth2info($uid, $userinfo)
@@ -46,7 +47,7 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 		return true;
 	}
 	
-	private function _vFillMoreInfo(&$info, $aMore)
+	private static function _VFillMoreInfo(&$info, $aMore)
 	{
 		$api = new KStorage_Api;
 		foreach ($aMore as $more)

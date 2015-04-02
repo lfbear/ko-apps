@@ -4,8 +4,9 @@ class KRender_default extends Ko_View_Render_Smarty
 {
 	public function sRender()
 	{
-		$baseinfoApi = new KUser_baseinfoApi;
-		$binfo = $baseinfoApi->aGetMoreInfo();
+		$loginApi = new KUser_loginApi;
+		$uid = $loginApi->iGetLoginUid();
+		$binfo = $uid ? Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo32'))) : array();
 		
 		$head = new Ko_View_Render_Smarty;
 		$head->oSetTemplate('common/head.html')

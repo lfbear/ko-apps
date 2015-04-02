@@ -35,9 +35,9 @@ class KUser_Dao extends Ko_Dao_Factory
 			'key' => 'id',
 		),
 		'baseinfo' => array(
-			'type' => 'db_one',
+			'type' => 'db_single',
 			'kind' => 'user_baseinfo',
-			'split' => 'uid',
+			'key' => 'uid',
 		),
 		'uuid' => array(
 			'type' => 'db_single',
