@@ -18,6 +18,8 @@ Ko_Web_Route::VGet('item', function()
 	$htmlrender->oSetData(KContent_Api::BLOG_TITLE, $blogid);
 	$htmlrender->oSetData(KContent_Api::BLOG_CONTENT, $blogid);
 	
+	$bloginfo['uid'] = Ko_Tool_Adapter::VConv($bloginfo['uid'], array('user_baseinfo', array('logo32')));
+	
 	$render = new KRender_default;
 	$render->oSetTemplate('ko/blog/item.html');
 	$render->oSetData('bloginfo', $bloginfo);
