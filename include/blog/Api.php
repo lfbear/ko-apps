@@ -24,6 +24,7 @@ class KBlog_Api extends Ko_Busi_Api
 				$contentApi = new KContent_Api;
 				$contentApi->bSet(KContent_Api::BLOG_TITLE, $blogid, $title);
 				$contentApi->bSet(KContent_Api::BLOG_CONTENT, $blogid, $content);
+				$contentApi->bSet(KContent_Api::USER_DRAFT, $uid, '');
 			}
 			return $blogid;
 		}
