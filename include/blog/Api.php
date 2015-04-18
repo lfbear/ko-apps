@@ -2,6 +2,12 @@
 
 class KBlog_Api extends Ko_Busi_Api
 {
+	public function aGetAllList($offset, $limit)
+	{
+		$option = new Ko_Tool_SQL;
+		return $this->blogDao->aGetList($option->oOrderBy('blogid desc')->oOffset($offset)->oLimit($limit));
+	}
+
 	public function aGet($blogid)
 	{
 		return $this->blogDao->aGet($blogid);

@@ -14,7 +14,7 @@
 				if (data.errno) {
 					alert(data.error);
 				} else {
-					window.location.href = '/blog/item?blogid=' + data.blogid;
+					window.location.href = '/blog/' + data.blogid;
 				}
 			}, 'json');
 		});

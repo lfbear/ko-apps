@@ -1,11 +1,27 @@
 <?php
 
+$offset = Ko_Web_Request::IGet('offset');
+
 $render = new KRender_default;
 $render->oSetTemplate('ko/index.html');
 
+$contentApi = new KContent_Api;
+$blogApi = new KBlog_Api;
+$bloglist = $blogApi->aGetAllList($offset, 10);
+$bloglist = Ko_Tool_Adapter::VConv($bloglist, array('list', array('hash', array(
+	'blogid' => 'int',
+	'uid' => array('user_baseinfo', array('logo32')),
+	'ctime' => 'string',
+	'mtime' => 'string',
+))));
+$blogids = Ko_Tool_Utils::AObjs2ids($bloglist, 'blogid');
+$htmlrender = new Ko_View_Render_HTML($contentApi);
+$htmlrender->oSetData(array(KContent_Api::BLOG_TITLE => $blogids, KContent_Api::BLOG_CONTENT => $blogids));
+$render->oSetData('bloghtml', $htmlrender);
+$render->oSetData('bloglist', $bloglist);
+
 $loginApi = new KUser_loginApi;
 $uid = $loginApi->iGetLoginUid();
-$contentApi = new KContent_Api;
 if ($uid && '' !== trim(Ko_Html_ImgParse::sParse($contentApi->sGetHtml(KContent_Api::USER_DRAFT, $uid))))
 {	//如果用户登录，并且有草稿
 	$htmlrender = new Ko_View_Render_HTML($contentApi);

@@ -1,4 +1,11 @@
 
+{foreach $bloglist as $blog}
+<a href="/blog/{$blog.blogid}">{$bloghtml[3][$blog.blogid]}</a><br>
+<img src="{$blog.uid.logo32}">最后修改：{$blog.mtime|substr:0:16}<br>
+{$bloghtml[4][$blog.blogid]}
+<hr>
+{/foreach}
+
 标题：<input type="text" id="blogtitle" size="40"><br>
 <textarea class="htmleditor_basic" id="blogcontent">{$draft}</textarea><br>
 <button id="blogpost">发表</button>
