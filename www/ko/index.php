@@ -16,7 +16,7 @@ $bloglist = Ko_Tool_Adapter::VConv($bloglist, array('list', array('hash', array(
 ))));
 $blogids = Ko_Tool_Utils::AObjs2ids($bloglist, 'blogid');
 $htmlrender = new Ko_View_Render_HTML($contentApi);
-$htmlrender->oSetData(array(KContent_Api::BLOG_TITLE => $blogids, KContent_Api::BLOG_CONTENT => $blogids));
+$htmlrender->oSetData(array(KContent_Api::BLOG_TITLE => $blogids, KContent_Api::BLOG_CONTENT => array('ids' => $blogids, 'maxlength' => 1000)));
 $render->oSetData('bloghtml', $htmlrender);
 $render->oSetData('bloglist', $bloglist);
 
