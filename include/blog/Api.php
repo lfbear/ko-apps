@@ -12,21 +12,19 @@ class KBlog_Api extends Ko_Busi_Api
 	{
 		return $this->blogDao->aGet($blogid);
 	}
-	
+
 	public function iInsert($title, $content)
 	{
 		$loginApi = new KUser_loginApi;
 		$uid = $loginApi->iGetLoginUid();
-		if ($uid)
-		{
+		if ($uid) {
 			$data = array(
 				'uid' => $uid,
 				'ctime' => date('Y-m-d H:i:s'),
 			);
 			$data['mtime'] = $data['ctime'];
 			$blogid = $this->blogDao->iInsert($data);
-			if ($blogid)
-			{
+			if ($blogid) {
 				$contentApi = new KContent_Api;
 				$contentApi->bSet(KContent_Api::BLOG_TITLE, $blogid, $title);
 				$contentApi->bSet(KContent_Api::BLOG_CONTENT, $blogid, $content);
@@ -36,16 +34,14 @@ class KBlog_Api extends Ko_Busi_Api
 		}
 		return 0;
 	}
-	
+
 	public function iUpdate($blogid, $title, $content)
 	{
 		$loginApi = new KUser_loginApi;
 		$uid = $loginApi->iGetLoginUid();
-		if ($uid)
-		{
+		if ($uid) {
 			$info = $this->blogDao->aGet($blogid);
-			if (!empty($info) && $uid == $info['uid'])
-			{
+			if (!empty($info) && $uid == $info['uid']) {
 				$contentApi = new KContent_Api;
 				$contentApi->bSet(KContent_Api::BLOG_TITLE, $blogid, $title);
 				$contentApi->bSet(KContent_Api::BLOG_CONTENT, $blogid, $content);
@@ -54,16 +50,49 @@ class KBlog_Api extends Ko_Busi_Api
 		}
 		return 0;
 	}
-	
+
 	public function iDelete($blogid)
 	{
 		$loginApi = new KUser_loginApi;
 		$uid = $loginApi->iGetLoginUid();
-		if ($uid)
-		{
+		if ($uid) {
 			$option = new Ko_Tool_SQL;
 			return $this->blogDao->iDelete($blogid, $option->oWhere('uid = ?', $uid));
 		}
 		return 0;
+	}
+
+	private function _sGetCover($content)
+	{
+		$offset = 0;
+		$storage = new KStorage_Api;
+		while (1) {
+			$url = $this->_sGetImageUrl($content, $offset);
+			if ('' === $url) {
+				break;
+			}
+			list($dest, $brief) = $storage->aParseUrl($url);
+			if ('' !== $dest) {
+				return $dest;
+			}
+		}
+		return '';
+	}
+
+	private function _sGetImageUrl($content, &$offset)
+	{
+		$spos = strpos($content, ' src=', $offset);
+		if (false === $spos) {
+			return '';
+		}
+		$quotes = substr($content, $spos + 5, 1);
+		if ('"' !== $quotes && "'" !== $quotes) {
+			return '';
+		}
+		$offset = strpos($content, $quotes, $spos + 6);
+		if (false === $offset) {
+			return '';
+		}
+		return substr($content, $spos + 6, $offset - $spos - 6);
 	}
 }
