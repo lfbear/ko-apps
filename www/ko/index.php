@@ -11,6 +11,17 @@ $bloglist = $blogApi->aGetAllList($offset, 10);
 $bloglist = Ko_Tool_Adapter::VConv($bloglist, array('list', array('hash', array(
 	'blogid' => 'int',
 	'uid' => array('user_baseinfo', array('logo32')),
+	'cover' => array('image_baseinfo', array('withsize' => true, 'briefCallback' => function ($info) {
+		if (isset($info['size'])) {
+			$ratio = $info['size']['width'] / $info['size']['height'];
+			if ($ratio >= 16 / 9) {
+				return 'imageView2/1/w/720/h/405';
+			} else if ($ratio <= 9 / 16) {
+				return 'imageView2/1/w/720/h/1280';
+			}
+		}
+		return 'imageView2/2/w/720/h/1280';
+	})),
 	'ctime' => 'string',
 	'mtime' => 'string',
 ))));
@@ -22,18 +33,14 @@ $render->oSetData('bloglist', $bloglist);
 
 $loginApi = new KUser_loginApi;
 $uid = $loginApi->iGetLoginUid();
-if ($uid && '' !== trim(Ko_Html_ImgParse::sParse($contentApi->sGetHtml(KContent_Api::USER_DRAFT, $uid))))
-{	//如果用户登录，并且有草稿
+if ($uid && '' !== trim(Ko_Html_ImgParse::sParse($contentApi->sGetHtml(KContent_Api::USER_DRAFT, $uid)))) {    //如果用户登录，并且有草稿
 	$htmlrender = new Ko_View_Render_HTML($contentApi);
 	$htmlrender->oSetData(KContent_Api::USER_DRAFT, $uid);
 	$render->oSetData('draft', $htmlrender);
-}
-else
-{
+} else {
 	$uuidApi = new KUser_uuidApi;
 	$draftid = $uuidApi->iGetId();
-	if ($draftid)
-	{
+	if ($draftid) {
 		$htmlrender = new Ko_View_Render_HTML($contentApi);
 		$htmlrender->oSetData(KContent_Api::UUID_DRAFT, $draftid);
 		$render->oSetData('draft', $htmlrender);
@@ -43,8 +50,7 @@ else
 Ko_Web_Response::VAppendBody($render);
 Ko_Web_Response::VSend();
 
-if ($uid && $draftid)
-{	//用户登录，并且没有草稿，将未登录用户的草稿转移为登录用户的草稿
+if ($uid && $draftid) {    //用户登录，并且没有草稿，将未登录用户的草稿转移为登录用户的草稿
 	$draft = $contentApi->sGetHtml(KContent_Api::UUID_DRAFT, $draftid);
 	$contentApi->bSet(KContent_Api::USER_DRAFT, $uid, $draft);
 	$contentApi->bSet(KContent_Api::UUID_DRAFT, $draftid, '');

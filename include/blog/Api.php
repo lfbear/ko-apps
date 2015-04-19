@@ -21,6 +21,7 @@ class KBlog_Api extends Ko_Busi_Api
 			$data = array(
 				'uid' => $uid,
 				'ctime' => date('Y-m-d H:i:s'),
+				'cover' => $this->_sGetCover($content),
 			);
 			$data['mtime'] = $data['ctime'];
 			$blogid = $this->blogDao->iInsert($data);

@@ -1,8 +1,24 @@
 
 {foreach $bloglist as $blog}
-<a href="/blog/{$blog.blogid}">{$bloghtml[3][$blog.blogid]}</a><br>
-<img src="{$blog.uid.logo32}">最后修改：{$blog.mtime|substr:0:16}<br>
-{$bloghtml[4][$blog.blogid]}
+{if strlen($blog.cover.brief)}
+    {if $blog.cover.size.width / $blog.cover.size.height >= 16 / 9}
+    <div style="background-image:url({$blog.cover.brief});background-repeat:no-repeat;background-size:cover;width:720px;height:405px;">
+    {else if $blog.cover.size.width / $blog.cover.size.height <= 9 / 16}
+    <div style="background-image:url({$blog.cover.brief});background-repeat:no-repeat;background-size:cover;width:720px;height:1280px;">
+    {else}
+    <div style="background-image:url({$blog.cover.brief});background-repeat:no-repeat;background-size:cover;width:720px;height:{intval(720 * $blog.cover.size.height / $blog.cover.size.width)}px;">
+    {/if}
+        <a href="/blog/{$blog.blogid}">{$bloghtml[3][$blog.blogid]}</a><br>
+        <img src="{$blog.uid.logo32}">最后修改：{$blog.mtime|substr:0:16}<br>
+        {$bloghtml[4][$blog.blogid]}
+    </div>
+{else}
+    <div style="width:720px;"
+        <a href="/blog/{$blog.blogid}">{$bloghtml[3][$blog.blogid]}</a><br>
+        <img src="{$blog.uid.logo32}">最后修改：{$blog.mtime|substr:0:16}<br>
+        {$bloghtml[4][$blog.blogid]}
+    </div>
+{/if}
 <hr>
 {/foreach}
 
