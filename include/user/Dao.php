@@ -14,20 +14,19 @@ class KUser_Dao extends Ko_Dao_Factory
 			'key' => 'uid',
 		),
 		'hashpass' => array(
-			'type' => 'db_one',
+			'type' => 'db_single',
 			'kind' => 'user_hashpass',
-			'split' => 'uid',
+			'key' => 'uid',
 		),
 		'varsalt' => array(
-			'type' => 'db_one',
+			'type' => 'db_single',
 			'kind' => 'user_varsalt',
-			'split' => 'uid',
+			'key' => 'uid',
 		),
 		'persistent' => array(
-			'type' => 'db_split',
+			'type' => 'db_single',
 			'kind' => 'user_cookie',
-			'split' => 'uid',
-			'key' => 'series',
+			'key' => array('uid', 'series'),
 		),
 		'changelog' => array(
 			'type' => 'db_single',

@@ -9,12 +9,9 @@ class KContent_Dao extends Ko_Dao_Factory
 			'key' => 'id',
 		),
 		'content' => array(
-			'type' => 'db_split',
+			'type' => 'db_single',
 			'kind' => 'common_content',
-			'split' => 'id',
-			'key' => 'aid',
-			'useuo' => true,
-			'uofields' => array('*'),
+			'key' => array('id', 'aid'),
 		),
 	);
 }
