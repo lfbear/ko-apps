@@ -1,0 +1,39 @@
+<div id="regloginform">
+    <div class="item">
+        填写注册信息
+    </div>
+    <div class="item">
+        <input placeholder="输入登录名称" class="username" type="text" value=""> <font color="red">* 只能使用字母，数字和下划线，4-16个字符</font>
+    </div>
+    <div class="item">
+        <input placeholder="设置密码" class="passwd" type="password" value=""> <font color="red">* 只能使用字母，数字和下划线，4-16个字符</font>
+    </div>
+    <div class="item">
+        <input placeholder="输入姓名或昵称" class="nickname" type="text" value="">
+    </div>
+    <div class="item">
+        <button id="btnOk">确认注册</button> <a href="login">直接登录</a>
+    </div>
+</div>
+
+{literal}
+<script language="JavaScript">
+    (function(){
+        $(document).ready(function() {
+            $('#regloginform .username').focus();
+        });
+        $('body').delegate('#btnOk', 'click', function(){
+            var username = $('#regloginform .username').val();
+            var passwd = $('#regloginform .passwd').val();
+            var nickname = $('#regloginform .nickname').val();
+            $.post('/blog/post', {'username':username, 'passwd':passwd, 'nickname':nickname}, function(data, status){
+                if (data.errno) {
+                    alert(data.error);
+                } else {
+                    alert('succ');
+                }
+            }, 'json');
+        });
+    })();
+</script>
+{/literal}

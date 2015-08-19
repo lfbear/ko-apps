@@ -2,18 +2,14 @@
 
 Ko_Web_Route::VGet('plupload', function()
 {
-	$render = new KRender_default;
-	$render->oSetTemplate('ko/test/plupload.html');
-	Ko_Web_Response::VAppendBody($render);
-	Ko_Web_Response::VSend();
+	$render = new KRender_ko;
+	$render->oSetTemplate('ko/test/plupload.html')->oSend();
 });
 
 Ko_Web_Route::VGet('tinymce', function()
 {
-	$render = new KRender_default;
-	$render->oSetTemplate('ko/test/tinymce.html');
-	Ko_Web_Response::VAppendBody($render);
-	Ko_Web_Response::VSend();
+	$render = new KRender_ko;
+	$render->oSetTemplate('ko/test/tinymce.html')->oSend();
 });
 
 Ko_Web_Route::VGet('push', function()
@@ -34,8 +30,6 @@ Ko_Web_Route::VGet('push', function()
 
 Ko_Web_Route::VGet('index', function()
 {
-	$render = new KRender_default;
-	$render->oSetTemplate('ko/test/index.html');
-	Ko_Web_Response::VAppendBody($render);
-	Ko_Web_Response::VSend();
+	$render = new KRender_ko;
+	$render->oSetTemplate('ko/test/index.html')->oSend();
 });

@@ -12,7 +12,7 @@ class KUser_loginApi extends Ko_Mode_User
 		'persistent' => 'persistent',
 		'persistent_strict' => false,
 	);
-	
+
 	public function iGetLoginUid(&$exinfo = '')
 	{
 		static $s_iUid;

@@ -20,13 +20,11 @@ Ko_Web_Route::VGet('item', function()
 	
 	$bloginfo['uid'] = Ko_Tool_Adapter::VConv($bloginfo['uid'], array('user_baseinfo', array('logo32')));
 	
-	$render = new KRender_default;
-	$render->oSetTemplate('ko/blog/item.html');
-	$render->oSetData('bloginfo', $bloginfo);
-	$render->oSetData('htmlinfo', $htmlrender);
-	
-	Ko_Web_Response::VAppendBody($render);
-	Ko_Web_Response::VSend();
+	$render = new KRender_ko;
+	$render->oSetTemplate('ko/blog/item.html')
+		->oSetData('bloginfo', $bloginfo)
+		->oSetData('htmlinfo', $htmlrender)
+		->oSend();
 });
 
 Ko_Web_Route::VPost('post', function()

@@ -2,7 +2,7 @@
 
 $offset = Ko_Web_Request::IGet('offset');
 
-$render = new KRender_default;
+$render = new KRender_ko;
 $render->oSetTemplate('ko/index.html');
 
 $contentApi = new KContent_Api;
@@ -47,8 +47,7 @@ if ($uid && '' !== trim(Ko_Html_ImgParse::sParse($contentApi->sGetHtml(KContent_
 	}
 }
 
-Ko_Web_Response::VAppendBody($render);
-Ko_Web_Response::VSend();
+$render->oSend();
 
 if ($uid && $draftid) {    //用户登录，并且没有草稿，将未登录用户的草稿转移为登录用户的草稿
 	$draft = $contentApi->sGetHtml(KContent_Api::UUID_DRAFT, $draftid);

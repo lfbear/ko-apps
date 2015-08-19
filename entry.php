@@ -1,6 +1,7 @@
 <?php
 
 define('MAIN_DOMAIN', 'zlog.cc');
+define('WWW_DOMAIN', 'www.'.MAIN_DOMAIN);
 define('KO_DOMAIN', 'ko.'.MAIN_DOMAIN);
 define('PASSPORT_DOMAIN', 'passport.'.MAIN_DOMAIN);
 define('XHPROF_DOMAIN', 'xhprof.'.MAIN_DOMAIN);
@@ -38,7 +39,7 @@ Ko_Web_Event::On('ko.config', 'after', function()
 	$appname = Ko_Web_Config::SGetAppName();
 	if ('' === $appname)
 	{
-		Ko_Web_Response::VSetRedirect('http://'.KO_DOMAIN);
+		Ko_Web_Response::VSetRedirect('http://'.WWW_DOMAIN);
 		Ko_Web_Response::VSend();
 		exit;
 	}
