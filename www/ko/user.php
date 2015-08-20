@@ -29,8 +29,6 @@ Ko_Web_Route::VPost('draft', function()
 			'error' => '保存失败',
 		);
 	}
-	$render = new Ko_View_Render_JSON;
-	$render->oSetData($data);
-	Ko_Web_Response::VAppendBody($render);
-	Ko_Web_Response::VSend();
+	$render = new KRender_json;
+	$render->oSetData($data)->oSend();
 });

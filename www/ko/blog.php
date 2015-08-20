@@ -48,8 +48,6 @@ Ko_Web_Route::VPost('post', function()
 			'error' => '请登录后在提交数据',
 		);
 	}
-	$render = new Ko_View_Render_JSON;
-	$render->oSetData($data);
-	Ko_Web_Response::VAppendBody($render);
-	Ko_Web_Response::VSend();
+	$render = new KRender_json;
+	$render->oSetData($data)->oSend();
 });

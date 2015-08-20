@@ -28,6 +28,16 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 		}
 		return $newdatalist;
 	}
+
+	public function bUpdateNickname($uid, $nickname)
+	{
+		$data = array(
+			'uid' => $uid,
+			'nickname' => $nickname,
+		);
+		$this->aInsert($data, $data);
+		return true;
+	}
 	
 	public function bUpdateOauth2info($uid, $userinfo)
 	{

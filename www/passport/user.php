@@ -20,9 +20,8 @@ Ko_Web_Route::VGet('reg', function()
 	$render->oSetTemplate('passport/user/reg.html')->oSend();
 });
 
-Ko_Web_Route::VPost('reg', function()
+Ko_Web_Route::VGet('logo', function()
 {
-	$username = Ko_Web_Request::SPost('username');
-	$passwd = Ko_Web_Request::SPost('passwd');
-	$nickname = Ko_Web_Request::SPost('nickname');
+	$render = new KRender_passport();
+	$render->oSetTemplate('passport/user/logo.html')->oSend();
 });
