@@ -19,6 +19,16 @@ class KRest_Api extends Ko_Mode_Rest
 				),
 			),
 		),
+		'image' => array(
+			'urilist' => array(
+				'item' => array(
+					'unique' => 'string',
+					'stylelist' => array(
+						'default' => 'string',
+					),
+				),
+			),
+		),
 	);
 
 	protected function _sGetClassname($sModule, $sResource)

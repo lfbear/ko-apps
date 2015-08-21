@@ -2,6 +2,7 @@
     <div class="item">
         上传头像
     </div>
+    <div id="logodiv" style="width: 600px;height: 600px;text-align: center;background-color: #B0C4DE;line-height: 600px;overflow: hidden;">点击选择图片<div id="logoimgdiv" style="position: absolute;top:0px;left: 0px;"></div></div>
     <div class="item">
         <button id="btnOk">确认上传</button> <a href="http://{$WWW_DOMAIN}">跳过</a>
     </div>
@@ -10,6 +11,52 @@
 {literal}
 <script language="JavaScript">
     (function(){
+        $(document).ready(function() {
+            var state = 0;
+            var uploader = new plupload.Uploader({
+                browse_button: 'logodiv',
+                url: '/rest/image/item/',
+                multi_selection: false,
+                multipart_params: {after_style: 'default', after_decorate: 'imageView2/3/w/600/h/600'},
+                filters: {
+                    mime_types: [{title: '图片文件', extensions: 'jpg,gif,png'}],
+                    max_file_size: '50mb'
+                },
+                init: {
+                    FilesAdded: function(up, files) {
+                        uploader.disableBrowse(true);
+                        uploader.start();
+                    },
+                    FileUploaded: function(up, file, info) {
+                        eval('var data = ' + info.response);
+                        if (data.errno)
+                        {
+                            alert(data.error);
+                            uploader.disableBrowse(false);
+                        }
+                        else
+                        {
+                            $('#logoimgdiv').html('<img id="logoimg" src="' + data.data.after + '">');
+                        }
+                    },
+                    UploadComplete: function(up, files) {
+                        plupload.each(files, function(file) {
+                            uploader.removeFile(file);
+                        });
+                    },
+                    Error: function(up, err) {
+                        alert("Error #" + err.code + ": " + err.message + "\n");
+                    }
+                }
+            });
+            uploader.init();
+        });
+        $('body').delegate('#logoimg', 'mousedown', function(){
+            alert('down');
+        });
+        $('body').delegate('#logoimg', 'mouseup', function(){
+            alert('up');
+        });
     })();
 </script>
 {/literal}
