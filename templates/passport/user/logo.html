@@ -2,9 +2,11 @@
     <div class="item">
         上传头像
     </div>
-    <div id="logodiv" style="width: 600px;height: 600px;text-align: center;background-color: #B0C4DE;line-height: 600px;overflow: hidden;">点击选择图片<div id="logoimgdiv" style="position: absolute;top:0px;left: 0px;"></div></div>
+    <div id="logodiv" style="width:400px;height:400px;line-height:400px;text-align:center;background-color:#B0C4DE;overflow:hidden;">
+        点击选择图片
+    </div>
     <div class="item">
-        <button id="btnOk">确认上传</button> <a href="http://{$WWW_DOMAIN}">跳过</a>
+        <button id="btnOk">确认上传</button> <button id="btnReset">重新上传图片</button> </button><a href="http://{$WWW_DOMAIN}">跳过</a>
     </div>
 </div>
 
@@ -12,50 +14,188 @@
 <script language="JavaScript">
     (function(){
         $(document).ready(function() {
-            var state = 0;
-            var uploader = new plupload.Uploader({
-                browse_button: 'logodiv',
+            var uploaderConfig = {
                 url: '/rest/image/item/',
                 multi_selection: false,
-                multipart_params: {after_style: 'default', after_decorate: 'imageView2/3/w/600/h/600'},
+                multipart_params: {after_style: 'default', after_decorate: 'imageView2/3/w/400/h/400'},
                 filters: {
                     mime_types: [{title: '图片文件', extensions: 'jpg,gif,png'}],
                     max_file_size: '50mb'
                 },
                 init: {
-                    FilesAdded: function(up, files) {
-                        uploader.disableBrowse(true);
-                        uploader.start();
+                    FilesAdded: function (up, files) {
+                        $('#logodiv').html('');
+                        divUploader.disableBrowse(true);
+                        up.start();
                     },
-                    FileUploaded: function(up, file, info) {
+                    UploadProgress: function (up, file) {
+                        $('#logodiv').html(file.percent + '%');
+                    },
+                    FileUploaded: function (up, file, info) {
                         eval('var data = ' + info.response);
-                        if (data.errno)
-                        {
+                        if (data.errno) {
                             alert(data.error);
-                            uploader.disableBrowse(false);
+                            divUploader.disableBrowse(false);
                         }
-                        else
-                        {
-                            $('#logoimgdiv').html('<img id="logoimg" src="' + data.data.after + '">');
+                        else {
+                            $('#logodiv').html('<img id="logoimg" data-id="' + data.data.key + '" src="' + data.data.after + '" draggable="false" style="position:absolute;top:0px;left:0px;">');
+                            $('#logoimg').load(function () {
+                                initSelImage();
+                            });
                         }
                     },
-                    UploadComplete: function(up, files) {
-                        plupload.each(files, function(file) {
-                            uploader.removeFile(file);
+                    UploadComplete: function (up, files) {
+                        plupload.each(files, function (file) {
+                            up.removeFile(file);
                         });
                     },
-                    Error: function(up, err) {
+                    Error: function (up, err) {
                         alert("Error #" + err.code + ": " + err.message + "\n");
+                        divUploader.disableBrowse(false);
                     }
                 }
+            };
+
+            var divUploaderConfig = uploaderConfig;
+            divUploaderConfig.browse_button = 'logodiv';
+            var divUploader = new plupload.Uploader(divUploaderConfig);
+            divUploader.init();
+
+            var btnUploaderConfig = uploaderConfig;
+            btnUploaderConfig.browse_button = 'btnReset';
+            var btnUploader = new plupload.Uploader(btnUploaderConfig);
+            btnUploader.init();
+
+            $('body').delegate('#btnOk', 'click', function (e) {
+                if (!$('#logoimg').length) {
+                    alert('请先选择图片');
+                } else {
+                    var fileid = $('#logoimg').data('id');
+                    var width = $('#logoimg').width();
+                    var height = $('#logoimg').height();
+                    var left = 0 - parseInt($('#logoimg').css('left'));
+                    var top = 0 - parseInt($('#logoimg').css('top'));
+                    var w = $('#logodiv').width();
+                    var h = $('#logodiv').height();
+
+                    $.post('/rest/user/logo/', {
+                        'update': {
+                            'fileid': fileid,
+                            'width': width,
+                            'height': height,
+                            'left': left,
+                            'top': top,
+                            'w': w,
+                            'h': h
+                        }
+                    }, function (data, status) {
+                        if (data.errno) {
+                            alert(data.error);
+                        } else {
+                            window.location.href = 'http://' + $('#globaldata').data('wwwdomain');
+                        }
+                    }, 'json');
+                }
             });
-            uploader.init();
-        });
-        $('body').delegate('#logoimg', 'mousedown', function(){
-            alert('down');
-        });
-        $('body').delegate('#logoimg', 'mouseup', function(){
-            alert('up');
+
+            var mousedown = false;
+            var startx = 0;
+            var starty = 0;
+            var startimgleft = 0;
+            var startimgtop = 0;
+            var isBindImgEvent = false;
+
+            function initSelImage() {
+                var initWidth = $('#logoimg').width();
+                var initHeight = $('#logoimg').height();
+                if (initWidth < $('#logodiv').width()) {
+                    initHeight *= $('#logodiv').width() / initWidth;
+                    initWidth = $('#logodiv').width();
+                }
+                if (initHeight < $('#logodiv').height()) {
+                    initWidth *= $('#logodiv').height() / initHeight;
+                    initHeight = $('#logodiv').height();
+                }
+                $('#logoimg').width(initWidth).height(initHeight);
+
+                if (!isBindImgEvent) {
+                    isBindImgEvent = true;
+                    bindImgEvent();
+                }
+            }
+
+            function bindImgEvent() {
+                $('body').delegate('#logodiv', 'mousedown', function (e) {
+                    mousedown = true;
+                    startx = e.pageX;
+                    starty = e.pageY;
+                    startimgleft = parseInt($('#logoimg').css('left'));
+                    startimgtop = parseInt($('#logoimg').css('top'));
+                });
+                $('body').delegate('#logodiv', 'mousemove', function (e) {
+                    if (mousedown) {
+                        var imgleft = startimgleft + e.pageX - startx;
+                        var imgtop = startimgtop + e.pageY - starty;
+                        if (imgleft > 0) {
+                            imgleft = 0;
+                        } else if (imgleft + $('#logoimg').width() < $('#logodiv').width()) {
+                            imgleft = $('#logodiv').width() - $('#logoimg').width();
+                        }
+                        if (imgtop > 0) {
+                            imgtop = 0;
+                        } else if (imgtop + $('#logoimg').height() < $('#logodiv').height()) {
+                            imgtop = $('#logodiv').height() - $('#logoimg').height();
+                        }
+                        $('#logoimg').css('left', imgleft + 'px').css('top', imgtop + 'px');
+                    }
+                });
+                $('body').delegate('#logodiv', 'mouseup', function (e) {
+                    mousedown = false;
+                });
+                $('body').delegate('#logodiv', 'mouseenter', function (e) {
+                    console.log('123');
+                    mousedown = false;
+                });
+                $('body').delegate('#logodiv', 'mouseleave', function (e) {
+                    mousedown = false;
+                });
+                $('body').delegate('#logodiv', 'mousewheel', function (e, delta) {
+                    var zoom = 1.0;
+                    if (e.originalEvent.wheelDelta > 0) {
+                        zoom *= 1.1;
+                    } else {
+                        zoom /= 1.1;
+                    }
+
+                    if ($('#logoimg').width() * zoom < $('#logodiv').width()) {
+                        zoom = $('#logodiv').width() / $('#logoimg').width();
+                    }
+                    if ($('#logoimg').height() * zoom < $('#logodiv').height()) {
+                        zoom = $('#logodiv').height() / $('#logoimg').height();
+                    }
+                    var width = $('#logoimg').width() * zoom;
+                    var height = $('#logoimg').height() * zoom;
+
+                    var offsetX = e.offsetX + e.target.offsetLeft;
+                    var offsetY = e.offsetY + e.target.offsetTop;
+
+                    var left = offsetX - (offsetX - parseInt($('#logoimg').css('left'))) * zoom;
+                    if (left > 0) {
+                        left = 0;
+                    } else if (left + width < $('#logodiv').width()) {
+                        left = $('#logodiv').width() - width;
+                    }
+                    var top = offsetY - (offsetY - parseInt($('#logoimg').css('top'))) * zoom;
+                    if (top > 0) {
+                        top = 0;
+                    } else if (top + height < $('#logodiv').height()) {
+                        top = $('#logodiv').height() - height;
+                    }
+
+                    $('#logoimg').width(width).height(height)
+                            .css('left', left + 'px').css('top', top + 'px');
+                });
+            }
         });
     })();
 </script>

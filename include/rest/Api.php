@@ -17,6 +17,12 @@ class KRest_Api extends Ko_Mode_Rest
 						),
 					),
 				),
+				'logo' => array(
+					'unique' => 'string',
+					'stylelist' => array(
+						'default' => 'string',
+					),
+				),
 			),
 		),
 		'image' => array(

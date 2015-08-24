@@ -38,6 +38,16 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 		$this->aInsert($data, $data);
 		return true;
 	}
+
+	public function bUpdateLogo($uid, $logo)
+	{
+		$data = array(
+			'uid' => $uid,
+			'logo' => $logo,
+		);
+		$this->aInsert($data, $data);
+		return true;
+	}
 	
 	public function bUpdateOauth2info($uid, $userinfo)
 	{
