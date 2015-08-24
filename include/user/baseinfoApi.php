@@ -31,39 +31,45 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 
 	public function bUpdateNickname($uid, $nickname)
 	{
-		$data = array(
-			'uid' => $uid,
-			'nickname' => $nickname,
-		);
-		$this->aInsert($data, $data);
+		if ($uid) {
+			$data = array(
+				'uid' => $uid,
+				'nickname' => $nickname,
+			);
+			$this->aInsert($data, $data);
+		}
 		return true;
 	}
 
 	public function bUpdateLogo($uid, $logo)
 	{
-		$data = array(
-			'uid' => $uid,
-			'logo' => $logo,
-		);
-		$this->aInsert($data, $data);
+		if ($uid) {
+			$data = array(
+				'uid' => $uid,
+				'logo' => $logo,
+			);
+			$this->aInsert($data, $data);
+		}
 		return true;
 	}
 	
 	public function bUpdateOauth2info($uid, $userinfo)
 	{
-		$data = array(
-			'uid' => $uid,
-			'nickname' => $userinfo['nickname'],
-		);
-		if (strlen($userinfo['logo']))
-		{
-			$api = new KStorage_Api;
-			if ($api->bWebUrl2Storage($userinfo['logo'], $logo))
+		if ($uid) {
+			$data = array(
+				'uid' => $uid,
+				'nickname' => $userinfo['nickname'],
+			);
+			if (strlen($userinfo['logo']))
 			{
-				$data['logo'] = $logo;
+				$api = new KStorage_Api;
+				if ($api->bWebUrl2Storage($userinfo['logo'], $logo))
+				{
+					$data['logo'] = $logo;
+				}
 			}
+			$this->aInsert($data, $data);
 		}
-		$this->aInsert($data, $data);
 		return true;
 	}
 	
@@ -75,13 +81,16 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 			switch($more)
 			{
 			case 'logo16':
-				$info['logo16'] = $api->sGetUrl($info['logo'], 'imageView2/1/w/16');
+				$info['logo16'] = ('' === $info['logo'])
+					? 'http://'.IMG_DOMAIN.'/logo/16.png' : $api->sGetUrl($info['logo'], 'imageView2/1/w/16');
 				break;
 			case 'logo32':
-				$info['logo32'] = $api->sGetUrl($info['logo'], 'imageView2/1/w/32');
+				$info['logo32'] = ('' === $info['logo'])
+					? 'http://'.IMG_DOMAIN.'/logo/32.png' : $api->sGetUrl($info['logo'], 'imageView2/1/w/32');
 				break;
 			case 'logo48':
-				$info['logo48'] = $api->sGetUrl($info['logo'], 'imageView2/1/w/48');
+				$info['logo48'] = ('' === $info['logo'])
+					? 'http://'.IMG_DOMAIN.'/logo/48.png' : $api->sGetUrl($info['logo'], 'imageView2/1/w/48');
 				break;
 			}
 		}

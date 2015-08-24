@@ -1,16 +1,35 @@
 <div id="regloginform">
-    <form action="/user/login" method="POST">
-        <div class="item">
-            填写登录信息
-        </div>
-        <div class="item">
-            <input placeholder="输入登录名称" name="username" type="text" value="">
-        </div>
-        <div class="item">
-            <input placeholder="输入密码" name="passwd" type="password" value="">
-        </div>
-        <div class="item">
-            <button>确认登录</button> <a href="reg">注册新用户</a>
-        </div>
-    </form>
+    <div class="item">
+        填写登录信息
+    </div>
+    <div class="item">
+        <input placeholder="输入登录名称" class="username" type="text" value="">
+    </div>
+    <div class="item">
+        <input placeholder="输入密码" class="passwd" type="password" value="">
+    </div>
+    <div class="item">
+        <button id="btnOk">确认登录</button> <a href="reg">还没有账户，注册新用户</a>
+    </div>
 </div>
+
+{literal}
+<script language="JavaScript">
+    (function(){
+        $(document).ready(function() {
+            $('#regloginform .username').focus();
+        });
+        $('body').delegate('#btnOk', 'click', function(){
+            var username = $('#regloginform .username').val();
+            var passwd = $('#regloginform .passwd').val();
+            $.post('/rest/user/login/', {'update':{'username':username, 'passwd':passwd}}, function(data, status){
+                if (data.errno) {
+                    alert(data.error);
+                } else {
+                    window.location.href = 'http://' + $('#globaldata').data('wwwdomain');
+                }
+            }, 'json');
+        });
+    })();
+</script>
+{/literal}

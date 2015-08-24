@@ -23,7 +23,13 @@ class KRest_Api extends Ko_Mode_Rest
 						'default' => 'string',
 					),
 				),
-			),
+				'login' => array(
+					'unique' => 'int',
+					'stylelist' => array(
+						'default' => 'int',
+					),
+				),
+ 			),
 		),
 		'image' => array(
 			'urilist' => array(
@@ -52,10 +58,10 @@ class KRest_Api extends Ko_Mode_Rest
 	public function run()
 	{
 		$uri = Ko_Web_Request::SGet('uri');
-		$method = Ko_Web_Request::SGet('method');
 		$req_method = Ko_Web_Request::SRequestMethod(true);
 		if ('POST' === $req_method)
 		{
+			$method = Ko_Web_Request::SPost('method');
 			if ('PUT' === $method || 'DELETE' === $method)
 			{
 				$req_method = $method;

@@ -8,8 +8,12 @@
     <script src="http://{$IMG_DOMAIN}/js/jquery-1.11.2.min.js"></script>
 </head>
 <body>
+<div id="globaldata" style="display:none;"
+     data-wwwdomain="{$WWW_DOMAIN}"
+     data-passportdomain="{$PASSPORT_DOMAIN}"
+     data-uid="{$baseinfo.uid}">
+</div>
 <header>
-    <form action="http://{$PASSPORT_DOMAIN}/user/logout" method="POST" id="logoutform"></form>
     {if $baseinfo.uid}
     <span>{$baseinfo.nickname}</span> <img src="{$baseinfo.logo32}" title="{$baseinfo.uid}"> <a href="javascript:;" id="logoutlink">退出</a>
     {else}

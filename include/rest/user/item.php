@@ -2,12 +2,6 @@
 
 class KRest_User_item
 {
-	public function get($id, $style = null)
-	{
-		$api = new KUser_baseinfoApi;
-		return $api->aGet($id);
-	}
-
 	public function post($update, $after = null)
 	{
 		if (!preg_match('/^[_0-9a-z]{4,16}$/i', $update['username']))
