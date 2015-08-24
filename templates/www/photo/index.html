@@ -1,0 +1,44 @@
+<button id="btnAdd">添加照片</button>
+{literal}
+<script language="JavaScript">
+    (function(){
+        $(document).ready(function() {
+            var uploaderConfig = {
+                url: '/rest/image/item/',
+                multi_selection: true,
+                multipart_params: {after_style: 'default', after_decorate: 'imageView2/3/w/400/h/400'},
+                filters: {
+                    mime_types: [{title: '图片文件', extensions: 'jpg,gif,png'}],
+                    max_file_size: '50mb'
+                },
+                init: {
+                    FilesAdded: function (up, files) {
+                    },
+                    UploadProgress: function (up, file) {
+                    },
+                    FileUploaded: function (up, file, info) {
+                        eval('var data = ' + info.response);
+                        if (data.errno) {
+                            alert(data.error);
+                        }
+                        else {
+                        }
+                    },
+                    UploadComplete: function (up, files) {
+                        plupload.each(files, function (file) {
+                        });
+                    },
+                    Error: function (up, err) {
+                        alert("Error #" + err.code + ": " + err.message + "\n");
+                    }
+                }
+            };
+
+            var btnUploaderConfig = uploaderConfig;
+            btnUploaderConfig.browse_button = 'btnAdd';
+            var btnUploader = new plupload.Uploader(btnUploaderConfig);
+            btnUploader.init();
+        });
+    })();
+</script>
+{/literal}
