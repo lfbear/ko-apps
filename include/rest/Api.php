@@ -2,47 +2,6 @@
 
 class KRest_Api extends Ko_Mode_Rest
 {
-	protected $_aConf = array(
-		'user' => array(
-			'urilist' => array(
-				'item' => array(
-					'unique' => 'int',
-					'stylelist' => array(
-						'default' => array(
-							'hash', array(
-								'uid' => 'int',
-								'nickname' => 'string',
-								'logo' => 'string',
-							),
-						),
-					),
-				),
-				'logo' => array(
-					'unique' => 'string',
-					'stylelist' => array(
-						'default' => 'string',
-					),
-				),
-				'login' => array(
-					'unique' => 'int',
-					'stylelist' => array(
-						'default' => 'int',
-					),
-				),
- 			),
-		),
-		'image' => array(
-			'urilist' => array(
-				'item' => array(
-					'unique' => 'string',
-					'stylelist' => array(
-						'default' => 'string',
-					),
-				),
-			),
-		),
-	);
-
 	protected function _sGetClassname($sModule, $sResource)
 	{
 		$item = explode('/', $sModule);
@@ -53,6 +12,16 @@ class KRest_Api extends Ko_Mode_Rest
 		}
 		$classname .= $sResource;
 		return $classname;
+	}
+
+	protected function _aLoadConf($sModule, $sResource)
+	{
+		$classname = $this->_sGetClassname($sModule, $sResource);
+		if (!class_exists($classname) || !isset($classname::$s_aConf))
+		{
+			throw new Exception('资源不存在', self::ERROR_RESOURCE_INVALID);
+		}
+		return $classname::$s_aConf;
 	}
 
 	public function run()

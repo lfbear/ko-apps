@@ -2,6 +2,19 @@
 
 class KRest_User_login
 {
+	public static $s_aConf = array(
+		'unique' => 'int',
+		'stylelist' => array(
+			'default' => 'int',
+		),
+		'poststylelist' => array(
+			'default' => array('hash', array(
+				'username' => 'string',
+				'passwd' => 'string',
+			)),
+		),
+	);
+
 	public function post($update, $after = null)
 	{
 		$api = new KUser_loginApi();

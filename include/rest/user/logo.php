@@ -2,6 +2,24 @@
 
 class KRest_User_logo
 {
+	public static $s_aConf = array(
+		'unique' => 'string',
+		'stylelist' => array(
+			'default' => 'string',
+		),
+		'poststylelist' => array(
+			'default' => array('hash', array(
+				'fileid' => 'string',
+				'width' => 'int',
+				'height' => 'int',
+				'left' => 'int',
+				'top' => 'int',
+				'w' => 'int',
+				'h' => 'int',
+			)),
+		),
+	);
+
 	public function post($update, $after = null)
 	{
 		$api = new KStorage_Api;

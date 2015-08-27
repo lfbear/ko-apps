@@ -2,6 +2,26 @@
 
 class KRest_User_item
 {
+	public static $s_aConf = array(
+		'unique' => 'int',
+		'stylelist' => array(
+			'default' => array(
+				'hash', array(
+					'uid' => 'int',
+					'nickname' => 'string',
+					'logo' => 'string',
+				),
+			),
+		),
+		'poststylelist' => array(
+			'default' => array('hash', array(
+				'username' => 'string',
+				'passwd' => 'string',
+				'nickname' => 'string',
+			)),
+		),
+	);
+
 	public function post($update, $after = null)
 	{
 		if (!preg_match('/^[_0-9a-z]{4,16}$/i', $update['username']))

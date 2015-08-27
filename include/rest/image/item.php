@@ -2,6 +2,16 @@
 
 class KRest_Image_item
 {
+	public static $s_aConf = array(
+		'unique' => 'string',
+		'stylelist' => array(
+			'default' => 'string',
+		),
+		'poststylelist' => array(
+			'default' => 'any',
+		),
+	);
+
 	public function post($update, $after = null)
 	{
 		$file = Ko_Web_Request::AFile('file');
