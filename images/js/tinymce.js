@@ -118,7 +118,7 @@
 							img.load(file.getSource());
 						}
 					});
-					uploader.start();
+					up.start();
 					editor.setProgressState(true);
 				},
 				FileUploaded: function(up, file, info) {
@@ -131,7 +131,7 @@
 				},
 				UploadComplete: function(up, files) {
 					editor.setProgressState(false);
-					uploader.destroy();
+					up.destroy();
 					initplupload(editor);
 				},
 				Error: function(up, err) {

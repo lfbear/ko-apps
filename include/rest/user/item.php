@@ -48,8 +48,10 @@ class KRest_User_item
 			}
 			throw new Exception('注册失败', 4);
 		}
+
 		$baseinfoApi = new KUser_baseinfoApi;
 		$baseinfoApi->bUpdateNickname($uid, $update['nickname']);
+
 		$loginApi->vSetLoginUid($uid, 'reg');
 		return array('key' => $uid);
 	}

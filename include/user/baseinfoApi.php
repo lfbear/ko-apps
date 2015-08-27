@@ -18,11 +18,14 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 			$uids[] = $v[0];
 		}
 		$infos = Ko_Tool_Singleton::OInstance('KUser_baseinfoApi')->aGetListByKeys($uids);
+		$contentApi = new KContent_Api;
+		$nicknames = $contentApi->aGetText(KContent_Api::USER_NICKNAME, $uids);
 		foreach ($datalist as $k => $v)
 		{
 			$newdatalist[$k] = isset($infos[$v[0]]) ? $infos[$v[0]] : array();
 			if (!empty($newdatalist[$k]))
 			{
+				$newdatalist[$k]['nickname'] = $nicknames[$v[0]];
 				self::_VFillMoreInfo($newdatalist[$k], $v[1]);
 			}
 		}
@@ -34,9 +37,10 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 		if ($uid) {
 			$data = array(
 				'uid' => $uid,
-				'nickname' => $nickname,
 			);
 			$this->aInsert($data, $data);
+			$contentApi = new KContent_Api;
+			$contentApi->bSet(KContent_Api::USER_NICKNAME, $uid, $nickname);
 		}
 		return true;
 	}
@@ -58,7 +62,6 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 		if ($uid) {
 			$data = array(
 				'uid' => $uid,
-				'nickname' => $userinfo['nickname'],
 			);
 			if (strlen($userinfo['logo']))
 			{
@@ -69,6 +72,8 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 				}
 			}
 			$this->aInsert($data, $data);
+			$contentApi = new KContent_Api;
+			$contentApi->bSet(KContent_Api::USER_NICKNAME, $uid, $userinfo['nickname']);
 		}
 		return true;
 	}

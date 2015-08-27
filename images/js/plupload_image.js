@@ -8,15 +8,15 @@
 				max_file_size: '50mb'
 			},
 			init: {
-				PostInit: function() {
+				PostInit: function(up) {
 					$('#plupload_filelist').html('');
 					$('body').delegate('#plupload_upload', 'click', function(){
-						uploader.start();
+						up.start();
 						return false;
 					});
 					$('body').delegate('#plupload_filelist b', 'click', function(){
 						var fileid = $(this).closest('div').attr('id');
-						uploader.removeFile(fileid);
+						up.removeFile(fileid);
 					});
 				},
 				FilesAdded: function(up, files) {

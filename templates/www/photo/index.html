@@ -8,7 +8,7 @@
         $(document).ready(function() {
             var uploaderConfig = {
                 browse_button: 'btnAdd',
-                url: '/rest/image/item/',
+                url: '/rest/photo/item/',
                 multi_selection: true,
                 multipart_params: {after_style: 'default', after_decorate: 'imageView2/3/w/400/h/400'},
                 filters: {
@@ -16,21 +16,20 @@
                     max_file_size: '50mb'
                 },
                 init: {
-                    PostInit: function() {
-                        $('#plupload_filelist').html('');
+                    PostInit: function(up) {
                         $('body').delegate('#photolist b', 'click', function(){
                             var fileid = $(this).closest('div').attr('id');
-                            btnUploader.removeFile(fileid);
+                            up.removeFile(fileid);
                         });
                     },
                     FilesAdded: function (up, files) {
                         plupload.each(files, function(file) {
                             $('#photolist').html($('#photolist').html()
-                                    + '<div id="' + file.id + '">' + file.name + '(' + plupload.formatSize(file.size) + ')<b>x</b><span></span></div>');
+                                    + '<div id="' + file.id + '">' + file.name + '(' + plupload.formatSize(file.size) + ')<b>x</b><span class="image"></span><span class="progress"></span></div>');
                             if ('image/gif' == file.type) {
                                 var img = new mOxie.FileReader();
                                 img.onload = function() {
-                                    $('#photolist [id=' + file.id + '] span').html('<img class="preview" src="' + img.result + '" width="100px" height="100px">');
+                                    $('#photolist [id=' + file.id + '] .image').html('<img class="preview" src="' + img.result + '" width="100px" height="100px">');
                                     img.destroy();
                                     img = null;
                                 };
@@ -50,13 +49,14 @@
                                         }
                                         img.downsize(width, height);
                                     }
-                                    $('#photolist [id=' + file.id + '] span').html('<img class="preview" src="' + img.getAsDataURL() + '" width="' + width + 'px" height="' + height + 'px">');
+                                    $('#photolist [id=' + file.id + '] .image').html('<img class="preview" src="' + img.getAsDataURL() + '" width="' + width + 'px" height="' + height + 'px">');
                                     img.destroy();
                                     img = null;
                                 };
                                 img.load(file.getSource());
                             }
                         });
+                        up.start();
                     },
                     FilesRemoved: function(up, files) {
                         plupload.each(files, function(file) {
@@ -64,13 +64,13 @@
                         });
                     },
                     UploadProgress: function (up, file) {
+                        $('#photolist').find('[id=' + file.id + '] .progress').html(file.percent + '%');
                     },
                     FileUploaded: function (up, file, info) {
                         eval('var data = ' + info.response);
                         if (data.errno) {
                             alert(data.error);
-                        }
-                        else {
+                        } else {
                         }
                     },
                     UploadComplete: function (up, files) {
