@@ -30,6 +30,14 @@ class KPhoto_Api extends Ko_Busi_Api
 		if ($photoid && strlen($title)) {
 			$contentApi = new KContent_Api();
 			$contentApi->bSet(KContent_Api::PHOTO_TITLE, $photoid, $title);
+
+			$key = compact('uid', 'albumid');
+			$album = $this->albumDao->aGet($key);
+			$update = array();
+			if (empty($album['cover'])) {
+				$update = array('cover' => $image);
+			}
+			$this->albumDao->iUpdate($key, $update, array('pcount' => 1));
 		}
 		return $photoid;
 	}

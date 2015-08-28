@@ -11,12 +11,12 @@ class KPhoto_Dao extends Ko_Dao_Factory
 		'album' => array(
 			'type' => 'db_single',
 			'kind' => 'photo_album',
-			'key' => array('uid', 'albumid'),
+			'key' => array('albumid', 'uid'),
 		),
 		'photo' => array(
 			'type' => 'db_single',
 			'kind' => 'photo_list',
-			'key' => array('albumid', 'photoid'),
+			'key' => array('photoid', 'albumid'),
 		),
 	);
 }
