@@ -1,0 +1,30 @@
+
+<div data-albumid="{$albuminfo.albumid}" id="albuminfo">
+{$albuminfo.title} - {$albuminfo.intro}
+</div>
+{foreach $photolist as $photo}
+<div data-photoid="{$photo.photoid}">
+{$photo.photoid} - <img src="{$photo.image}"> - {$photo.ctime} - {$photo.title} - <a href="javascript:;" class="delPhoto">删除</a>
+</div>
+{/foreach}
+
+{literal}
+<script language="JavaScript">
+    (function(){
+        $('body').delegate('.delPhoto', 'click', function(){
+            var root = $(this).closest('div');
+            var albumid = $('#albuminfo').data('albumid');
+            var photoid = root.data('photoid');
+            if (confirm('确认要删除该照片吗？')) {
+                $.post('/rest/photo/item/' + albumid + '_' + photoid, {'method':'DELETE'}, function(data, status){
+                    if (data.errno) {
+                        alert(data.error);
+                    } else {
+                        root.remove();
+                    }
+                }, 'json');
+            }
+        });
+    })();
+</script>
+{/literal}

@@ -1,0 +1,54 @@
+
+<button id="btnShowAddAlbum">添加相册</button>
+<div id="addalbumdiv" class="hide">
+    <input type="text" value="" id="addalbumtitle" placeholder="相册标题"><br>
+    <textarea id="addalbumintro" rows="5" cols="100" placeholder="相册说明"></textarea>
+    <br>
+    <button id="btnOkAddAlbum">确定</button>
+    <button id="btnCancelAddAlbum">取消</button>
+</div>
+<hr>
+
+{foreach $albumlist as $album}
+<div data-albumid="{$album.albumid}">
+{$album.albumid} - {$album.ctime} - <img src="{$album.cover}"> - {$album.pcount} - <a href="album?uid={$uid}&albumid={$album.albumid}">{$album.title}</a> - {$album.intro} - <a href="javascript:;" class="delAlbum">删除</a>
+</div>
+{/foreach}
+
+{literal}
+<script language="JavaScript">
+    (function(){
+        $('body').delegate('#btnShowAddAlbum', 'click', function(){
+            $('#addalbumdiv').show();
+        });
+        $('body').delegate('#btnCancelAddAlbum', 'click', function(){
+            $('#addalbumdiv').hide();
+        });
+        $('body').delegate('#btnOkAddAlbum', 'click', function(){
+            var title = $('#addalbumtitle').val();
+            var intro = $('#addalbumintro').val();
+            $.post('/rest/photo/album/', {'update':{'title':title, 'intro':intro}}, function(data, status){
+                if (data.errno) {
+                    alert(data.error);
+                } else {
+                    window.location.reload();
+                }
+            }, 'json');
+        });
+        $('body').delegate('.delAlbum', 'click', function(){
+            var root = $(this).closest('div');
+            var uid = $('#globaldata').data('uid');
+            var albumid = root.data('albumid');
+            if (confirm('确认要删除该相册吗？')) {
+                $.post('/rest/photo/album/' + uid + '_' + albumid, {'method':'DELETE'}, function(data, status){
+                    if (data.errno) {
+                        alert(data.error);
+                    } else {
+                        root.remove();
+                    }
+                }, 'json');
+            }
+        });
+    })();
+</script>
+{/literal}
