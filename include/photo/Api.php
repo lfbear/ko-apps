@@ -2,15 +2,47 @@
 
 class KPhoto_Api extends Ko_Busi_Api
 {
-	public function getPhotoInfo($albumid, $photoid)
+	public function getPhotoInfo($uid, $photoid)
 	{
-		$photokey = compact('albumid', 'photoid');
+		$photokey = compact('uid', 'photoid');
 		$info = $this->photoDao->aGet($photokey);
 		if (!empty($info)) {
 			$contentApi = new KContent_Api();
 			$info['title'] = $contentApi->sGetText(KContent_Api::PHOTO_TITLE, $photoid);
 		}
 		return $info;
+	}
+
+	public function getPrevPhotoInfo($photoinfo)
+	{
+		$photoid = $photoinfo['prev'];
+		if (!$photoid) {
+			return array();
+		}
+		$previnfo = $this->getPhotoInfo($photoinfo['uid'], $photoid);
+		if (!empty($previnfo)) {
+			if ($previnfo['pos'] + 1 != $photoinfo['pos']) {
+				$update = array('pos' => $previnfo['pos'] + 1);
+				$this->photoDao->iUpdate($photoinfo, $update);
+			}
+		}
+		return $previnfo;
+	}
+
+	public function getNextPhotoInfo($photoinfo)
+	{
+		$photoid = $photoinfo['next'];
+		if (!$photoid) {
+			return array();
+		}
+		$nextinfo = $this->getPhotoInfo($photoinfo['uid'], $photoid);
+		if (!empty($nextinfo)) {
+			if ($nextinfo['pos'] != $photoinfo['pos'] + 1) {
+				$update = array('pos' => $photoinfo['pos'] + 1);
+				$this->photoDao->iUpdate($nextinfo, $update);
+			}
+		}
+		return $nextinfo;
 	}
 
 	public function getAlbumInfo($uid, $albumid)
@@ -43,8 +75,27 @@ class KPhoto_Api extends Ko_Busi_Api
 			return array();
 		}
 		$option = new Ko_Tool_SQL();
-		$option->oWhere('albumid = ?', $albumid)->oOffset($start)->oLimit($num)->oCalcFoundRows(true)->oOrderBy('sort desc');
+		$offset = ($start > 0) ? $start - 1 : $start;
+		$addnum = ($start > 0) ? 2 : 1;
+		$limit = $num + $addnum;
+		$option->oWhere('albumid = ?', $albumid)->oOffset($offset)->oLimit($limit)->oCalcFoundRows(true)->oOrderBy('sort desc');
 		$photolist = $this->photoDao->aGetList($option);
+		if ($count = count($photolist)) {
+			if ($start > 0) {
+				$prev = array_shift($photolist);
+				$count --;
+				$prev = $prev['photoid'];
+			} else {
+				$prev = 0;
+			}
+			if ($count > $num) {
+				$next = array_pop($photolist);
+				$count --;
+				$next = $next['photoid'];
+			} else {
+				$next = 0;
+			}
+		}
 		$total = $option->iGetFoundRows();
 		if ($total != $album['pcount']) {
 			$this->albumDao->iUpdate($albumkey, array('pcount' => $total));
@@ -53,9 +104,35 @@ class KPhoto_Api extends Ko_Busi_Api
 		$contentApi = new KContent_Api();
 		$aText = $contentApi->aGetText(KContent_Api::PHOTO_TITLE, $photoids);
 		$api = new KStorage_Api;
-		foreach ($photolist as &$v) {
-			$v['image'] = $api->sGetUrl($v['image'], 'imageView2/1/w/150/h/100');
+		foreach ($photolist as $k => &$v) {
+			$v['image'] = $api->sGetUrl($v['image'], 'imageView2/2/w/150/h/150');
 			$v['title'] = $aText[$v['photoid']];
+
+			$update = array();
+			if ($start + $k + 1 != $v['pos']) {
+				$update['pos'] = $start + $k + 1;
+			}
+			if ($k != 0) {
+				if ($photolist[$k-1]['photoid'] != $v['prev']) {
+					$update['prev'] = $v['prev'] = $photolist[$k-1]['photoid'];
+				}
+			} else {
+				if ($prev != $v['prev']) {
+					$update['prev'] = $v['prev'] = $prev;
+				}
+			}
+			if ($k != $count - 1) {
+				if ($photolist[$k+1]['photoid'] != $v['next']) {
+					$update['next'] = $v['next'] = $photolist[$k+1]['photoid'];
+				}
+			} else {
+				if ($next != $v['next']) {
+					$update['next'] = $v['next'] = $next;
+				}
+			}
+			if (!empty($update)) {
+				$this->photoDao->iUpdate($v, $update);
+			}
 		}
 		unset($v);
 		return $photolist;
@@ -89,19 +166,36 @@ class KPhoto_Api extends Ko_Busi_Api
 		return $albumlist;
 	}
 
-	public function deletePhoto($uid, $albumid, $photoid)
+	public function changePhotoTitle($uid, $photoid, $title)
 	{
 		if (!$uid) {
 			return false;
 		}
-		$albumkey = compact('uid', 'albumid');
-		$album = $this->albumDao->aGet($albumkey);
-		if (empty($album)) {
+		$photokey = compact('uid', 'photoid');
+		$photo = $this->photoDao->aGet($photokey);
+		if (empty($photo)) {
 			return false;
 		}
+		$contentApi = new KContent_Api();
+		return $contentApi->bSet(KContent_Api::PHOTO_TITLE, $photoid, $title);
+	}
+
+	public function deletePhoto($uid, $photoid)
+	{
+		if (!$uid) {
+			return false;
+		}
+		$photokey = compact('uid', 'photoid');
+		$photo = $this->photoDao->aGet($photokey);
+		if (empty($photo)) {
+			return false;
+		}
+		$albumkey = array(
+			'uid' => $uid,
+			'albumid' => $photo['albumid'],
+		);
 		$recycleid = $this->_albumTag2Id($uid, 'recycle', '回收站');
-		$photokey = compact('albumid', 'photoid');
-		if ($recycleid == $albumid) {
+		if ($recycleid == $photo['albumid']) {
 			$this->photoDao->iDelete($photokey);
 			$option = new Ko_Tool_SQL();
 			$this->albumDao->iUpdate($albumkey, array(), array('pcount' => -1), $option->oWhere('pcount > ?', 0));
@@ -162,7 +256,7 @@ class KPhoto_Api extends Ko_Busi_Api
 		if (!$albumid) {
 			return 0;
 		}
-		$data = compact('albumid', 'image');
+		$data = compact('albumid', 'uid', 'image');
 		$time = time();
 		$data['sort'] = $time;
 		$data['ctime'] = date('Y-m-d H:i:s', $time);

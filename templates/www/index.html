@@ -1,2 +1,15 @@
-<a href="/photo/index">相册</a>
-<a href="/diary/index">日记</a>
+
+{foreach $allusers as $user}
+<a href="/photo/user?uid={$user.uid}"><img src="{$user.logo48}" title="{$user.nickname}"></a>
+{/foreach}
+
+<br>
+{foreach $msglist as $msg}
+{if 1 == $msg.msgtype}
+{$msg.content.userinfo.nickname} 添加了 {$msg.content.albuminfo.pcount} 张照片到相册 {$msg.content.albuminfo.title}<br>
+{foreach $msg.content.photolist as $photo}
+<img src="{$photo.image}">
+{/foreach}
+<br>
+{/if}
+{/foreach}

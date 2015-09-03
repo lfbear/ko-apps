@@ -1,10 +1,16 @@
+<a href="user?uid={$userinfo.uid}">{$userinfo.nickname}<img src="{$userinfo.logo16}"></a> 的相册
+<a href="album?uid={$userinfo.uid}&albumid={$albuminfo.albumid}">{$albuminfo.title}</a>
+<hr>
+
+
+
 
 <div data-albumid="{$albuminfo.albumid}" id="albuminfo">
 {$albuminfo.title} - {$albuminfo.intro}
 </div>
 {foreach $photolist as $photo}
 <div data-photoid="{$photo.photoid}">
-{$photo.photoid} - <img src="{$photo.image}"> - {$photo.ctime} - {$photo.title} - <a href="javascript:;" class="delPhoto">删除</a>
+{$photo.photoid} - <a href="item?uid={$photo.uid}&photoid={$photo.photoid}"><img src="{$photo.image}"></a> - {$photo.ctime} - {$photo.title} - <a href="javascript:;" class="delPhoto">删除</a>
 </div>
 {/foreach}
 

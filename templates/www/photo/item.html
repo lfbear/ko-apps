@@ -1,0 +1,99 @@
+<div id="photodata" class="hide"
+     data-uid="{$userinfo.uid}"
+     data-albumid="{$albuminfo.albumid}"
+     data-photoid="{$photoinfo.photoid}">
+</div>
+
+<a href="user?uid={$userinfo.uid}">{$userinfo.nickname}<img src="{$userinfo.logo16}"></a> 的相册
+<a href="album?uid={$userinfo.uid}&albumid={$albuminfo.albumid}">{$albuminfo.title}</a>
+&gt;
+{if $logininfo.uid == $userinfo.uid}
+<span id="txtPhototitle">{$photoinfo.title}</span>
+<span id="inputPhototitle" class="hide"><input type="text" value="{$photoinfo.title}" size="20"></span>
+{else}
+{$photoinfo.title}
+{/if}
+<hr>
+{if $photoinfo.prev}
+<a href="?uid={$userinfo.uid}&photoid={$photoinfo.prev}">上一张</a>
+{else}
+上一张
+{/if}
+{$photoinfo.pos} / {$albuminfo.pcount}
+{if $photoinfo.next}
+<a href="?uid={$userinfo.uid}&photoid={$photoinfo.next}">下一张</a>
+{else}
+下一张
+{/if}
+{if $logininfo.uid == $userinfo.uid}
+<a href="javascript:;" id="deletePhoto">删除</a>
+{/if}
+<br>
+{foreach $prevlist as $prev}
+<a href="?uid={$userinfo.uid}&photoid={$prev.photoid}"><img src="{$prev.image}"></a>
+{/foreach}
+<img src="{$photoinfo.image}">
+{foreach $nextlist as $next}
+<a href="?uid={$userinfo.uid}&photoid={$next.photoid}"><img src="{$next.image}"></a>
+{/foreach}
+<br>
+{$photoinfo.ctime}
+
+{literal}
+<script language="JavaScript">
+    (function(){
+        function saveTitle() {
+            var oldVal = $('#txtPhototitle').text();
+            var newVal = $('#inputPhototitle input').val();
+            if (oldVal != newVal && '' != newVal) {
+                var uid = $('#photodata').data('uid');
+                var photoid = $('#photodata').data('photoid');
+                $.post('/rest/photo/item/' + uid + '_' + photoid,
+                        {'method':'PUT', 'put_style':'title', 'update': newVal},
+                        function(data, status){
+                    if (data.errno) {
+                        alert(data.error);
+                    } else {
+                        $('#txtPhototitle').text(newVal);
+                        $('#txtPhototitle').show();
+                        $('#inputPhototitle').hide();
+                    }
+                }, 'json');
+            } else {
+                $('#txtPhototitle').show();
+                $('#inputPhototitle').hide();
+            }
+        }
+        $('body').delegate('#txtPhototitle', 'mouseover', function(){
+            $('#txtPhototitle').hide();
+            $('#inputPhototitle').show();
+        });
+        $('body').delegate('#inputPhototitle', 'mouseout', function(){
+            saveTitle();
+        });
+        $('body').delegate('#inputPhototitle', 'keydown', function(e){
+            if (13 == e.keyCode) {
+                saveTitle();
+            } else if (27 == e.keyCode) {
+                $('#txtPhototitle').show();
+                $('#inputPhototitle').hide();
+                $('#inputPhototitle input').val($('#txtPhototitle').text());
+            }
+        });
+        $('body').delegate('#deletePhoto', 'click', function(){
+            var uid = $('#photodata').data('uid');
+            var albumid = $('#photodata').data('albumid');
+            var photoid = $('#photodata').data('photoid');
+            if (confirm('确认要删除该照片吗？')) {
+                $.post('/rest/photo/item/' + uid + '_' + photoid, {'method':'DELETE'}, function(data, status){
+                    if (data.errno) {
+                        alert(data.error);
+                    } else {
+                        window.location.href = 'album?uid=' + uid + '&albumid=' + albumid;
+                    }
+                }, 'json');
+            }
+        });
+    })();
+</script>
+{/literal}

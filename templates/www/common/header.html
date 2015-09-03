@@ -8,14 +8,15 @@
     <script src="http://{$IMG_DOMAIN}/js/jquery-1.11.2.min.js"></script>
 </head>
 <body>
-<div id="globaldata" style="display:none;"
+<div id="globaldata" class="hide"
      data-wwwdomain="{$WWW_DOMAIN}"
      data-passportdomain="{$PASSPORT_DOMAIN}"
-     data-uid="{$baseinfo.uid}">
+     data-uid="{$logininfo.uid}">
 </div>
 <header>
-    {if $baseinfo.uid}
-    <span>{$baseinfo.nickname}</span> <img src="{$baseinfo.logo32}" title="{$baseinfo.uid}"> <a href="javascript:;" id="logoutlink">退出</a>
+    <a href="/">首页</a>
+    {if $logininfo.uid}
+    <span>{$logininfo.nickname}</span> <img src="{$logininfo.logo32}" title="{$logininfo.uid}"> <a href="javascript:;" id="logoutlink">退出</a>
     {else}
     <a href="http://{$PASSPORT_DOMAIN}/user/login">登录</a>
     <a href="http://{$PASSPORT_DOMAIN}/user/reg">注册</a>
