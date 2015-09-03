@@ -7,9 +7,9 @@
 <a href="user?uid={$userinfo.uid}">{$userinfo.nickname}<img src="{$userinfo.logo16}"></a> 的相册
 <a href="album?uid={$userinfo.uid}&albumid={$albuminfo.albumid}">{$albuminfo.title}</a>
 &gt;
-{if $logininfo.uid == $userinfo.uid}
+{if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
 <span id="txtPhototitle">{$photoinfo.title}</span>
-<span id="inputPhototitle" class="hide"><input type="text" value="{$photoinfo.title}" size="20"></span>
+<span id="inputPhototitle" class="hide"><input type="text" value="{$photoinfo.title}" size="20" placeholder="照片标题"></span>
 {else}
 {$photoinfo.title}
 {/if}
@@ -32,7 +32,7 @@
 {foreach $prevlist as $prev}
 <a href="?uid={$userinfo.uid}&photoid={$prev.photoid}"><img src="{$prev.image}"></a>
 {/foreach}
-<img src="{$photoinfo.image}">
+<a href="{$photoinfo.image_src}" target="_blank"><img src="{$photoinfo.image}"></a>
 {foreach $nextlist as $next}
 <a href="?uid={$userinfo.uid}&photoid={$next.photoid}"><img src="{$next.image}"></a>
 {/foreach}
@@ -80,6 +80,7 @@
                 $('#inputPhototitle input').val($('#txtPhototitle').text());
             }
         });
+
         $('body').delegate('#deletePhoto', 'click', function(){
             var uid = $('#photodata').data('uid');
             var albumid = $('#photodata').data('albumid');

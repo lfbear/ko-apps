@@ -1,5 +1,11 @@
+<div id="userdata" class="hide"
+     data-uid="{$userinfo.uid}">
+</div>
 
-<button id="btnShowAddAlbum">添加相册</button>
+{$userinfo.nickname}<img src="{$userinfo.logo16}"> 的相册
+<hr>
+
+<button id="btnShowAddAlbum">创建相册</button> <button id="btnAddPhoto">上传照片</button>
 <div id="addalbumdiv" class="hide">
     <input type="text" value="" id="addalbumtitle" placeholder="相册标题"><br>
     <textarea id="addalbumintro" rows="5" cols="100" placeholder="相册说明"></textarea>
@@ -9,11 +15,34 @@
 </div>
 <hr>
 
-{foreach $albumlist as $album}
-<div data-albumid="{$album.albumid}">
-{$album.albumid} - {$album.ctime} - <img src="{$album.cover}"> - {$album.pcount} - <a href="album?uid={$uid}&albumid={$album.albumid}">{$album.title}</a> - {$album.intro} - <a href="javascript:;" class="delAlbum">删除</a>
+<div id="albumlist">
+    {foreach $albumlist as $album}
+    {if $logininfo.uid == $userinfo.uid || !$album.isrecycle}
+    <div class="albumdiv" data-albumid="{$album.albumid}" style="float: left;width: 155px;height: 195px;padding-right: 5px;padding-top: 5px;">
+        <div style="text-align: right;height: 160px;">
+            <a href="album?uid={$album.uid}&albumid={$album.albumid}"><img src="{$album.cover}"></a>
+        </div>
+        <div style="clear: both;"></div>
+        <div style="width: 100px;overflow: hidden;float: left;line-height: 22px;height: 22px;white-space: nowrap;">
+            {if $logininfo.uid == $userinfo.uid && !$album.isrecycle}
+            <span class="txtAlbumtitle">{$album.title}</span>
+            <span class="inputAlbumtitle hide"><input type="text" value="{$album.title}" size="12" placeholder="相册标题"></span>
+            {else}
+            {$album.title}
+            {/if}
+        </div>
+        <div style="float: right;text-align: right;width: 55px;">
+            {$album.pcount}
+            {if $logininfo.uid == $userinfo.uid && !$album.isrecycle}
+            <a href="javascript:;" class="delAlbum">X</a>
+            {/if}
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+    {/if}
+    {/foreach}
+    <div style="clear: both;"></div>
 </div>
-{/foreach}
 
 {literal}
 <script language="JavaScript">
@@ -35,9 +64,52 @@
                 }
             }, 'json');
         });
+
+        function saveAlbumTitle(root) {
+            var oldVal = root.find('.txtAlbumtitle').text();
+            var newVal = root.find('.inputAlbumtitle input').val();
+            if (oldVal != newVal && '' != newVal) {
+                var uid = $('#userdata').data('uid');
+                var albumid = root.data('albumid');
+                $.post('/rest/photo/album/' + uid + '_' + albumid,
+                        {'method':'PUT', 'put_style':'title', 'update': newVal},
+                        function(data, status){
+                            if (data.errno) {
+                                alert(data.error);
+                            } else {
+                                root.find('.txtAlbumtitle').text(newVal);
+                                root.find('.txtAlbumtitle').show();
+                                root.find('.inputAlbumtitle').hide();
+                            }
+                        }, 'json');
+            } else {
+                root.find('.txtAlbumtitle').show();
+                root.find('.inputAlbumtitle').hide();
+            }
+        }
+        $('body').delegate('#albumlist .txtAlbumtitle', 'mouseover', function(){
+            var root = $(this).closest('.albumdiv');
+            root.find('.txtAlbumtitle').hide();
+            root.find('.inputAlbumtitle').show();
+        });
+        $('body').delegate('#albumlist .inputAlbumtitle', 'mouseout', function(){
+            var root = $(this).closest('.albumdiv');
+            saveAlbumTitle(root);
+        });
+        $('body').delegate('#albumlist .inputAlbumtitle', 'keydown', function(e){
+            var root = $(this).closest('.albumdiv');
+            if (13 == e.keyCode) {
+                saveAlbumTitle(root);
+            } else if (27 == e.keyCode) {
+                root.find('.txtAlbumtitle').show();
+                root.find('.inputAlbumtitle').hide();
+                root.find('.inputAlbumtitle input').val(root.find('.txtAlbumtitle').text());
+            }
+        });
+
         $('body').delegate('.delAlbum', 'click', function(){
-            var root = $(this).closest('div');
-            var uid = $('#globaldata').data('uid');
+            var root = $(this).closest('.albumdiv');
+            var uid = $('#userdata').data('uid');
             var albumid = root.data('albumid');
             if (confirm('确认要删除该相册吗？')) {
                 $.post('/rest/photo/album/' + uid + '_' + albumid, {'method':'DELETE'}, function(data, status){
@@ -48,6 +120,90 @@
                     }
                 }, 'json');
             }
+        });
+
+        $(document).ready(function() {
+            var albumid = 0;
+            var uploaderConfig = {
+                browse_button: 'btnAddPhoto',
+                url: '/rest/photo/item/',
+                multi_selection: true,
+                multipart_params: {
+                    'after_style': 'default',
+                    'after_decorate': 'imageView2/2/w/150/h/150'
+                },
+                filters: {
+                    mime_types: [{'title': '图片文件', 'extensions': 'jpg,gif,png'}],
+                    max_file_size: '50mb'
+                },
+                init: {
+                    FilesAdded: function (up, files) {
+                        plupload.each(files, function(file) {
+                            var photohtml = '<div id="' + file.id + '" class="photodiv" data-photoid="0"  style="float: left;width: 155px;height: 195px;padding-right: 5px;padding-top: 5px;">' +
+                                    '<div class="photoimage" style="text-align: right;height: 160px;">' +
+                                    '</div>' +
+                                    '<div style="clear: both;"></div>' +
+                                    '<div class="phototitle" style="width: 100px;overflow: hidden;float: left;line-height: 22px;height: 22px;white-space: nowrap;">' +
+                                    '等待上传中...</div>' +
+                                    '<div style="clear: both;"></div>' +
+                                    '</div>';
+                            $('#albumlist').html(photohtml + $('#albumlist').html());
+                            if ('image/gif' == file.type) {
+                                var img = new mOxie.FileReader();
+                                img.onload = function() {
+                                    $('#albumlist [id=' + file.id + '] .photoimage').html('<img src="' + img.result + '" width="150px" height="150px">');
+                                    img.destroy();
+                                    img = null;
+                                };
+                                img.readAsDataURL(file.getSource());
+                            } else {
+                                var img = new mOxie.Image();
+                                img.onload = function() {
+                                    var width = img.width;
+                                    var height = img.height;
+                                    if (width > 150 || height > 150) {
+                                        if (height > width) {
+                                            width = width * 150 / height;
+                                            height = 150;
+                                        } else {
+                                            height = height * 150 / width;
+                                            width = 150;
+                                        }
+                                        img.downsize(width, height);
+                                    }
+                                    $('#albumlist [id=' + file.id + '] .photoimage').html('<img src="' + img.getAsDataURL() + '" width="' + width + 'px" height="' + height + 'px">');
+                                    img.destroy();
+                                    img = null;
+                                };
+                                img.load(file.getSource());
+                            }
+                        });
+                        up.start();
+                    },
+                    UploadProgress: function (up, file) {
+                        $('#albumlist [id=' + file.id + '] .phototitle').html(file.percent + '%');
+                    },
+                    FileUploaded: function (up, file, info) {
+                        eval('var data = ' + info.response);
+                        if (data.errno) {
+                            alert(data.error);
+                        } else {
+                            $('#albumlist [id=' + file.id + '] .photoimage img').attr('src', data.data.after.image);
+                            $('#albumlist [id=' + file.id + '] .phototitle').text(data.data.after.title);
+                            albumid = data.data.after.albumid;
+                        }
+                    },
+                    UploadComplete: function (up, files) {
+                        var uid = $('#userdata').data('uid');
+                        window.location.href = 'album?uid=' + uid + '&albumid=' + albumid;
+                    },
+                    Error: function (up, err) {
+                        alert("Error #" + err.code + ": " + err.message + "\n");
+                    }
+                }
+            };
+            var btnUploader = new plupload.Uploader(uploaderConfig);
+            btnUploader.init();
         });
     })();
 </script>

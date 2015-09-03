@@ -3,12 +3,16 @@
 <a href="/photo/user?uid={$user.uid}"><img src="{$user.logo48}" title="{$user.nickname}"></a>
 {/foreach}
 
-<br>
+<hr>
+
 {foreach $msglist as $msg}
 {if 1 == $msg.msgtype}
-{$msg.content.userinfo.nickname} 添加了 {$msg.content.albuminfo.pcount} 张照片到相册 {$msg.content.albuminfo.title}<br>
+<a href="/photo/user?uid={$msg.content.userinfo.uid}">{$msg.content.userinfo.nickname}<img src="{$msg.content.userinfo.logo16}"></a>
+添加了 {$msg.content.albuminfo.pcount} 张照片到相册
+<a href="/photo/album?uid={$msg.content.userinfo.uid}&albumid={$msg.content.albuminfo.albumid}">{$msg.content.albuminfo.title}</a>
+<br>
 {foreach $msg.content.photolist as $photo}
-<img src="{$photo.image}">
+<a href="/photo/item?uid={$msg.content.userinfo.uid}&photoid={$photo.photoid}"><img src="{$photo.image}"></a>
 {/foreach}
 <br>
 {/if}

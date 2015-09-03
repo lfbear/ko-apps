@@ -19,6 +19,7 @@ class KRest_Photo_item
 		),
 		'poststylelist' => array(
 			'default' => 'any',
+			'album' => 'string',
 		),
 		'putstylelist' => array(
 			'title' => 'string',
@@ -31,7 +32,7 @@ class KRest_Photo_item
 		return compact('uid', 'photoid');
 	}
 
-	public function post($update, $after = null)
+	public function post($update, $after = null, $post_style = 'default')
 	{
 		$file = Ko_Web_Request::AFile('file');
 		$api = new KStorage_Api;
@@ -44,10 +45,18 @@ class KRest_Photo_item
 		$uid = $loginApi->iGetLoginUid();
 
 		$photoApi = new KPhoto_Api;
-		$albumid = 0;
+		switch ($post_style)
+		{
+			case 'album':
+				$albumid = $update;
+				break;
+			default:
+				$albumid = 0;
+				break;
+		}
 		$photoid = $photoApi->addPhoto($albumid, $uid, $image, $title);
 		$this->_sendSysmsg($uid, $albumid, $photoid);
-		$data = array('key' => compact('albumid', 'photoid'));
+		$data = array('key' => compact('uid', 'photoid'));
 		if (is_array($after)) {
 			switch ($after['style']) {
 				default:
@@ -64,7 +73,7 @@ class KRest_Photo_item
 		$loginApi = new KUser_loginApi();
 		$uid = $loginApi->iGetLoginUid();
 		if ($uid != $id['uid']) {
-			throw new Exception('修改照片标题失败', 1);
+			throw new Exception('修改照片失败', 1);
 		}
 
 		$photoApi = new KPhoto_Api();
@@ -96,7 +105,7 @@ class KRest_Photo_item
 	{
 		$photoApi = new KPhoto_Api;
 		$content = compact('uid', 'albumid', 'photoid');
-		$content['userinfo'] = Ko_Tool_Adapter::VConv($content['uid'], 'user_baseinfo');
+		$content['userinfo'] = Ko_Tool_Adapter::VConv($content['uid'], array('user_baseinfo', array('logo16')));
 		$content['albuminfo'] = $photoApi->getAlbumInfo($uid, $albumid);
 		$content['photolist'] = $photoApi->getPhotoList($uid, $albumid, 0, 5, $total);
 		$sysmsgApi = new KSysmsg_Api();

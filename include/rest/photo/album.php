@@ -25,6 +25,11 @@ class KRest_Photo_album
 				'intro' => 'string',
 			)),
 		),
+		'putstylelist' => array(
+			'title' => 'string',
+			'intro' => 'string',
+			'cover' => 'int',
+		),
 	);
 
 	public function str2key($str)
@@ -46,6 +51,31 @@ class KRest_Photo_album
 		$albumid = $photoApi->addAlbum($uid, $update['title'], $update['intro']);
 		if (!$albumid) {
 			throw new Exception('添加相册失败', 1);
+		}
+		return array('key' => $id);
+	}
+
+	public function put($id, $update, $before = null, $after = null, $put_style = 'default')
+	{
+		$loginApi = new KUser_loginApi();
+		$uid = $loginApi->iGetLoginUid();
+		if ($uid != $id['uid']) {
+			throw new Exception('修改相册失败', 1);
+		}
+
+		$photoApi = new KPhoto_Api();
+		switch ($put_style)
+		{
+			case 'cover':
+				$photoinfo = $photoApi->getPhotoInfo($uid, $update);
+				$photoApi->changeAlbumCover($uid, $id['albumid'], $photoinfo['image']);
+				break;
+			case 'title':
+				$photoApi->changeAlbumTitle($uid, $id['albumid'], $update);
+				break;
+			case 'intro':
+				$photoApi->changeAlbumIntro($uid, $id['albumid'], $update);
+				break;
 		}
 		return array('key' => $id);
 	}

@@ -58,6 +58,7 @@ class KPhoto_Api extends Ko_Busi_Api
 			$aText = $contentApi->aGetTextEx($aInfo);
 			$info['title'] = $aText[KContent_Api::PHOTO_ALBUM_TITLE][$albumid];
 			$info['intro'] = $aText[KContent_Api::PHOTO_ALBUM_INTRO][$albumid];
+			$info['isrecycle'] = $info['albumid'] == $this->_getRecycleAlbumid($uid);
 		}
 		return $info;
 	}
@@ -138,16 +139,15 @@ class KPhoto_Api extends Ko_Busi_Api
 		return $photolist;
 	}
 
-	public function getAlbumList($uid, $start, $num, &$total)
+	public function getAllAlbumList($uid)
 	{
 		if (!$uid) {
 			$total = 0;
 			return array();
 		}
 		$option = new Ko_Tool_SQL();
-		$option->oWhere('uid = ?', $uid)->oOffset($start)->oLimit($num)->oCalcFoundRows(true)->oOrderBy('sort desc');
+		$option->oWhere('uid = ?', $uid)->oOrderBy('sort desc');
 		$albumlist = $this->albumDao->aGetList($option);
-		$total = $option->iGetFoundRows();
 		$albumids = Ko_Tool_Utils::AObjs2ids($albumlist, 'albumid');
 		$contentApi = new KContent_Api();
 		$aInfo = array(
@@ -155,12 +155,14 @@ class KPhoto_Api extends Ko_Busi_Api
 			KContent_Api::PHOTO_ALBUM_INTRO => $albumids,
 		);
 		$aText = $contentApi->aGetTextEx($aInfo);
+		$recycleid = $this->_getRecycleAlbumid($uid);
 		$api = new KStorage_Api;
 		foreach ($albumlist as &$v) {
 			$v['cover'] = ('' === $v['cover'])
-				? 'http://' . IMG_DOMAIN . '/default/cover.jpg' : $api->sGetUrl($v['cover'], 'imageView2/1/w/150/h/100');
+				? 'http://' . IMG_DOMAIN . '/default/cover.jpg' : $api->sGetUrl($v['cover'], 'imageView2/2/w/150/h/150');
 			$v['title'] = $aText[KContent_Api::PHOTO_ALBUM_TITLE][$v['albumid']];
 			$v['intro'] = $aText[KContent_Api::PHOTO_ALBUM_INTRO][$v['albumid']];
+			$v['isrecycle'] = $v['albumid'] == $recycleid;
 		}
 		unset($v);
 		return $albumlist;
@@ -180,6 +182,57 @@ class KPhoto_Api extends Ko_Busi_Api
 		return $contentApi->bSet(KContent_Api::PHOTO_TITLE, $photoid, $title);
 	}
 
+	public function changeAlbumCover($uid, $albumid, $cover)
+	{
+		if (!$uid) {
+			return false;
+		}
+		$recycleid = $this->_getRecycleAlbumid($uid);
+		if ($albumid == $recycleid) {
+			return false;
+		}
+		$albumkey = compact('uid', 'albumid');
+		$update = compact('cover');
+		$this->albumDao->iUpdate($albumkey, $update);
+		return true;
+	}
+
+	public function changeAlbumTitle($uid, $albumid, $title)
+	{
+		if (!$uid) {
+			return false;
+		}
+		$recycleid = $this->_getRecycleAlbumid($uid);
+		if ($albumid == $recycleid) {
+			return false;
+		}
+		$albumkey = compact('uid', 'albumid');
+		$album = $this->albumDao->aGet($albumkey);
+		if (empty($album)) {
+			return false;
+		}
+		$contentApi = new KContent_Api();
+		return $contentApi->bSet(KContent_Api::PHOTO_ALBUM_TITLE, $albumid, $title);
+	}
+
+	public function changeAlbumIntro($uid, $albumid, $intro)
+	{
+		if (!$uid) {
+			return false;
+		}
+		$recycleid = $this->_getRecycleAlbumid($uid);
+		if ($albumid == $recycleid) {
+			return false;
+		}
+		$albumkey = compact('uid', 'albumid');
+		$album = $this->albumDao->aGet($albumkey);
+		if (empty($album)) {
+			return false;
+		}
+		$contentApi = new KContent_Api();
+		return $contentApi->bSet(KContent_Api::PHOTO_ALBUM_INTRO, $albumid, $intro);
+	}
+
 	public function deletePhoto($uid, $photoid)
 	{
 		if (!$uid) {
@@ -194,7 +247,7 @@ class KPhoto_Api extends Ko_Busi_Api
 			'uid' => $uid,
 			'albumid' => $photo['albumid'],
 		);
-		$recycleid = $this->_albumTag2Id($uid, 'recycle', '回收站');
+		$recycleid = $this->_getRecycleAlbumid($uid);
 		if ($recycleid == $photo['albumid']) {
 			$this->photoDao->iDelete($photokey);
 			$option = new Ko_Tool_SQL();
@@ -217,7 +270,7 @@ class KPhoto_Api extends Ko_Busi_Api
 		if (!$uid) {
 			return false;
 		}
-		$recycleid = $this->_albumTag2Id($uid, 'recycle', '回收站');
+		$recycleid = $this->_getRecycleAlbumid($uid);
 		if ($albumid == $recycleid) {
 			return false;
 		}
@@ -284,6 +337,11 @@ class KPhoto_Api extends Ko_Busi_Api
 			return 0;
 		}
 		return $this->_addAlbum($uid, $title, $intro);
+	}
+
+	private function _getRecycleAlbumid($uid)
+	{
+		return $this->_albumTag2Id($uid, 'recycle', '回收站');
 	}
 
 	private function _albumTag2Id($uid, $albumtag, $albumtitle)
