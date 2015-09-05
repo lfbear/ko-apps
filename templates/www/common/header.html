@@ -3,6 +3,7 @@
 <head>
     <title>ZLOG.CC</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link href="http://{$IMG_DOMAIN}/css/reset.css" rel="stylesheet">
     <link href="http://{$IMG_DOMAIN}/js/jquery-ui-1.11.4/jquery-ui.css" rel="stylesheet">
     <link href="http://{$IMG_DOMAIN}/css/base.css" rel="stylesheet">
     <script src="http://{$IMG_DOMAIN}/js/jquery-1.11.2.min.js"></script>
@@ -14,11 +15,37 @@
      data-uid="{$logininfo.uid}">
 </div>
 <header>
-    <a href="/">首页</a>
+    <div style="float: left;width:150px;font-size: 24px;;">
+        <a href="/">ZLOG.CC</a>
+    </div>
     {if $logininfo.uid}
-    <span>{$logininfo.nickname}</span> <img src="{$logininfo.logo32}" title="{$logininfo.uid}"> <a href="javascript:;" id="logoutlink">退出</a>
+    <div style="float: left;width: 150px;">
+        <a href="/photo/user?uid={$logininfo.uid}">相册</a>
+    </div>
+    <div id="loginlogodiv" style="float: right;width: 150px;position: relative;">
+        <img src="{$logininfo.logo32}" title="{$logininfo.nickname}" style="border-radius: 16px;vertical-align: middle;">
+        <div id="settingmenu" class="hide">
+            <ul>
+                <li>
+                    <a href="http://{$PASSPORT_DOMAIN}/user/profile">个人信息</a>
+                </li>
+                <li>
+                    <a href="http://{$PASSPORT_DOMAIN}/user/logo">设置头像</a>
+                </li>
+                <li>
+                    <a href="http://{$PASSPORT_DOMAIN}/user/passwd">修改密码</a>
+                </li>
+                <li>
+                    <a href="javascript:;" id="logoutlink">退出</a>
+                </li>
+            </ul>
+        </div>
+    </div>
     {else}
-    <a href="http://{$PASSPORT_DOMAIN}/user/login">登录</a>
-    <a href="http://{$PASSPORT_DOMAIN}/user/reg">注册</a>
+    <div style="float: right;width: 150px;">
+        <a href="http://{$PASSPORT_DOMAIN}/user/login">登录</a>
+        <a href="http://{$PASSPORT_DOMAIN}/user/reg">注册</a>
+    </div>
     {/if}
+    <div class="clear"></div>
 </header>

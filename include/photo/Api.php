@@ -63,7 +63,7 @@ class KPhoto_Api extends Ko_Busi_Api
 		return $info;
 	}
 
-	public function getPhotoList($uid, $albumid, $start, $num, &$total)
+	public function getPhotoList($uid, $albumid, $start, $num, &$total, $decorate)
 	{
 		if (!$uid) {
 			$total = 0;
@@ -106,7 +106,7 @@ class KPhoto_Api extends Ko_Busi_Api
 		$aText = $contentApi->aGetText(KContent_Api::PHOTO_TITLE, $photoids);
 		$api = new KStorage_Api;
 		foreach ($photolist as $k => &$v) {
-			$v['image'] = $api->sGetUrl($v['image'], 'imageView2/2/w/150/h/150');
+			$v['image'] = $api->sGetUrl($v['image'], $decorate);
 			$v['title'] = $aText[$v['photoid']];
 
 			$update = array();
@@ -159,7 +159,7 @@ class KPhoto_Api extends Ko_Busi_Api
 		$api = new KStorage_Api;
 		foreach ($albumlist as &$v) {
 			$v['cover'] = ('' === $v['cover'])
-				? 'http://' . IMG_DOMAIN . '/default/cover.jpg' : $api->sGetUrl($v['cover'], 'imageView2/2/w/150/h/150');
+				? 'http://' . IMG_DOMAIN . '/default/cover.jpg' : $api->sGetUrl($v['cover'], 'imageView2/2/w/240/h/240');
 			$v['title'] = $aText[KContent_Api::PHOTO_ALBUM_TITLE][$v['albumid']];
 			$v['intro'] = $aText[KContent_Api::PHOTO_ALBUM_INTRO][$v['albumid']];
 			$v['isrecycle'] = $v['albumid'] == $recycleid;

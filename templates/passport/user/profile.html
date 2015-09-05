@@ -1,0 +1,34 @@
+<div id="regloginform">
+    <div class="item">
+        修改个人信息
+    </div>
+    <div class="item">
+        <input placeholder="输入昵称" class="nickname" type="text" value="{$logininfo.nickname}">
+    </div>
+    <div class="item">
+        <button id="btnOk">确认修改</button>
+    </div>
+</div>
+
+{literal}
+<script language="JavaScript">
+    (function(){
+        $(document).ready(function() {
+            $('#regloginform .nickname').focus();
+        });
+        $('body').delegate('#btnOk', 'click', function(){
+            var uid = $('#globaldata').data('uid');
+            var nickname = $('#regloginform .nickname').val();
+            $.post('/rest/user/item/' + uid,
+                    {'method': 'PUT', 'put_style': 'profile', 'update':{'nickname':nickname}},
+                    function(data, status){
+                        if (data.errno) {
+                            alert(data.error);
+                        } else {
+                            window.location.href = 'http://' + $('#globaldata').data('wwwdomain');
+                        }
+                    }, 'json');
+        });
+    })();
+</script>
+{/literal}

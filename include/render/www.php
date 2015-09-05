@@ -10,8 +10,9 @@ class KRender_www extends KRender_base
 
 		$head = new Ko_View_Render_Smarty;
 		$head->oSetTemplate('www/common/header.html')
-			->oSetData('PASSPORT_DOMAIN', PASSPORT_DOMAIN)
 			->oSetData('IMG_DOMAIN', IMG_DOMAIN)
+			->oSetData('WWW_DOMAIN', WWW_DOMAIN)
+			->oSetData('PASSPORT_DOMAIN', PASSPORT_DOMAIN)
 			->oSetData('logininfo', $logininfo);
 
 		$tail = new Ko_View_Render_Smarty;

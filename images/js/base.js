@@ -8,4 +8,10 @@
 			}
 		}, 'json');
 	});
+	$('body').delegate('#loginlogodiv', 'mouseenter', function(){
+		$('#settingmenu').show();
+	});
+	$('body').delegate('#loginlogodiv', 'mouseleave', function(){
+		$('#settingmenu').hide();
+	});
 })();

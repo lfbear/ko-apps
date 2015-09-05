@@ -1,19 +1,28 @@
 
-{foreach $allusers as $user}
-<a href="/photo/user?uid={$user.uid}"><img src="{$user.logo48}" title="{$user.nickname}"></a>
-{/foreach}
-
-<hr>
-
-{foreach $msglist as $msg}
-{if 1 == $msg.msgtype}
-<a href="/photo/user?uid={$msg.content.userinfo.uid}">{$msg.content.userinfo.nickname}<img src="{$msg.content.userinfo.logo16}"></a>
-添加了 {$msg.content.albuminfo.pcount} 张照片到相册
-<a href="/photo/album?uid={$msg.content.userinfo.uid}&albumid={$msg.content.albuminfo.albumid}">{$msg.content.albuminfo.title}</a>
-<br>
-{foreach $msg.content.photolist as $photo}
-<a href="/photo/item?uid={$msg.content.userinfo.uid}&photoid={$photo.photoid}"><img src="{$photo.image}"></a>
-{/foreach}
-<br>
-{/if}
-{/foreach}
+<div class="main">
+	{foreach $msglist as $msg}
+		<div style="padding-bottom: 20px;">
+		{if 1 == $msg.msgtype}
+			<div class="title left" style="padding-right: 36px;">
+				<a href="/photo/user?uid={$msg.content.userinfo.uid}"><img src="{$msg.content.userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;"></a>
+			</div>
+			<div class="title left" style="padding-right: 5px;">
+				<a href="/photo/user?uid={$msg.content.userinfo.uid}">{$msg.content.userinfo.nickname}</a>
+			</div>
+			<div class="title left">
+				添加了 {$msg.content.albuminfo.pcount} 张照片到相册
+				<a href="/photo/album?uid={$msg.content.userinfo.uid}&albumid={$msg.content.albuminfo.albumid}">{$msg.content.albuminfo.title}</a>
+			</div>
+			<div class="title right" style="font-size: 12px;color: #aaaaaa;">
+				{$msg.ctime|substr:0:16}
+			</div>
+			<div class="clear"></div>
+			<div style="overflow: hidden;white-space: nowrap;">
+				{foreach $msg.content.photolist as $photo}
+				<a href="/photo/item?uid={$msg.content.userinfo.uid}&photoid={$photo.photoid}"><img src="{$photo.image}"></a>
+				{/foreach}
+			</div>
+		{/if}
+		</div>
+	{/foreach}
+</div>

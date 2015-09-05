@@ -1,17 +1,14 @@
 <?php
 
-Ko_Web_Route::VGet('qq', function()
-{
+Ko_Web_Route::VGet('qq', function () {
 	oauth2login('qq');
 });
 
-Ko_Web_Route::VGet('weibo', function()
-{
+Ko_Web_Route::VGet('weibo', function () {
 	oauth2login('weibo');
 });
 
-Ko_Web_Route::VGet('baidu', function()
-{
+Ko_Web_Route::VGet('baidu', function () {
 	oauth2login('baidu');
 });
 

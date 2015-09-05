@@ -1,11 +1,27 @@
 
-body {background:#E9F1F6;font-family:arial,sans-serif;font-size:14px;margin:0 auto;}
-
-header {margin-bottom:4px;padding-bottom:4px;border-bottom:solid 1px #4C8DAE;text-align: center;}
-header span {height:32px;line-height:32px;}
-header a {height:32px;line-height:32px;}
-header img {vertical-align: middle;}
-
-footer {font-size:12px;margin-top:4px;padding-top:4px;border-top:solid 1px #4C8DAE;text-align: center;}
-
 .hide {display: none;}
+.clear {clear: both;}
+.left {float: left;}
+.right {float: right;}
+
+a {text-decoration: none;}
+a:link,a:visited {color: #cccccc;}
+a:hover,a:active {color: #ffffff;}
+button {background-color: #E9E7EF;cursor:pointer;padding: 10px;}
+
+body {width:1200px;background:#666666;font-family:arial,sans-serif;font-size:16px;margin:0 auto;padding: 0 auto;}
+
+header {height: 60px;text-align: center;background-color: #000000;color: #000000;font-size: 18px;}
+header div {line-height: 60px;}
+
+#settingmenu {width: 150px;position: absolute;top: 60px;left: 0px;font-size: 16px;background-color: #333333;z-index: 9999;}
+#settingmenu ul {line-height: 30px;list-style-type: none;padding-top: 10px;padding-bottom: 10px;}
+
+footer {height: 40px;font-size:12px;text-align: center;background-color: #000000;color: #ffffff;}
+footer div {line-height: 40px;}
+
+.main a:link,.main a:visited {color: #41555D;}
+.main a:hover,.main a:active {color: #000000;}
+.main {background-color: #ffffff;color: #000000; padding-top: 20px;padding-bottom: 20px;padding-left: 100px;padding-right: 100px;}
+
+.main .title {height: 100px;line-height: 100px;}

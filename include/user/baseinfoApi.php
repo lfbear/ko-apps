@@ -113,6 +113,18 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 				$info['logo48'] = ('' === $info['logo'])
 					? 'http://'.IMG_DOMAIN.'/logo/48.png' : $api->sGetUrl($info['logo'], 'imageView2/1/w/48');
 				break;
+			case 'logo80':
+				$info['logo80'] = ('' === $info['logo'])
+					? 'http://'.IMG_DOMAIN.'/logo/80.png' : $api->sGetUrl($info['logo'], 'imageView2/1/w/80');
+				break;
+			case 'logo120':
+				$info['logo120'] = ('' === $info['logo'])
+					? 'http://'.IMG_DOMAIN.'/logo/120.png' : $api->sGetUrl($info['logo'], 'imageView2/1/w/120');
+				break;
+			case 'logo200':
+				$info['logo200'] = ('' === $info['logo'])
+					? 'http://'.IMG_DOMAIN.'/logo/200.png' : $api->sGetUrl($info['logo'], 'imageView2/1/w/200');
+				break;
 			}
 		}
 	}

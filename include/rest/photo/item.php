@@ -105,9 +105,9 @@ class KRest_Photo_item
 	{
 		$photoApi = new KPhoto_Api;
 		$content = compact('uid', 'albumid', 'photoid');
-		$content['userinfo'] = Ko_Tool_Adapter::VConv($content['uid'], array('user_baseinfo', array('logo16')));
+		$content['userinfo'] = Ko_Tool_Adapter::VConv($content['uid'], array('user_baseinfo', array('logo80')));
 		$content['albuminfo'] = $photoApi->getAlbumInfo($uid, $albumid);
-		$content['photolist'] = $photoApi->getPhotoList($uid, $albumid, 0, 5, $total);
+		$content['photolist'] = $photoApi->getPhotoList($uid, $albumid, 0, 9, $total, 'imageView2/2/w/480/h/240');
 		$sysmsgApi = new KSysmsg_Api();
 		$sysmsgApi->iSend(0, KSysmsg_Api::PHOTO, $content, $albumid);
 	}

@@ -19,14 +19,11 @@ class KRest_User_login
 	{
 		$api = new KUser_loginApi();
 		$uid = $api->iLogin($update['username'], $update['passwd'], $errno);
-		if (!$uid)
-		{
-			if (Ko_Mode_User::E_LOGIN_USER == $errno)
-			{
+		if (!$uid) {
+			if (Ko_Mode_User::E_LOGIN_USER == $errno) {
 				throw new Exception('用户名不存在', 1);
 			}
-			if (Ko_Mode_User::E_LOGIN_PASS == $errno)
-			{
+			if (Ko_Mode_User::E_LOGIN_PASS == $errno) {
 				throw new Exception('密码错误', 2);
 			}
 			throw new Exception('登录失败，请重试', 2);

@@ -1,0 +1,38 @@
+<div id="regloginform">
+    <div class="item">
+        修改密码
+    </div>
+    <div class="item">
+        <input placeholder="输入旧密码" class="oldpasswd" type="password" value="">
+    </div>
+    <div class="item">
+        <input placeholder="设置新密码" class="newpasswd" type="password" value=""> <font color="red">* 只能使用字母，数字和下划线，4-16个字符</font>
+    </div>
+    <div class="item">
+        <button id="btnOk">确认修改</button>
+    </div>
+</div>
+
+{literal}
+<script language="JavaScript">
+    (function(){
+        $(document).ready(function() {
+            $('#regloginform .oldpasswd').focus();
+        });
+        $('body').delegate('#btnOk', 'click', function(){
+            var uid = $('#globaldata').data('uid');
+            var oldpasswd = $('#regloginform .oldpasswd').val();
+            var newpasswd = $('#regloginform .newpasswd').val();
+            $.post('/rest/user/item/' + uid,
+                    {'method': 'PUT', 'put_style': 'passwd', 'update':{'oldpasswd':oldpasswd, 'newpasswd':newpasswd}},
+                    function(data, status){
+                if (data.errno) {
+                    alert(data.error);
+                } else {
+                    window.location.href = 'http://' + $('#globaldata').data('wwwdomain');
+                }
+            }, 'json');
+        });
+    })();
+</script>
+{/literal}
