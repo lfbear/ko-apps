@@ -4,7 +4,7 @@
 
 {literal}
 <script language="JavaScript">
-	function loadpcount(imgdom) {
+	function onalbumcoverload(imgdom) {
 		var img = $(imgdom);
 		var root = img.closest('.albumdiv');
 		var pcountdiv = root.find('.albumpcount');
@@ -56,14 +56,14 @@
 	            {if $logininfo.uid == $userinfo.uid && !$album.isrecycle}
 	            <div class="albumdelete hide" style="position: absolute;top: 0px; left: 0px;line-height: 20px;padding: 3px;"><a href="javascript:;" class="delAlbum">X</a></div>
 	            {/if}
-                <a href="album?uid={$album.uid}&albumid={$album.albumid}"><img src="{$album.cover}" style="vertical-align: middle;" onload="javascript: loadpcount(this);"></a>
+                <a href="album?uid={$album.uid}&albumid={$album.albumid}"><img src="{$album.cover}" style="vertical-align: middle;" onload="javascript: onalbumcoverload(this);"></a>
             </div>
             <div class="clear"></div>
             <div style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;">
                 {if $logininfo.uid == $userinfo.uid && !$album.isrecycle}
                 <span class="txtAlbumtitle">{$album.title}</span>
                 <span class="inputAlbumtitle hide">
-	                <input type="text" value="{$album.title}" size="12" placeholder="相册标题" style="text-align: center;width: 240px;height: 30px;outline: solid 1px;">
+	                <input type="text" value="{$album.title}" placeholder="相册标题" style="text-align: center;width: 240px;height: 30px;outline: solid 1px;">
                 </span>
                 {else}
                 {$album.title}
@@ -83,12 +83,10 @@
 <script language="JavaScript">
     (function(){
 	    $('body').delegate('.albumcoverdiv', 'mouseenter', function(){
-			var root = $(this).closest('.albumdiv');
-		    root.find('.albumdelete').show();
+		    $(this).find('.albumdelete').show();
 	    });
 	    $('body').delegate('.albumcoverdiv', 'mouseleave', function(){
-		    var root = $(this).closest('.albumdiv');
-		    root.find('.albumdelete').hide();
+		    $(this).find('.albumdelete').hide();
 	    });
 
         $(document).ready(function() {

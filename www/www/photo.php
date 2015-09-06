@@ -31,8 +31,8 @@ Ko_Web_Route::VGet('album', function () {
 		Ko_Web_Response::VSend();
 		exit;
 	}
-	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo16')));
-	$photolist = empty($albuminfo) ? array() : $photoApi->getPhotoList($uid, $albumid, ($pageno - 1) * $num, $num, $total, 'imageView2/2/w/150/h/150');
+	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
+	$photolist = empty($albuminfo) ? array() : $photoApi->getPhotoList($uid, $albumid, ($pageno - 1) * $num, $num, $total, 'imageView2/2/w/240');
 	if (empty($photolist) && $pageno > 1) {
 		Ko_Web_Response::VSetRedirect('?uid=' . $uid . '&albumid=' . $albumid);
 		Ko_Web_Response::VSend();
@@ -68,6 +68,7 @@ Ko_Web_Route::VGet('item', function () {
 		exit;
 	}
 	$photoinfo['image_src'] = $storageApi->sGetUrl($photoinfo['image'], '');
+	$photoinfo['image_small'] = $storageApi->sGetUrl($photoinfo['image'], 'imageView2/1/w/60');
 	$photoinfo['image'] = $storageApi->sGetUrl($photoinfo['image'], 'imageView2/2/w/600/h/600');
 	$albuminfo = $photoApi->getAlbumInfo($uid, $photoinfo['albumid']);
 	if ($albuminfo['isrecycle'] && $uid != $loginuid) {
@@ -75,23 +76,33 @@ Ko_Web_Route::VGet('item', function () {
 		Ko_Web_Response::VSend();
 		exit;
 	}
-	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo16')));
+	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
 
 	$prevlist = $nextlist = array();
 	$curinfo = $photoinfo;
 	while (!empty($curinfo = $photoApi->getPrevPhotoInfo($curinfo))) {
-		$curinfo['image'] = $storageApi->sGetUrl($curinfo['image'], 'imageView2/2/w/100/h/100');
+		$curinfo['image'] = $storageApi->sGetUrl($curinfo['image'], 'imageView2/1/w/60');
 		array_unshift($prevlist, $curinfo);
-		if (count($prevlist) >= 3) {
+		if (count($prevlist) >= 4) {
 			break;
 		}
 	}
 	$curinfo = $photoinfo;
 	while (!empty($curinfo = $photoApi->getNextPhotoInfo($curinfo))) {
-		$curinfo['image'] = $storageApi->sGetUrl($curinfo['image'], 'imageView2/2/w/100/h/100');
+		$curinfo['image'] = $storageApi->sGetUrl($curinfo['image'], 'imageView2/1/w/60');
 		array_push($nextlist, $curinfo);
-		if (count($nextlist) >= 3) {
+		if (count($nextlist) >= 15 - count($prevlist)) {
 			break;
+		}
+	}
+	if (!empty($prevlist) && count($prevlist) + count($nextlist) < 15) {
+		$curinfo = $prevlist[0];
+		while (!empty($curinfo = $photoApi->getPrevPhotoInfo($curinfo))) {
+			$curinfo['image'] = $storageApi->sGetUrl($curinfo['image'], 'imageView2/1/w/60');
+			array_unshift($prevlist, $curinfo);
+			if (count($prevlist) >= 15 - count($nextlist)) {
+				break;
+			}
 		}
 	}
 

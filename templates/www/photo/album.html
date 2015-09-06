@@ -3,68 +3,119 @@
      data-albumid="{$albuminfo.albumid}">
 </div>
 
-<a href="user?uid={$userinfo.uid}">{$userinfo.nickname}<img src="{$userinfo.logo16}"></a> 的相册
-{if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-<span id="txtAlbumtitle">{$albuminfo.title}</span>
-<span id="inputAlbumtitle" class="hide"><input type="text" value="{$albuminfo.title}" size="20" placeholder="相册标题"></span>
-{else}
-{$albuminfo.title}
-{/if}
-<br>
-{if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-<span id="txtAlbumintro">{$albuminfo.intro|default:'-'}</span>
-<span id="inputAlbumintro" class="hide"><textarea rows="5" cols="100" placeholder="相册说明">{$albuminfo.intro}</textarea></span>
-{else}
-{$albuminfo.intro|default:'-'}
-{/if}
-<hr>
-{if $page.no > 1}
-<a href="?uid={$userinfo.uid}&albumid={$albuminfo.albumid}&pageno={$page.no-1}">上一页</a>
-{else}
-上一页
-{/if}
-{if $page.no * $page.num < $page.data_total}
-<a href="?uid={$userinfo.uid}&albumid={$albuminfo.albumid}&pageno={$page.no+1}">下一页</a>
-{else}
-下一页
-{/if}
-{if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-<button id="btnAddPhoto">添加照片</button>
-{/if}
-<br>
+{literal}
+<script language="JavaScript">
+    function onphotoload(imgdom) {
+        var img = $(imgdom);
+        var root = img.closest('.photodiv');
+        var coverdiv = root.find('.photocover');
+        var deletediv = root.find('.photodelete');
+        coverdiv.css('left', imgdom.offsetLeft + 3 + 'px');
+        coverdiv.css('top', imgdom.offsetTop + 3 + 'px');
+        deletediv.css('left', imgdom.offsetWidth + imgdom.offsetLeft - 20 + 'px');
+        deletediv.css('top', imgdom.offsetTop + 3 + 'px');
+    }
+</script>
+{/literal}
 
-<div id="photolist" style="width: 800px;">
-    {foreach $photolist as $photo}
-    <div class="photodiv" data-photoid="{$photo.photoid}" style="float: left;width: 155px;height: 195px;padding-right: 5px;padding-top: 5px;">
-        <div style="text-align: right;height: 160px;">
-            <a href="item?uid={$photo.uid}&photoid={$photo.photoid}"><img src="{$photo.image}"></a>
-        </div>
-        <div style="clear: both;"></div>
-        <div style="width: 100px;overflow: hidden;float: left;line-height: 22px;height: 22px;white-space: nowrap;">
-            {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-            <span class="txtPhototitle">{$photo.title}</span>
-            <span class="inputPhototitle hide"><input type="text" value="{$photo.title}" size="12" placeholder="照片标题"></span>
-            {else}
-            {$photo.title}
-            {/if}
-        </div>
-        <div style="float: right;text-align: right;width: 55px;">
-            {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-            <a href="javascript:;" class="setAlbumCover">C</a>
-            {/if}
-            {if $logininfo.uid == $userinfo.uid}
-            <a href="javascript:;" class="deletePhoto">X</a>
-            {/if}
-        </div>
-        <div style="clear: both;"></div>
+<div class="main">
+    <div class="title left" style="padding-right: 36px;">
+        <img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;">
     </div>
-    {/foreach}
-    <div style="clear: both;"></div>
+    <div class="title left" style="padding-right: 5px;">
+        {$userinfo.nickname} 的相册
+    </div>
+    <div class="title left">
+        {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
+        <span id="txtAlbumtitle">{$albuminfo.title}</span>
+        <span id="inputAlbumtitle" class="hide">
+            <input type="text" value="{$albuminfo.title}" placeholder="相册标题" style="width: 120px;height: 30px;outline: solid 1px;">
+        </span>
+        {else}
+        {$albuminfo.title}
+        {/if}
+    </div>
+    {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
+    <div class="title right" style="width:150px;text-align: center;">
+        <button id="btnAddPhoto">上传照片</button>
+    </div>
+    {/if}
+    <div class="clear"></div>
+
+    <div style="padding-left: 150px;padding-right: 150px;">
+        {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
+        <span id="txtAlbumintro">{$albuminfo.intro|default:'-'}</span>
+        <span id="inputAlbumintro" class="hide"><textarea placeholder="相册说明" style="width: 700px;height: 100px;outline: solid 1px;">{$albuminfo.intro}</textarea></span>
+        {else}
+        {$albuminfo.intro|default:'-'}
+        {/if}
+    </div>
+    <div class="clear"></div>
+
+    <div class="left">
+    {if $page.no > 1}
+    <a href="?uid={$userinfo.uid}&albumid={$albuminfo.albumid}&pageno={$page.no-1}">上一页</a>
+    {else}
+    上一页
+    {/if}
+    </div>
+    <div class="right">
+    {if $page.no * $page.num < $page.data_total}
+    <a href="?uid={$userinfo.uid}&albumid={$albuminfo.albumid}&pageno={$page.no+1}">下一页</a>
+    {else}
+    下一页
+    {/if}
+    </div>
+    <div class="clear"></div>
+
+    <div id="photolist">
+        {foreach $photolist as $photo}
+        <div class="photodiv left" data-photoid="{$photo.photoid}" style="width: 240px;padding: 5px;">
+            <div class="photoimgdiv" style="text-align: center;position: relative;">
+                {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
+                <div class="photocover hide" style="position: absolute;top: 0px; left: 0px;line-height: 20px;padding: 3px;">
+                    <a href="javascript:;" class="setAlbumCover">C</a>
+                </div>
+                {/if}
+                {if $logininfo.uid == $userinfo.uid}
+                <div class="photodelete hide" style="position: absolute;top: 0px; left: 0px;line-height: 20px;padding: 3px;">
+                    <a href="javascript:;" class="deletePhoto">X</a>
+                </div>
+                {/if}
+                <a href="item?uid={$photo.uid}&photoid={$photo.photoid}"><img src="{$photo.image}" style="vertical-align: middle;" onload="javascript: onphotoload(this);"></a>
+            </div>
+            <div class="clear"></div>
+
+            <div style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;">
+                {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
+                <span class="txtPhototitle">{$photo.title}</span>
+                <span class="inputPhototitle hide">
+	                <input type="text" value="{$photo.title}" placeholder="照片标题" style="text-align: center;width: 240px;height: 30px;outline: solid 1px;">
+                </span>
+                {else}
+                {$photo.title}
+                {/if}
+            </div>
+            <div class="clear"></div>
+        </div>
+        {/foreach}
+        <div class="clear"></div>
+    </div>
 </div>
+
 
 {literal}
 <script language="JavaScript">
     (function(){
+        $('body').delegate('.photoimgdiv', 'mouseenter', function(){
+            $(this).find('.photodelete').show();
+            $(this).find('.photocover').show();
+        });
+        $('body').delegate('.photoimgdiv', 'mouseleave', function(){
+            $(this).find('.photodelete').hide();
+            $(this).find('.photocover').hide();
+        });
+
         function saveTitle() {
             var oldVal = $('#txtAlbumtitle').text();
             var newVal = $('#inputAlbumtitle input').val();
@@ -90,6 +141,7 @@
         $('body').delegate('#txtAlbumtitle', 'mouseover', function(){
             $('#txtAlbumtitle').hide();
             $('#inputAlbumtitle').show();
+            $('#inputAlbumtitle input').focus();
         });
         $('body').delegate('#inputAlbumtitle', 'mouseout', function(){
             saveTitle();
@@ -119,6 +171,7 @@
                                 $('#txtAlbumintro').text(newVal);
                                 $('#txtAlbumintro').show();
                                 $('#inputAlbumintro').hide();
+                                resetTextareaHeight();
                             }
                         }, 'json');
             } else {
@@ -126,9 +179,16 @@
                 $('#inputAlbumintro').hide();
             }
         }
+        function resetTextareaHeight() {
+            var height = $('#txtAlbumintro').height() - 3;
+            if (height > parseInt($('#inputAlbumintro textarea').css('height'))) {
+                $('#inputAlbumintro textarea').css('height', height + 'px');
+            }
+        }
         $('body').delegate('#txtAlbumintro', 'mouseover', function(){
             $('#txtAlbumintro').hide();
             $('#inputAlbumintro').show();
+            $('#inputAlbumintro textarea').focus();
         });
         $('body').delegate('#inputAlbumintro', 'mouseout', function(){
             saveIntro();
@@ -141,6 +201,9 @@
                 $('#inputAlbumintro').hide();
                 $('#inputAlbumintro textarea').text($('#txtAlbumintro').text());
             }
+        });
+        $(document).ready(function() {
+            resetTextareaHeight();
         });
 
         function savePhotoTitle(root) {
@@ -169,6 +232,7 @@
             var root = $(this).closest('.photodiv');
             root.find('.txtPhototitle').hide();
             root.find('.inputPhototitle').show();
+            root.find('.inputPhototitle input').focus();
         });
         $('body').delegate('#photolist .inputPhototitle', 'mouseout', function(){
             var root = $(this).closest('.photodiv');
@@ -240,19 +304,19 @@
                 init: {
                     FilesAdded: function (up, files) {
                         plupload.each(files, function(file) {
-                            var photohtml = '<div id="' + file.id + '" class="photodiv" data-photoid="0"  style="float: left;width: 155px;height: 195px;padding-right: 5px;padding-top: 5px;">' +
-                                    '<div class="photoimage" style="text-align: right;height: 160px;">' +
-                                    '</div>' +
-                                    '<div style="clear: both;"></div>' +
-                                    '<div class="phototitle" style="width: 100px;overflow: hidden;float: left;line-height: 22px;height: 22px;white-space: nowrap;">' +
-                                    '等待上传中...</div>' +
-                                    '<div style="clear: both;"></div>' +
-                                    '</div>';
+                            var photohtml = '<div class="left" id="' + file.id + '" style="width: 240px;height: 290px;padding: 5px;">' +
+                                '<div class="photoimage" style="text-align: center;height: 240px;line-height: 240px;">' +
+                                '</div>' +
+                                '<div class="clear"></div>' +
+                                '<div class="phototitle" style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;">' +
+                                '等待上传中...</div>' +
+                                '<div class="clear"></div>' +
+                                '</div>';
                             $('#photolist').html(photohtml + $('#photolist').html());
                             if ('image/gif' == file.type) {
                                 var img = new mOxie.FileReader();
                                 img.onload = function() {
-                                    $('#photolist [id=' + file.id + '] .photoimage').html('<img src="' + img.result + '" width="150px" height="150px">');
+                                    $('#photolist [id=' + file.id + '] .photoimage').html('<img src="' + img.result + '" width="240px" height="240px">');
                                     img.destroy();
                                     img = null;
                                 };
@@ -262,13 +326,13 @@
                                 img.onload = function() {
                                     var width = img.width;
                                     var height = img.height;
-                                    if (width > 150 || height > 150) {
+                                    if (width > 240 || height > 240) {
                                         if (height > width) {
-                                            width = width * 150 / height;
-                                            height = 150;
+                                            width = width * 240 / height;
+                                            height = 240;
                                         } else {
-                                            height = height * 150 / width;
-                                            width = 150;
+                                            height = height * 240 / width;
+                                            width = 240;
                                         }
                                         img.downsize(width, height);
                                     }
