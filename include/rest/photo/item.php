@@ -15,7 +15,17 @@ class KRest_Photo_item
 				'image' => 'string',
 				'ctime' => 'string',
 				'title' => 'string',
+				'size' => array('hash', array(
+					'width' => 'int',
+					'height' => 'int',
+				)),
 			)),
+		),
+		'filterstylelist' => array(
+			'default' => array(
+				'uid' => 'int',
+				'albumid' => 'int',
+			),
 		),
 		'poststylelist' => array(
 			'default' => 'any',
@@ -30,6 +40,31 @@ class KRest_Photo_item
 	{
 		list($uid, $photoid) = explode('_', $str);
 		return compact('uid', 'photoid');
+	}
+
+	public function getMulti($style, $page, $filter, $exstyle = null, $filter_style = 'default')
+	{
+		static $num = 20;
+
+		$loginApi = new KUser_loginApi();
+		$loginuid = $loginApi->iGetLoginUid();
+
+		$photoApi = new KPhoto_Api();
+		$albuminfo = $photoApi->getAlbumInfo($filter['uid'], $filter['albumid']);
+		if (empty($albuminfo) || ($albuminfo['isrecycle'] && $filter['uid'] != $loginuid)) {
+			throw new Exception('获取数据失败', 1);
+		}
+
+		$photolist = $photoApi->getPhotoListByBoundary($filter['uid'], $filter['albumid'], $page['boundary'], $num, $next, 'imageView2/2/w/240');
+		$count = count($photolist);
+		return array(
+			'list' => $photolist,
+			'page' => array(
+				'num' => $num,
+				'next' => $next,
+				'next_boundary' => $photolist[$count-1]['photoid'].'_'.$photolist[$count-1][sort].'_'.$photolist[$count-1]['pos'],
+			),
+		);
 	}
 
 	public function post($update, $after = null, $post_style = 'default')

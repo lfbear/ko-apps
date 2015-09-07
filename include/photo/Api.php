@@ -63,23 +63,89 @@ class KPhoto_Api extends Ko_Busi_Api
 		return $info;
 	}
 
-	public function getPhotoList($uid, $albumid, $start, $num, &$total, $decorate)
+	public function getPhotoListByBoundary($uid, $albumid, $boundary, $num, &$next, $decorate)
 	{
+		$next = 0;
 		if (!$uid) {
-			$total = 0;
 			return array();
 		}
 		$albumkey = compact('uid', 'albumid');
 		$album = $this->albumDao->aGet($albumkey);
 		if (empty($album)) {
-			$total = 0;
+			return array();
+		}
+		list($boundary_photoid, $boundary_sort, $boundary_pos) = explode('_', $boundary);
+		$option = new Ko_Tool_SQL();
+		if ($boundary_photoid) {
+			$option->oAnd('sort < ? OR (sort = ? AND photoid < ?)', $boundary_sort, $boundary_sort, $boundary_photoid);
+		}
+		$limit = $num + 1;
+		$option->oAnd('albumid = ?', $albumid)->oLimit($limit)->oOrderBy('sort desc, photoid desc');
+		$photolist = $this->photoDao->aGetList($option);
+		if ($count = count($photolist)) {
+			if ($count > $num) {
+				$next = array_pop($photolist);
+				$count --;
+				$next = $next['photoid'];
+			}
+		}
+		$photoids = Ko_Tool_Utils::AObjs2ids($photolist, 'photoid');
+		$contentApi = new KContent_Api();
+		$aText = $contentApi->aGetText(KContent_Api::PHOTO_TITLE, $photoids);
+		$api = new KStorage_Api;
+		$images = Ko_Tool_Utils::AObjs2ids($photolist, 'image');
+		$sizes = $api->aGetImagesSize($images);
+		foreach ($photolist as $k => &$v) {
+			$v['size'] = $sizes[$v['image']];
+			$v['image'] = $api->sGetUrl($v['image'], $decorate);
+			$v['title'] = $aText[$v['photoid']];
+
+			$update = array();
+			if ($boundary_pos + $k + 1 != $v['pos']) {
+				$update['pos'] = $v['pos'] = $boundary_pos + $k + 1;
+			}
+			if ($k != 0) {
+				if ($photolist[$k-1]['photoid'] != $v['prev']) {
+					$update['prev'] = $v['prev'] = $photolist[$k-1]['photoid'];
+				}
+			} else {
+				if ($boundary_photoid != $v['prev']) {
+					$update['prev'] = $v['prev'] = $boundary_photoid;
+				}
+			}
+			if ($k != $count - 1) {
+				if ($photolist[$k+1]['photoid'] != $v['next']) {
+					$update['next'] = $v['next'] = $photolist[$k+1]['photoid'];
+				}
+			} else {
+				if ($next != $v['next']) {
+					$update['next'] = $v['next'] = $next;
+				}
+			}
+			if (!empty($update)) {
+				$this->photoDao->iUpdate($v, $update);
+			}
+		}
+		unset($v);
+		return $photolist;
+	}
+
+	public function getPhotoList($uid, $albumid, $start, $num, &$total, $decorate)
+	{
+		$total = 0;
+		if (!$uid) {
+			return array();
+		}
+		$albumkey = compact('uid', 'albumid');
+		$album = $this->albumDao->aGet($albumkey);
+		if (empty($album)) {
 			return array();
 		}
 		$option = new Ko_Tool_SQL();
 		$offset = ($start > 0) ? $start - 1 : $start;
 		$addnum = ($start > 0) ? 2 : 1;
 		$limit = $num + $addnum;
-		$option->oWhere('albumid = ?', $albumid)->oOffset($offset)->oLimit($limit)->oCalcFoundRows(true)->oOrderBy('sort desc');
+		$option->oAnd('albumid = ?', $albumid)->oOffset($offset)->oLimit($limit)->oCalcFoundRows(true)->oOrderBy('sort desc, photoid desc');
 		$photolist = $this->photoDao->aGetList($option);
 		if ($count = count($photolist)) {
 			if ($start > 0) {
@@ -105,13 +171,16 @@ class KPhoto_Api extends Ko_Busi_Api
 		$contentApi = new KContent_Api();
 		$aText = $contentApi->aGetText(KContent_Api::PHOTO_TITLE, $photoids);
 		$api = new KStorage_Api;
+		$images = Ko_Tool_Utils::AObjs2ids($photolist, 'image');
+		$sizes = $api->aGetImagesSize($images);
 		foreach ($photolist as $k => &$v) {
+			$v['size'] = $sizes[$v['image']];
 			$v['image'] = $api->sGetUrl($v['image'], $decorate);
 			$v['title'] = $aText[$v['photoid']];
 
 			$update = array();
 			if ($start + $k + 1 != $v['pos']) {
-				$update['pos'] = $start + $k + 1;
+				$update['pos'] = $v['pos'] = $start + $k + 1;
 			}
 			if ($k != 0) {
 				if ($photolist[$k-1]['photoid'] != $v['prev']) {
@@ -180,21 +249,6 @@ class KPhoto_Api extends Ko_Busi_Api
 		}
 		$contentApi = new KContent_Api();
 		return $contentApi->bSet(KContent_Api::PHOTO_TITLE, $photoid, $title);
-	}
-
-	public function changeAlbumCover($uid, $albumid, $cover)
-	{
-		if (!$uid) {
-			return false;
-		}
-		$recycleid = $this->_getRecycleAlbumid($uid);
-		if ($albumid == $recycleid) {
-			return false;
-		}
-		$albumkey = compact('uid', 'albumid');
-		$update = compact('cover');
-		$this->albumDao->iUpdate($albumkey, $update);
-		return true;
 	}
 
 	public function changeAlbumTitle($uid, $albumid, $title)

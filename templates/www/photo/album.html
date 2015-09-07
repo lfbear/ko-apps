@@ -1,22 +1,8 @@
 <div id="albumdata" class="hide"
      data-uid="{$userinfo.uid}"
-     data-albumid="{$albuminfo.albumid}">
+     data-albumid="{$albuminfo.albumid}"
+     data-isrecycle="{$albuminfo.isrecycle}">
 </div>
-
-{literal}
-<script language="JavaScript">
-    function onphotoload(imgdom) {
-        var img = $(imgdom);
-        var root = img.closest('.photodiv');
-        var coverdiv = root.find('.photocover');
-        var deletediv = root.find('.photodelete');
-        coverdiv.css('left', imgdom.offsetLeft + 3 + 'px');
-        coverdiv.css('top', imgdom.offsetTop + 3 + 'px');
-        deletediv.css('left', imgdom.offsetWidth + imgdom.offsetLeft - 20 + 'px');
-        deletediv.css('top', imgdom.offsetTop + 3 + 'px');
-    }
-</script>
-{/literal}
 
 <div class="main">
     <div class="title left" style="padding-right: 36px;">
@@ -26,13 +12,11 @@
         {$userinfo.nickname} 的相册
     </div>
     <div class="title left">
+	    <span id="txtAlbumtitle">{$albuminfo.title}</span>
         {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-        <span id="txtAlbumtitle">{$albuminfo.title}</span>
         <span id="inputAlbumtitle" class="hide">
-            <input type="text" value="{$albuminfo.title}" placeholder="相册标题" style="width: 120px;height: 30px;outline: solid 1px;">
+            <input type="text" value="{$albuminfo.title}" placeholder="相册标题" style="width: 120px;height: 30px;">
         </span>
-        {else}
-        {$albuminfo.title}
         {/if}
     </div>
     {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
@@ -42,80 +26,162 @@
     {/if}
     <div class="clear"></div>
 
-    <div style="padding-left: 150px;padding-right: 150px;">
-        {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-        <span id="txtAlbumintro">{$albuminfo.intro|default:'-'}</span>
-        <span id="inputAlbumintro" class="hide"><textarea placeholder="相册说明" style="width: 700px;height: 100px;outline: solid 1px;">{$albuminfo.intro}</textarea></span>
+    {$cols = 4} {$colsHeight = array(0, 0, 0, 0)} {$colsData = array()}
+    {foreach $photolist as $photo}
+        {$minh = $colsHeight[0]} {$minindex = 0}
+        {for $i=1; $i<$cols; $i++}
+            {if $colsHeight[$i] < $minh}
+                {$minh = $colsHeight[$i]}
+                {$minindex = $i}
+            {/if}
+        {/for}
+        {if $photo.size.width < 240}
+            {$photoimgwidth = $photo.size.width}
+            {$photoimgheight = $photo.size.height}
         {else}
-        {$albuminfo.intro|default:'-'}
+            {$photoimgwidth = 240}
+            {$photoimgheight = intval(240 * $photo.size.height / $photo.size.width)}
         {/if}
-    </div>
-    <div class="clear"></div>
-
-    <div class="left">
-    {if $page.no > 1}
-    <a href="?uid={$userinfo.uid}&albumid={$albuminfo.albumid}&pageno={$page.no-1}">上一页</a>
-    {else}
-    上一页
-    {/if}
-    </div>
-    <div class="right">
-    {if $page.no * $page.num < $page.data_total}
-    <a href="?uid={$userinfo.uid}&albumid={$albuminfo.albumid}&pageno={$page.no+1}">下一页</a>
-    {else}
-    下一页
-    {/if}
-    </div>
-    <div class="clear"></div>
-
+        {$colsData[$photo.photoid] = array($minindex, $photoimgwidth, $photoimgheight)}
+        {$colsHeight[$minindex] = $colsHeight[$minindex] + $photoimgheight + 40}
+    {/foreach}
     <div id="photolist">
-        {foreach $photolist as $photo}
-        <div class="photodiv left" data-photoid="{$photo.photoid}" style="width: 240px;padding: 5px;">
-            <div class="photoimgdiv" style="text-align: center;position: relative;">
-                {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-                <div class="photocover hide" style="position: absolute;top: 0px; left: 0px;line-height: 20px;padding: 3px;">
-                    <a href="javascript:;" class="setAlbumCover">C</a>
-                </div>
-                {/if}
-                {if $logininfo.uid == $userinfo.uid}
-                <div class="photodelete hide" style="position: absolute;top: 0px; left: 0px;line-height: 20px;padding: 3px;">
-                    <a href="javascript:;" class="deletePhoto">X</a>
-                </div>
-                {/if}
-                <a href="item?uid={$photo.uid}&photoid={$photo.photoid}"><img src="{$photo.image}" style="vertical-align: middle;" onload="javascript: onphotoload(this);"></a>
-            </div>
-            <div class="clear"></div>
+	    {for $i=0; $i<$cols; $i++}
+	    <div id="photolist_col{$i}" class="left" data-col="{$i}" style="width: 250px;">
+		    {foreach $photolist as $photo}
+		    {if $colsData[$photo.photoid][0] == $i}
+		    <div class="photodiv" data-photoid="{$photo.photoid}" data-imgwidth="{$colsData[$photo.photoid][1]}" data-imgheight="{$colsData[$photo.photoid][2]}" style="width: 240px;padding: 5px;">
+			    <div class="photoimgdiv" style="text-align: center;position: relative;width: 240px;height: {$colsData[$photo.photoid][2]}px;">
+				    {if $logininfo.uid == $userinfo.uid}
+				    <div class="photodelete hide" style="position: absolute;top: 3px; left: {(200 + $colsData[$photo.photoid][1]) / 2}px;line-height: 20px;padding: 3px;">
+					    <a href="javascript:;" class="deletePhoto">X</a>
+				    </div>
+				    {/if}
+				    <a class="imagelink" href="item?uid={$photo.uid}&photoid={$photo.photoid}"><img class="image" src="{$photo.image}" style="vertical-align: middle;"></a>
+			    </div>
 
-            <div style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;">
-                {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-                <span class="txtPhototitle">{$photo.title}</span>
-                <span class="inputPhototitle hide">
-	                <input type="text" value="{$photo.title}" placeholder="照片标题" style="text-align: center;width: 240px;height: 30px;outline: solid 1px;">
-                </span>
-                {else}
-                {$photo.title}
-                {/if}
-            </div>
-            <div class="clear"></div>
-        </div>
-        {/foreach}
-        <div class="clear"></div>
+			    <div class="phototxtdiv" style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;font-size: 12px; color: #aaaaaa;">
+				    <span class="txtPhototitle">{$photo.photoid} - {$photo.title}</span>
+				    {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
+	                <span class="inputPhototitle hide">
+		                <input type="text" value="{$photo.title}" placeholder="照片标题" style="text-align: center;width: 230px;height: 30px;">
+	                </span>
+				    {/if}
+			    </div>
+		    </div>
+		    {/if}
+		    {/foreach}
+	    </div>
+	    {/for}
+	    <div class="clear"></div>
     </div>
+    {if $page.next}
+    <div id="getmorediv" data-next="{$page.next}" data-boundary="{$page.next_boundary}" style="height: 50px; line-height: 50px;text-align: center;font-size: 14px; color: #AAAAAA;cursor: pointer;">加载更多</div>
+    {/if}
 </div>
 
 
 {literal}
 <script language="JavaScript">
-    (function(){
-        $('body').delegate('.photoimgdiv', 'mouseenter', function(){
-            $(this).find('.photodelete').show();
-            $(this).find('.photocover').show();
-        });
-        $('body').delegate('.photoimgdiv', 'mouseleave', function(){
-            $(this).find('.photodelete').hide();
-            $(this).find('.photocover').hide();
-        });
+	(function(){
+        //瀑布流显示
+        var cols = 4;
+        var colsHeight = [0, 0, 0, 0];
+        var colsData = [];
+        var getmoring = false;
+        function initOneWaterfallData(photoid, imgwidth, imgheight)
+        {
+            var minh = colsHeight[0];
+            var minindex = 0;
+            for (var i=1; i<cols; ++i) {
+                if (colsHeight[i] < minh) {
+                    minh = colsHeight[i];
+                    minindex = i;
+                }
+            }
+            var photoimgwidth, photoimgheight;
+            if (imgwidth < 240) {
+                photoimgwidth = imgwidth;
+                photoimgheight = imgheight;
+            } else {
+                photoimgwidth = 240;
+                photoimgheight = parseInt(240 * imgheight / imgwidth);
+            }
+            colsData[photoid] = [minindex, photoimgwidth, photoimgheight];
+            colsHeight[minindex] += photoimgheight + 40;
+        }
+        function initWaterfallData()
+        {
+            $('#photolist .photodiv').each(function(){
+	            var minindex = $(this).parent().data('col');
+	            var width = $(this).data('imgwidth');
+	            var height = $(this).data('imgheight');
+	            var photoid = $(this).data('photoid');
+	            colsData[photoid] = [minindex, width, height];
+            });
+	        for (var i=0; i<cols; ++i) {
+		        colsHeight[i] = $('#photolist_col' + i).height();
+	        }
+        }
+        function getMorePhoto() {
+            var next = parseInt($('#getmorediv').data('next'));
+            if (next && !getmoring) {
+                var uid = $('#albumdata').data('uid');
+                var albumid = $('#albumdata').data('albumid');
+                var isrecycle = parseInt($('#albumdata').data('isrecycle'));
+                var boundary = $('#getmorediv').data('boundary');
+                getmoring = true;
+                $.get('/rest/photo/item/',
+                    {'page':{'mode': 'sequential', 'boundary': boundary}, 'filter': {'uid': uid, 'albumid': albumid}},
+                    function(data, status){
+                        if (data.errno) {
+                            alert(data.error);
+                        } else {
+                            if (!data.data.page.next) {
+                                $('#getmorediv').hide();
+                                $('#getmorediv').data('next', data.data.page.next);
+                            } else {
+                                $('#getmorediv').data('boundary', data.data.page.next_boundary);
+                            }
 
+                            $.each(data.data.list, function(i, n){
+                                initOneWaterfallData(n.photoid, n.size.width, n.size.height);
+                            });
+
+                            $.each(data.data.list, function(i, n){
+                                var photodiv = $('#photolist .photodiv:first').clone();
+                                photodiv.data('photoid', n.photoid);
+                                photodiv.data('imgwidth', n.size.width);
+                                photodiv.data('imgheight', n.size.height);
+
+                                photodiv.find('.photoimgdiv').css('height', colsData[n.photoid][2] + 'px');
+                                photodiv.find('.photodelete').css('left', ((200 + colsData[n.photoid][1]) / 2) + 'px');
+                                photodiv.find('.imagelink').attr('href', 'item?uid=' + n.uid + '&photoid=' + n.photoid);
+                                photodiv.find('.image').attr('src', n.image);
+                                photodiv.find('.txtPhototitle').text(n.photoid + ' - ' + n.title);
+                                photodiv.find('.inputPhototitle input').val(n.title);
+                                $('#photolist_col' + colsData[n.photoid][0]).append(photodiv);
+                            });
+                        }
+                        getmoring = false;
+                    }, 'json');
+            }
+        }
+        $(document).ready(function() {
+            initWaterfallData();
+        });
+        $(window).scroll(function(){
+            if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+                getMorePhoto();
+            }
+        });
+        $('body').delegate('#getmorediv', 'click', function(){
+            getMorePhoto();
+        });
+    })();
+
+    (function(){
+        //修改相册标题
         function saveTitle() {
             var oldVal = $('#txtAlbumtitle').text();
             var newVal = $('#inputAlbumtitle input').val();
@@ -138,74 +204,29 @@
                 $('#inputAlbumtitle').hide();
             }
         }
-        $('body').delegate('#txtAlbumtitle', 'mouseover', function(){
-            $('#txtAlbumtitle').hide();
-            $('#inputAlbumtitle').show();
-            $('#inputAlbumtitle input').focus();
-        });
-        $('body').delegate('#inputAlbumtitle', 'mouseout', function(){
-            saveTitle();
-        });
-        $('body').delegate('#inputAlbumtitle', 'keydown', function(e){
-            if (13 == e.keyCode) {
-                saveTitle();
-            } else if (27 == e.keyCode) {
-                $('#txtAlbumtitle').show();
-                $('#inputAlbumtitle').hide();
-                $('#inputAlbumtitle input').val($('#txtAlbumtitle').text());
-            }
-        });
+	    if ($('#inputAlbumtitle').length) {
+		    $('body').delegate('#txtAlbumtitle', 'mouseover', function(){
+			    $('#txtAlbumtitle').hide();
+			    $('#inputAlbumtitle').show();
+			    $('#inputAlbumtitle input').focus();
+		    });
+		    $('body').delegate('#inputAlbumtitle', 'mouseout', function(){
+			    saveTitle();
+		    });
+		    $('body').delegate('#inputAlbumtitle', 'keydown', function(e){
+			    if (13 == e.keyCode) {
+				    saveTitle();
+			    } else if (27 == e.keyCode) {
+				    $('#txtAlbumtitle').show();
+				    $('#inputAlbumtitle').hide();
+				    $('#inputAlbumtitle input').val($('#txtAlbumtitle').text());
+			    }
+		    });
+	    }
+    })();
 
-        function saveIntro() {
-            var oldVal = $('#txtAlbumintro').text();
-            var newVal = $('#inputAlbumintro textarea').val();
-            if (oldVal != newVal && '' != newVal && '-' != newVal) {
-                var uid = $('#albumdata').data('uid');
-                var albumid = $('#albumdata').data('albumid');
-                $.post('/rest/photo/album/' + uid + '_' + albumid,
-                        {'method':'PUT', 'put_style':'intro', 'update': newVal},
-                        function(data, status){
-                            if (data.errno) {
-                                alert(data.error);
-                            } else {
-                                $('#txtAlbumintro').text(newVal);
-                                $('#txtAlbumintro').show();
-                                $('#inputAlbumintro').hide();
-                                resetTextareaHeight();
-                            }
-                        }, 'json');
-            } else {
-                $('#txtAlbumintro').show();
-                $('#inputAlbumintro').hide();
-            }
-        }
-        function resetTextareaHeight() {
-            var height = $('#txtAlbumintro').height() - 3;
-            if (height > parseInt($('#inputAlbumintro textarea').css('height'))) {
-                $('#inputAlbumintro textarea').css('height', height + 'px');
-            }
-        }
-        $('body').delegate('#txtAlbumintro', 'mouseover', function(){
-            $('#txtAlbumintro').hide();
-            $('#inputAlbumintro').show();
-            $('#inputAlbumintro textarea').focus();
-        });
-        $('body').delegate('#inputAlbumintro', 'mouseout', function(){
-            saveIntro();
-        });
-        $('body').delegate('#inputAlbumintro', 'keydown', function(e){
-            if (13 == e.keyCode) {
-                saveIntro();
-            } else if (27 == e.keyCode) {
-                $('#txtAlbumintro').show();
-                $('#inputAlbumintro').hide();
-                $('#inputAlbumintro textarea').text($('#txtAlbumintro').text());
-            }
-        });
-        $(document).ready(function() {
-            resetTextareaHeight();
-        });
-
+    (function(){
+        //修改照片标题
         function savePhotoTitle(root) {
             var oldVal = root.find('.txtPhototitle').text();
             var newVal = root.find('.inputPhototitle input').val();
@@ -228,45 +249,38 @@
                 root.find('.inputPhototitle').hide();
             }
         }
-        $('body').delegate('#photolist .txtPhototitle', 'mouseover', function(){
-            var root = $(this).closest('.photodiv');
-            root.find('.txtPhototitle').hide();
-            root.find('.inputPhototitle').show();
-            root.find('.inputPhototitle input').focus();
-        });
-        $('body').delegate('#photolist .inputPhototitle', 'mouseout', function(){
-            var root = $(this).closest('.photodiv');
-            savePhotoTitle(root);
-        });
-        $('body').delegate('#photolist .inputPhototitle', 'keydown', function(e){
-            var root = $(this).closest('.photodiv');
-            if (13 == e.keyCode) {
-                savePhotoTitle(root);
-            } else if (27 == e.keyCode) {
-                root.find('.txtPhototitle').show();
-                root.find('.inputPhototitle').hide();
-                root.find('.inputPhototitle input').val(root.find('.txtPhototitle').text());
-            }
-        });
+	    if ($('.inputPhototitle').length) {
+		    $('body').delegate('#photolist .txtPhototitle', 'mouseover', function(){
+			    var root = $(this).closest('.photodiv');
+			    root.find('.txtPhototitle').hide();
+			    root.find('.inputPhototitle').show();
+			    root.find('.inputPhototitle input').focus();
+		    });
+		    $('body').delegate('#photolist .inputPhototitle', 'mouseout', function(){
+			    var root = $(this).closest('.photodiv');
+			    savePhotoTitle(root);
+		    });
+		    $('body').delegate('#photolist .inputPhototitle', 'keydown', function(e){
+			    var root = $(this).closest('.photodiv');
+			    if (13 == e.keyCode) {
+				    savePhotoTitle(root);
+			    } else if (27 == e.keyCode) {
+				    root.find('.txtPhototitle').show();
+				    root.find('.inputPhototitle').hide();
+				    root.find('.inputPhototitle input').val(root.find('.txtPhototitle').text());
+			    }
+		    });
+	    }
+    })();
 
-        $('body').delegate('.setAlbumCover', 'click', function(){
-            var uid = $('#albumdata').data('uid');
-            var albumid = $('#albumdata').data('albumid');
-            var root = $(this).closest('.photodiv');
-            var photoid = root.data('photoid');
-            if (confirm('确认要设置该照片为相册封面吗？')) {
-                $.post('/rest/photo/album/' + uid + '_' + albumid,
-                        {'method':'PUT', 'put_style':'cover','update':photoid},
-                        function(data, status){
-                    if (data.errno) {
-                        alert(data.error);
-                    } else {
-                        alert('设置成功');
-                    }
-                }, 'json');
-            }
+    (function(){
+        //删除图片
+        $('body').delegate('.photoimgdiv', 'mouseenter', function(){
+            $(this).find('.photodelete').show();
         });
-
+        $('body').delegate('.photoimgdiv', 'mouseleave', function(){
+            $(this).find('.photodelete').hide();
+        });
         $('body').delegate('.deletePhoto', 'click', function(){
             var uid = $('#albumdata').data('uid');
             var root = $(this).closest('.photodiv');
@@ -284,7 +298,11 @@
                 }, 'json');
             }
         });
+    })();
 
+    (function(){
+        //上传图片
+	    var pos = 0;
         $(document).ready(function() {
             var albumid = $('#albumdata').data('albumid');
             var uploaderConfig = {
@@ -304,19 +322,22 @@
                 init: {
                     FilesAdded: function (up, files) {
                         plupload.each(files, function(file) {
-                            var photohtml = '<div class="left" id="' + file.id + '" style="width: 240px;height: 290px;padding: 5px;">' +
-                                '<div class="photoimage" style="text-align: center;height: 240px;line-height: 240px;">' +
-                                '</div>' +
-                                '<div class="clear"></div>' +
-                                '<div class="phototitle" style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;">' +
-                                '等待上传中...</div>' +
-                                '<div class="clear"></div>' +
-                                '</div>';
-                            $('#photolist').html(photohtml + $('#photolist').html());
+	                        var photodiv = $('#photolist .photodiv:first').clone();
+	                        photodiv.attr('id', file.id);
+	                        photodiv.data('photoid', 0);
+	                        photodiv.data('imgwidth', 0);
+	                        photodiv.data('imgheight', 0);
+
+	                        photodiv.find('.photoimgdiv').css('height', '240px');
+	                        photodiv.find('.photoimgdiv').html('');
+	                        photodiv.find('.phototxtdiv').text('等待上传中...');
+	                        $('#photolist_col' + (pos % 4)).prepend(photodiv);
+	                        pos ++;
+
                             if ('image/gif' == file.type) {
                                 var img = new mOxie.FileReader();
                                 img.onload = function() {
-                                    $('#photolist [id=' + file.id + '] .photoimage').html('<img src="' + img.result + '" width="240px" height="240px">');
+                                    $('#photolist [id=' + file.id + '] .photoimgdiv').html('<img src="' + img.result + '" width="240px" height="240px">');
                                     img.destroy();
                                     img = null;
                                 };
@@ -326,17 +347,13 @@
                                 img.onload = function() {
                                     var width = img.width;
                                     var height = img.height;
-                                    if (width > 240 || height > 240) {
-                                        if (height > width) {
-                                            width = width * 240 / height;
-                                            height = 240;
-                                        } else {
-                                            height = height * 240 / width;
-                                            width = 240;
-                                        }
+                                    if (width > 240) {
+	                                    height = height * 240 / width;
+	                                    width = 240;
                                         img.downsize(width, height);
                                     }
-                                    $('#photolist [id=' + file.id + '] .photoimage').html('<img src="' + img.getAsDataURL() + '" width="' + width + 'px" height="' + height + 'px">');
+	                                $('#photolist [id=' + file.id + '] .photoimgdiv').css('height', height + 'px');
+                                    $('#photolist [id=' + file.id + '] .photoimgdiv').html('<img src="' + img.getAsDataURL() + '" width="' + width + 'px" height="' + height + 'px">');
                                     img.destroy();
                                     img = null;
                                 };
@@ -346,15 +363,15 @@
                         up.start();
                     },
                     UploadProgress: function (up, file) {
-                        $('#photolist [id=' + file.id + '] .phototitle').html(file.percent + '%');
+                        $('#photolist [id=' + file.id + '] .phototxtdiv').text(file.percent + '%');
                     },
                     FileUploaded: function (up, file, info) {
                         eval('var data = ' + info.response);
                         if (data.errno) {
                             alert(data.error);
                         } else {
-                            $('#photolist [id=' + file.id + '] .photoimage img').attr('src', data.data.after.image);
-                            $('#photolist [id=' + file.id + '] .phototitle').text(data.data.after.title);
+                            $('#photolist [id=' + file.id + '] .photoimgdiv img').attr('src', data.data.after.image);
+                            $('#photolist [id=' + file.id + '] .phototxtdiv').text(data.data.after.title);
                         }
                     },
                     UploadComplete: function (up, files) {

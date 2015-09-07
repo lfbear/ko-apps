@@ -28,7 +28,6 @@ class KRest_Photo_album
 		'putstylelist' => array(
 			'title' => 'string',
 			'intro' => 'string',
-			'cover' => 'int',
 		),
 	);
 
@@ -66,10 +65,6 @@ class KRest_Photo_album
 		$photoApi = new KPhoto_Api();
 		switch ($put_style)
 		{
-			case 'cover':
-				$photoinfo = $photoApi->getPhotoInfo($uid, $update);
-				$photoApi->changeAlbumCover($uid, $id['albumid'], $photoinfo['image']);
-				break;
 			case 'title':
 				$photoApi->changeAlbumTitle($uid, $id['albumid'], $update);
 				break;

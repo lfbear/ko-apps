@@ -17,13 +17,11 @@
         <a href="album?uid={$userinfo.uid}&albumid={$albuminfo.albumid}">{$albuminfo.title}</a> &gt;&nbsp;
     </div>
     <div class="title left">
-        {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
         <span id="txtPhototitle">{$photoinfo.title}</span>
+        {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
         <span id="inputPhototitle" class="hide">
             <input type="text" value="{$photoinfo.title}" placeholder="照片标题" style="width: 200px;height: 30px;">
         </span>
-        {else}
-        {$photoinfo.title}
         {/if}
     </div>
     <div class="clear"></div>
@@ -90,17 +88,17 @@
 
 {literal}
 <script language="JavaScript">
-    (function(){
+    (function() {
         //点击图片
-	    $('body').delegate('#photodiv', 'mousemove', function(e){
-		    var half = e.currentTarget.offsetWidth / 2;
-		    if (e.offsetX + (e.currentTarget.clientWidth - e.target.clientWidth) / 2 > half) {
-			    $(this).css('cursor', 'e-resize');
-		    } else {
-			    $(this).css('cursor', 'w-resize');
-		    }
-	    });
-        $('body').delegate('#photodiv', 'click', function(e){
+        $('body').delegate('#photodiv', 'mousemove', function (e) {
+            var half = e.currentTarget.offsetWidth / 2;
+            if (e.offsetX + (e.currentTarget.clientWidth - e.target.clientWidth) / 2 > half) {
+                $(this).css('cursor', 'e-resize');
+            } else {
+                $(this).css('cursor', 'w-resize');
+            }
+        });
+        $('body').delegate('#photodiv', 'click', function (e) {
             var half = e.currentTarget.offsetWidth / 2;
             if (e.offsetX + (e.currentTarget.clientWidth - e.target.clientWidth) / 2 > half) {
                 var photoid = parseInt($('#photodata').data('next'));
@@ -108,11 +106,13 @@
                 var photoid = parseInt($('#photodata').data('prev'));
             }
             if (photoid) {
-	            var uid = $('#photodata').data('uid');
+                var uid = $('#photodata').data('uid');
                 window.location.href = '?uid=' + uid + '&photoid=' + photoid + '#image';
             }
         });
+    })();
 
+    (function(){
         //修改图片标题
         function savePhotoTitle() {
             var oldVal = $('#txtPhototitle').text();
@@ -136,24 +136,28 @@
                 $('#inputPhototitle').hide();
             }
         }
-        $('body').delegate('#txtPhototitle', 'mouseover', function(){
-            $('#txtPhototitle').hide();
-            $('#inputPhototitle').show();
-            $('#inputPhototitle input').focus();
-        });
-        $('body').delegate('#inputPhototitle', 'mouseout', function(){
-            savePhotoTitle();
-        });
-        $('body').delegate('#inputPhototitle', 'keydown', function(e){
-            if (13 == e.keyCode) {
+        if ($('#inputPhototitle').length) {
+            $('body').delegate('#txtPhototitle', 'mouseover', function(){
+                $('#txtPhototitle').hide();
+                $('#inputPhototitle').show();
+                $('#inputPhototitle input').focus();
+            });
+            $('body').delegate('#inputPhototitle', 'mouseout', function(){
                 savePhotoTitle();
-            } else if (27 == e.keyCode) {
-                $('#txtPhototitle').show();
-                $('#inputPhototitle').hide();
-                $('#inputPhototitle input').val($('#txtPhototitle').text());
-            }
-        });
+            });
+            $('body').delegate('#inputPhototitle', 'keydown', function(e){
+                if (13 == e.keyCode) {
+                    savePhotoTitle();
+                } else if (27 == e.keyCode) {
+                    $('#txtPhototitle').show();
+                    $('#inputPhototitle').hide();
+                    $('#inputPhototitle input').val($('#txtPhototitle').text());
+                }
+            });
+        }
+    })();
 
+    (function(){
         //删除图片
         $('body').delegate('#deletePhoto', 'click', function(){
             var uid = $('#photodata').data('uid');

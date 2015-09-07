@@ -22,7 +22,6 @@ Ko_Web_Route::VGet('album', function () {
 
 	$uid = Ko_Web_Request::IGet('uid');
 	$albumid = Ko_Web_Request::IGet('albumid');
-	$pageno = max(1, Ko_Web_Request::IGet('pageno'));
 
 	$photoApi = new KPhoto_Api();
 	$albuminfo = $photoApi->getAlbumInfo($uid, $albumid);
@@ -31,14 +30,11 @@ Ko_Web_Route::VGet('album', function () {
 		Ko_Web_Response::VSend();
 		exit;
 	}
-	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
-	$photolist = empty($albuminfo) ? array() : $photoApi->getPhotoList($uid, $albumid, ($pageno - 1) * $num, $num, $total, 'imageView2/2/w/240');
-	if (empty($photolist) && $pageno > 1) {
-		Ko_Web_Response::VSetRedirect('?uid=' . $uid . '&albumid=' . $albumid);
-		Ko_Web_Response::VSend();
-		exit;
-	}
 
+	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
+	$photolist = $photoApi->getPhotoListByBoundary($uid, $albumid, '0_0_0', $num, $next, 'imageView2/2/w/240');
+
+	$count = count($photolist);
 	$render = new KRender_www;
 	$render->oSetTemplate('www/photo/album.html')
 		->oSetData('userinfo', $userinfo)
@@ -46,8 +42,8 @@ Ko_Web_Route::VGet('album', function () {
 		->oSetData('photolist', $photolist)
 		->oSetData('page', array(
 			'num' => $num,
-			'no' => $pageno,
-			'data_total' => $total,
+			'next' => $next,
+			'next_boundary' => $photolist[$count-1]['photoid'].'_'.$photolist[$count-1][sort].'_'.$photolist[$count-1]['pos'],
 		))
 		->oSend();
 });
