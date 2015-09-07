@@ -8,10 +8,10 @@
 
 <div class="main">
     <div class="title left" style="padding-right: 36px;">
-        <img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;">
+        <a href="user?uid={$userinfo.uid}"><img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;"></a>
     </div>
     <div class="title left" style="padding-right: 5px;">
-        {$userinfo.nickname} 的相册
+        <a href="user?uid={$userinfo.uid}">{$userinfo.nickname}</a> 的相册
     </div>
     <div class="title left">
         <a href="album?uid={$userinfo.uid}&albumid={$albuminfo.albumid}">{$albuminfo.title}</a> &gt;&nbsp;

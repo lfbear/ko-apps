@@ -1,13 +1,12 @@
 <?php
 
-$baseinfoApi = new KUser_baseinfoApi();
-$allusers = $baseinfoApi->aGetAllUser(array('logo48'));
-
+$num = 10;
 $sysmsgApi = new KSysmsg_Api;
-$msglist = $sysmsgApi->aGetList(0, 'index', 0, 10);
+$msglist = $sysmsgApi->getIndexList('0_0', $num, $next, $next_boundary);
 
+$page = compact('num', 'next', 'next_boundary');
 $render = new KRender_www;
 $render->oSetTemplate('www/index.html')
-	->oSetData('allusers', $allusers)
 	->oSetData('msglist', $msglist)
+	->oSetData('page', $page)
 	->oSend();

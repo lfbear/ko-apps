@@ -32,22 +32,6 @@ class KUser_baseinfoApi extends Ko_Mode_Item
 		return $newdatalist;
 	}
 
-	public function aGetAllUser($aMore)
-	{
-		$option = new Ko_Tool_SQL();
-		$infos = $this->aGetList($option->oWhere('1')->oOrderBy('uid desc'));
-		$uids = Ko_Tool_Utils::AObjs2ids($infos, 'uid');
-		$contentApi = new KContent_Api;
-		$nicknames = $contentApi->aGetText(KContent_Api::USER_NICKNAME, $uids);
-		foreach ($infos as &$v)
-		{
-			$v['nickname'] = $nicknames[$v['uid']];
-			self::_VFillMoreInfo($v, $aMore);
-		}
-		unset($v);
-		return $infos;
-	}
-
 	public function bUpdateNickname($uid, $nickname)
 	{
 		if ($uid) {

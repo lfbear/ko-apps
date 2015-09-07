@@ -6,10 +6,10 @@
 
 <div class="main">
     <div class="title left" style="padding-right: 36px;">
-        <img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;">
+        <a href="user?uid={$userinfo.uid}"><img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;"></a>
     </div>
     <div class="title left" style="padding-right: 5px;">
-        {$userinfo.nickname} 的相册
+        <a href="user?uid={$userinfo.uid}">{$userinfo.nickname}</a> 的相册
     </div>
     <div class="title left">
 	    <span id="txtAlbumtitle">{$albuminfo.title}</span>
@@ -31,6 +31,15 @@
 		<div class="left" style="height: 30px;line-height: 30px;">
 			<label><input type="checkbox" id="selectall" style="vertical-align: middle;"> 全选</label>
 		</div>
+		<div class="right" style="height: 30px;line-height: 30px;"><a id="deletePhoto" href="javascript:;">删除</a></div>
+		{$albumcount = 0}
+		{foreach $allalbumlist as $album}
+		{if $album.albumid != $albuminfo.albumid && !$album.isrecycle}
+		{$albumcount = $albumcount + 1}
+		{/if}
+		{/foreach}
+		{if $albumcount}
+		<div class="right" style="height: 30px;line-height: 30px;">&nbsp;|&nbsp;</div>
 		<div class="right" style="font-size: 8px;">
 		<select id="albumlist" class="hide">
 			{foreach $allalbumlist as $album}
@@ -40,7 +49,8 @@
 			{/foreach}
 		</select>
 		</div>
-		<div class="right" style="height: 30px;line-height: 30px;">转移到相册</div>
+		<div class="right" style="height: 30px;line-height: 30px;"><a id="movePhoto" href="javascript:;">转移到相册</a>&nbsp;</div>
+		{/if}
 	</div>
 	<div class="clear"></div>
 	{/if}
@@ -71,11 +81,6 @@
 		    {if $colsData[$photo.photoid][0] == $i}
 		    <div class="photodiv" data-photoid="{$photo.photoid}" data-imgwidth="{$colsData[$photo.photoid][1]}" data-imgheight="{$colsData[$photo.photoid][2]}" style="width: 240px;padding: 5px;">
 			    <div class="photoimgdiv" style="text-align: center;position: relative;width: 240px;height: {$colsData[$photo.photoid][2]}px;">
-				    {if $logininfo.uid == $userinfo.uid}
-				    <div class="photodelete hide" style="position: absolute;top: 3px; left: {(200 + $colsData[$photo.photoid][1]) / 2}px;line-height: 20px;padding: 3px;">
-					    <a href="javascript:;" class="deletePhoto">X</a>
-				    </div>
-				    {/if}
 				    <a class="imagelink" href="item?uid={$photo.uid}&photoid={$photo.photoid}"><img class="image" src="{$photo.image}" style="vertical-align: middle;"></a>
 			    </div>
 			    <div class="clear"></div>
@@ -105,7 +110,7 @@
     </div>
 	<div class="clear"></div>
     {if $page.next}
-    <div id="getmorediv" data-next="{$page.next}" data-boundary="{$page.next_boundary}" style="height: 50px; line-height: 50px;text-align: center;font-size: 14px; color: #AAAAAA;cursor: pointer;">加载更多</div>
+    <div id="getmorediv" data-num="{$page.num}" data-next="{$page.next}" data-boundary="{$page.next_boundary}" style="height: 50px; line-height: 50px;text-align: center;font-size: 14px; color: #AAAAAA;cursor: pointer;">加载更多</div>
     {/if}
 </div>
 
@@ -113,7 +118,7 @@
 {literal}
 <script language="JavaScript">
 	(function(){
-		//移动照片
+		//移动/删除照片
 		$(document).ready(function() {
 			$('#albumlist').selectmenu({'width': 150});
 		});
@@ -123,6 +128,53 @@
 		});
 		$('body').delegate('#photolist input[type=checkbox]', 'click', function(){
 			$('#selectall').prop('checked', false);
+		});
+        $('body').delegate('#movePhoto', 'click', function() {
+	        var len = $('#photolist input[type=checkbox]:checked').length;
+            if (!len) {
+                alert('请先选择要转移的照片。');
+                return;
+            } else if (confirm('确认要移动这' + len + '张照片吗？')) {
+	            var uid = $('#albumdata').data('uid');
+	            var albumid = $('#albumlist').val();
+	            var photoids = new Array();
+	            $('#photolist input[type=checkbox]:checked').each(function() {
+		            var photoid = $(this).closest('.photodiv').data('photoid');
+		            photoids.push({'key': {'uid': uid, 'photoid': photoid}, 'update': albumid});
+	            });
+	            $.post('/rest/photo/item/',
+		            {'method':'PUT', 'put_style':'albumid', 'list': photoids},
+		            function(data, status){
+			            if (data.errno) {
+				            alert(data.error);
+			            } else {
+				            window.location.reload();
+			            }
+		            }, 'json');
+            }
+        });
+		$('body').delegate('#deletePhoto', 'click', function() {
+			var len = $('#photolist input[type=checkbox]:checked').length;
+			if (!len) {
+				alert('请先选择要删除的照片。');
+				return;
+			} else if (confirm('确认要删除这' + len + '张照片吗？')) {
+				var uid = $('#albumdata').data('uid');
+				var photoids = new Array();
+				$('#photolist input[type=checkbox]:checked').each(function() {
+					var photoid = $(this).closest('.photodiv').data('photoid');
+					photoids.push({'key': {'uid': uid, 'photoid': photoid}});
+				});
+				$.post('/rest/photo/item/',
+					{'method':'DELETE', 'list': photoids},
+					function(data, status){
+						if (data.errno) {
+							alert(data.error);
+						} else {
+							window.location.reload();
+						}
+					}, 'json');
+			}
 		});
 	})();
 
@@ -173,9 +225,10 @@
                 var albumid = $('#albumdata').data('albumid');
                 var isrecycle = parseInt($('#albumdata').data('isrecycle'));
                 var boundary = $('#getmorediv').data('boundary');
+	            var num = $('#getmorediv').data('num');
                 getmoring = true;
                 $.get('/rest/photo/item/',
-                    {'page':{'mode': 'sequential', 'boundary': boundary}, 'filter': {'uid': uid, 'albumid': albumid}},
+                    {'page':{'mode': 'sequential', 'boundary': boundary, 'num': num}, 'filter': {'uid': uid, 'albumid': albumid}},
                     function(data, status){
                         if (data.errno) {
                             alert(data.error);
@@ -199,12 +252,12 @@
 
 	                            photodiv.find('input[type=checkbox]').prop('checked', false);
                                 photodiv.find('.photoimgdiv').css('height', colsData[n.photoid][2] + 'px');
-                                photodiv.find('.photodelete').css('left', ((200 + colsData[n.photoid][1]) / 2) + 'px');
                                 photodiv.find('.imagelink').attr('href', 'item?uid=' + n.uid + '&photoid=' + n.photoid);
                                 photodiv.find('.image').attr('src', n.image);
                                 photodiv.find('.txtPhototitle').text(n.title);
                                 photodiv.find('.inputPhototitle input').val(n.title);
                                 $('#photolist_col' + colsData[n.photoid][0]).append(photodiv);
+	                            $('#selectall').prop('checked', false);
                             });
                         }
                         getmoring = false;
@@ -315,33 +368,6 @@
 			    }
 		    });
 	    }
-    })();
-
-    (function(){
-        //删除图片
-        $('body').delegate('.photoimgdiv', 'mouseenter', function(){
-            $(this).find('.photodelete').show();
-        });
-        $('body').delegate('.photoimgdiv', 'mouseleave', function(){
-            $(this).find('.photodelete').hide();
-        });
-        $('body').delegate('.deletePhoto', 'click', function(){
-            var uid = $('#albumdata').data('uid');
-            var root = $(this).closest('.photodiv');
-            var photoid = root.data('photoid');
-            if (confirm('确认要删除该照片吗？')) {
-                $.post('/rest/photo/item/' + uid + '_' + photoid, {'method':'DELETE'}, function(data, status){
-                    if (data.errno) {
-                        alert(data.error);
-                    } else {
-                        root.remove();
-                        if (0 == $('#photolist .photodiv').length) {
-                            window.location.reload();
-                        }
-                    }
-                }, 'json');
-            }
-        });
     })();
 
     (function(){

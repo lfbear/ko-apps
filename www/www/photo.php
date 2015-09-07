@@ -32,15 +32,13 @@ Ko_Web_Route::VGet('album', function () {
 	}
 
 	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
-	$photolist = $photoApi->getPhotoListByBoundary($uid, $albumid, '0_0_0', $num, $next, 'imageView2/2/w/240');
+	$photolist = $photoApi->getPhotoListBySeq($uid, $albumid, '0_0_0', $num, $next, $next_boundary, 'imageView2/2/w/240');
 
 	$render = new KRender_www;
-
 	if ($loginuid == $uid) {
 		$allalbumlist = $photoApi->getAllAlbumList($uid);
 		$render->oSetData('allalbumlist', $allalbumlist);
 	}
-	$count = count($photolist);
 	$render->oSetTemplate('www/photo/album.html')
 		->oSetData('userinfo', $userinfo)
 		->oSetData('albuminfo', $albuminfo)
@@ -48,7 +46,7 @@ Ko_Web_Route::VGet('album', function () {
 		->oSetData('page', array(
 			'num' => $num,
 			'next' => $next,
-			'next_boundary' => $photolist[$count-1]['photoid'].'_'.$photolist[$count-1][sort].'_'.$photolist[$count-1]['pos'],
+			'next_boundary' => $next_boundary,
 		))
 		->oSend();
 });

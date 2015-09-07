@@ -1,23 +1,24 @@
 
 <div class="main">
+	<div id="msglist">
 	{foreach $msglist as $msg}
-		<div style="padding-bottom: 20px;">
+		<div class="msgdiv" style="padding-bottom: 20px;">
 		{if 1 == $msg.msgtype}
-			<div class="title left" style="padding-right: 36px;">
+			<div class="title left msgdiv_userlogo" style="padding-right: 36px;">
 				<a href="/photo/user?uid={$msg.content.userinfo.uid}"><img src="{$msg.content.userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;"></a>
 			</div>
-			<div class="title left" style="padding-right: 5px;">
+			<div class="title left msgdiv_username" style="padding-right: 5px;">
 				<a href="/photo/user?uid={$msg.content.userinfo.uid}">{$msg.content.userinfo.nickname}</a>
 			</div>
-			<div class="title left">
-				添加了 {$msg.content.albuminfo.pcount} 张照片到相册
+			<div class="title left msgdiv_album">
+				添加了 <span class="msgdiv_album_pcount">{$msg.content.albuminfo.pcount}</span> 张照片到相册
 				<a href="/photo/album?uid={$msg.content.userinfo.uid}&albumid={$msg.content.albuminfo.albumid}">{$msg.content.albuminfo.title}</a>
 			</div>
-			<div class="title right" style="font-size: 12px;color: #aaaaaa;">
+			<div class="title right msgdiv_ctime" style="font-size: 12px;color: #aaaaaa;">
 				{$msg.ctime|substr:0:16}
 			</div>
 			<div class="clear"></div>
-			<div style="overflow: hidden;white-space: nowrap;">
+			<div class="msgdiv_photolist" style="overflow: hidden;white-space: nowrap;">
 				{foreach $msg.content.photolist as $photo}
 				<a href="/photo/item?uid={$msg.content.userinfo.uid}&photoid={$photo.photoid}"><img src="{$photo.image}"></a>
 				{/foreach}
@@ -25,4 +26,66 @@
 		{/if}
 		</div>
 	{/foreach}
+	</div>
+	{if $page.next}
+	<div id="getmorediv" data-num="{$page.num}" data-next="{$page.next}" data-boundary="{$page.next_boundary}" style="height: 50px; line-height: 50px;text-align: center;font-size: 14px; color: #AAAAAA;cursor: pointer;">加载更多</div>
+	{/if}
 </div>
+
+{literal}
+<script language="JavaScript">
+	(function(){
+		//加载更多
+		var getmoring = false;
+		function getMorePhoto() {
+			var next = parseInt($('#getmorediv').data('next'));
+			if (next && !getmoring) {
+				var boundary = $('#getmorediv').data('boundary');
+				var num = $('#getmorediv').data('num');
+				getmoring = true;
+				$.get('/rest/sysmsg/item/',
+					{'page':{'mode': 'sequential', 'boundary': boundary, 'num': num}},
+					function(data, status){
+						if (data.errno) {
+							alert(data.error);
+						} else {
+							if (!data.data.page.next) {
+								$('#getmorediv').hide();
+								$('#getmorediv').data('next', data.data.page.next);
+							} else {
+								$('#getmorediv').data('boundary', data.data.page.next_boundary);
+							}
+
+							$.each(data.data.list, function(i, n){
+								$msgdiv = $('#msglist .msgdiv:first').clone();
+								$msgdiv.find('.msgdiv_userlogo a').attr('href', '/photo/user?uid=' + n.content.uid);
+								$msgdiv.find('.msgdiv_userlogo img').attr('src', n.content.userinfo.logo80);
+								$msgdiv.find('.msgdiv_username a').attr('href', '/photo/user?uid=' + n.content.uid);
+								$msgdiv.find('.msgdiv_username a').text(n.content.userinfo.nickname);
+								$msgdiv.find('.msgdiv_album_pcount').text(n.content.albuminfo.pcount);
+								$msgdiv.find('.msgdiv_album a').attr('href', '/photo/album?uid=' + n.content.uid + '&albumid=' + n.content.albumid);
+								$msgdiv.find('.msgdiv_album a').text(n.content.albuminfo.title);
+								$msgdiv.find('.msgdiv_ctime').text(n.ctime.substr(0, 16));
+								var photolist = '';
+								$.each(n.content.photolist, function (j, p){
+									photolist += '<a href="/photo/item?uid=' + n.content.uid + '&photoid=' + p.photoid + '"><img src="' + p.image + '"></a> ';
+								});
+								$msgdiv.find('.msgdiv_photolist').html(photolist);
+								$('#msglist').append($msgdiv);
+							});
+						}
+						getmoring = false;
+					}, 'json');
+			}
+		}
+		$(window).scroll(function(){
+			if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+				getMorePhoto();
+			}
+		});
+		$('body').delegate('#getmorediv', 'click', function(){
+			getMorePhoto();
+		});
+	})();
+</script>
+{/literal}

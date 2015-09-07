@@ -33,6 +33,7 @@ class KRest_Photo_item
 		),
 		'putstylelist' => array(
 			'title' => 'string',
+			'albumid' => 'int',
 		),
 	);
 
@@ -44,8 +45,7 @@ class KRest_Photo_item
 
 	public function getMulti($style, $page, $filter, $exstyle = null, $filter_style = 'default')
 	{
-		static $num = 20;
-
+		$num = $page['num'];
 		$loginApi = new KUser_loginApi();
 		$loginuid = $loginApi->iGetLoginUid();
 
@@ -55,14 +55,14 @@ class KRest_Photo_item
 			throw new Exception('获取数据失败', 1);
 		}
 
-		$photolist = $photoApi->getPhotoListByBoundary($filter['uid'], $filter['albumid'], $page['boundary'], $num, $next, 'imageView2/2/w/240');
-		$count = count($photolist);
+		$photolist = $photoApi->getPhotoListBySeq($filter['uid'], $filter['albumid'],
+			$page['boundary'], $num, $next, $next_boundary, 'imageView2/2/w/240');
 		return array(
 			'list' => $photolist,
 			'page' => array(
 				'num' => $num,
 				'next' => $next,
-				'next_boundary' => $photolist[$count-1]['photoid'].'_'.$photolist[$count-1][sort].'_'.$photolist[$count-1]['pos'],
+				'next_boundary' => $next_boundary,
 			),
 		);
 	}
@@ -117,6 +117,9 @@ class KRest_Photo_item
 			case 'title':
 				$photoApi->changePhotoTitle($uid, $id['photoid'], $update);
 				break;
+			case 'albumid':
+				$photoApi->changePhotoAlbumid($uid, $id['photoid'], $update);
+				break;
 		}
 		return array('key' => $id);
 	}
@@ -140,9 +143,7 @@ class KRest_Photo_item
 	{
 		$photoApi = new KPhoto_Api;
 		$content = compact('uid', 'albumid', 'photoid');
-		$content['userinfo'] = Ko_Tool_Adapter::VConv($content['uid'], array('user_baseinfo', array('logo80')));
-		$content['albuminfo'] = $photoApi->getAlbumInfo($uid, $albumid);
-		$content['photolist'] = $photoApi->getPhotoList($uid, $albumid, 0, 9, $total, 'imageView2/2/w/480/h/240');
+		$content['photolist'] = $photoApi->getPhotoList($uid, $albumid, 0, 9, $total);
 		$sysmsgApi = new KSysmsg_Api();
 		$sysmsgApi->iSend(0, KSysmsg_Api::PHOTO, $content, $albumid);
 	}
