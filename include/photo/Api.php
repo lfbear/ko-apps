@@ -211,6 +211,26 @@ class KPhoto_Api extends Ko_Busi_Api
 		$option->oWhere('uid = ?', $uid)->oOrderBy('sort desc');
 		$albumlist = $this->albumDao->aGetList($option);
 		$albumids = Ko_Tool_Utils::AObjs2ids($albumlist, 'albumid');
+		$contentApi = new KContent_Api();
+		$aText = $contentApi->aGetText(KContent_Api::PHOTO_ALBUM_TITLE, $albumids);
+		$recycleid = $this->_getRecycleAlbumid($uid);
+		foreach ($albumlist as &$v) {
+			$v['title'] = $aText[$v['albumid']];
+			$v['isrecycle'] = $v['albumid'] == $recycleid;
+		}
+		unset($v);
+		return $albumlist;
+	}
+
+	public function getAllAlbumDigest($uid)
+	{
+		if (!$uid) {
+			return array();
+		}
+		$option = new Ko_Tool_SQL();
+		$option->oWhere('uid = ?', $uid)->oOrderBy('sort desc');
+		$albumlist = $this->albumDao->aGetList($option);
+		$albumids = Ko_Tool_Utils::AObjs2ids($albumlist, 'albumid');
 		$digest = $this->_getDigest($albumids);
 		$allphotoids = array();
 		foreach ($digest as &$v) {

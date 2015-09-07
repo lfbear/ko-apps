@@ -26,6 +26,25 @@
     {/if}
     <div class="clear"></div>
 
+	{if $logininfo.uid == $userinfo.uid}
+	<div style="font-size: 14px;height: 30px;line-height: 30px;padding: 0 5px 0 5px;">
+		<div class="left" style="height: 30px;line-height: 30px;">
+			<label><input type="checkbox" id="selectall" style="vertical-align: middle;"> 全选</label>
+		</div>
+		<div class="right" style="font-size: 8px;">
+		<select id="albumlist" class="hide">
+			{foreach $allalbumlist as $album}
+			{if $album.albumid != $albuminfo.albumid && !$album.isrecycle}
+			<option value="{$album.albumid}">{$album.title}</option>
+			{/if}
+			{/foreach}
+		</select>
+		</div>
+		<div class="right" style="height: 30px;line-height: 30px;">转移到相册</div>
+	</div>
+	<div class="clear"></div>
+	{/if}
+
     {$cols = 4} {$colsHeight = array(0, 0, 0, 0)} {$colsData = array()}
     {foreach $photolist as $photo}
         {$minh = $colsHeight[0]} {$minindex = 0}
@@ -59,15 +78,25 @@
 				    {/if}
 				    <a class="imagelink" href="item?uid={$photo.uid}&photoid={$photo.photoid}"><img class="image" src="{$photo.image}" style="vertical-align: middle;"></a>
 			    </div>
+			    <div class="clear"></div>
 
-			    <div class="phototxtdiv" style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;font-size: 12px; color: #aaaaaa;">
-				    <span class="txtPhototitle">{$photo.photoid} - {$photo.title}</span>
+			    {if $logininfo.uid == $userinfo.uid}
+			    <div class="photocheckdiv left" style="width: 40px;line-height: 30px;text-align: center;">
+				    <input type="checkbox" style="vertical-align: middle;width: 30px;">
+			    </div>
+			    {$txtwidth = 200}
+			    {else}
+			    {$txtwidth = 240}
+			    {/if}
+			    <div class="phototxtdiv left" style="width: {$txtwidth}px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;font-size: 12px; color: #aaaaaa;">
+				    <span class="txtPhototitle">{$photo.title}</span>
 				    {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-	                <span class="inputPhototitle hide">
-		                <input type="text" value="{$photo.title}" placeholder="照片标题" style="text-align: center;width: 230px;height: 30px;">
-	                </span>
+				    <span class="inputPhototitle hide" style="line-height: 30px;">
+					    <input type="text" value="{$photo.title}" placeholder="照片标题" style="text-align: center;width: {$txtwidth-10}px;height: 30px;">
+				    </span>
 				    {/if}
 			    </div>
+			    <div class="clear"></div>
 		    </div>
 		    {/if}
 		    {/foreach}
@@ -83,6 +112,20 @@
 
 {literal}
 <script language="JavaScript">
+	(function(){
+		//移动照片
+		$(document).ready(function() {
+			$('#albumlist').selectmenu({'width': 150});
+		});
+		$('body').delegate('#selectall', 'click', function(){
+			var checked = $(this).prop('checked');
+			$('#photolist input[type=checkbox]').prop('checked', checked);
+		});
+		$('body').delegate('#photolist input[type=checkbox]', 'click', function(){
+			$('#selectall').prop('checked', false);
+		});
+	})();
+
 	(function(){
         //瀑布流显示
         var cols = 4;
@@ -154,11 +197,12 @@
                                 photodiv.data('imgwidth', n.size.width);
                                 photodiv.data('imgheight', n.size.height);
 
+	                            photodiv.find('input[type=checkbox]').prop('checked', false);
                                 photodiv.find('.photoimgdiv').css('height', colsData[n.photoid][2] + 'px');
                                 photodiv.find('.photodelete').css('left', ((200 + colsData[n.photoid][1]) / 2) + 'px');
                                 photodiv.find('.imagelink').attr('href', 'item?uid=' + n.uid + '&photoid=' + n.photoid);
                                 photodiv.find('.image').attr('src', n.image);
-                                photodiv.find('.txtPhototitle').text(n.photoid + ' - ' + n.title);
+                                photodiv.find('.txtPhototitle').text(n.title);
                                 photodiv.find('.inputPhototitle input').val(n.title);
                                 $('#photolist_col' + colsData[n.photoid][0]).append(photodiv);
                             });
@@ -329,6 +373,7 @@
 	                        photodiv.data('imgheight', 0);
 	                        photodiv.find('.photoimgdiv').css('height', '240px');
 	                        photodiv.find('.photoimgdiv').html('');
+	                        photodiv.find('.photocheckdiv').text('');
 	                        photodiv.find('.phototxtdiv').text('等待上传中...');
 	                        $('#photolist_col' + (pos % 4)).prepend(photodiv);
 	                        pos ++;
