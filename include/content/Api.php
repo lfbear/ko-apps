@@ -8,7 +8,6 @@ class KContent_Api extends Ko_Mode_Content
 	const BLOG_CONTENT         = 4;
 	const USER_NICKNAME        = 5;
 	const PHOTO_ALBUM_TITLE    = 6;
-	const PHOTO_ALBUM_INTRO    = 7;
 	const PHOTO_TITLE          = 8;
 
 	protected $_aConf = array(
@@ -30,9 +29,6 @@ class KContent_Api extends Ko_Mode_Content
 				'type' => 'text',
 			),
 			self::PHOTO_ALBUM_TITLE => array(
-				'type' => 'text',
-			),
-			self::PHOTO_ALBUM_INTRO => array(
 				'type' => 'text',
 			),
 			self::PHOTO_TITLE => array(

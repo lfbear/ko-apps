@@ -14,20 +14,16 @@ class KRest_Photo_album
 				'ctime' => 'string',
 				'mtime' => 'string',
 				'pcount' => 'int',
-				'cover' => 'string',
 				'title' => 'string',
-				'intro' => 'string',
 			)),
 		),
 		'poststylelist' => array(
 			'default' => array('hash', array(
 				'title' => 'string',
-				'intro' => 'string',
 			)),
 		),
 		'putstylelist' => array(
 			'title' => 'string',
-			'intro' => 'string',
 		),
 	);
 
@@ -47,7 +43,7 @@ class KRest_Photo_album
 		$uid = $loginApi->iGetLoginUid();
 
 		$photoApi = new KPhoto_Api();
-		$albumid = $photoApi->addAlbum($uid, $update['title'], $update['intro']);
+		$albumid = $photoApi->addAlbum($uid, $update['title']);
 		if (!$albumid) {
 			throw new Exception('添加相册失败', 1);
 		}
@@ -67,9 +63,6 @@ class KRest_Photo_album
 		{
 			case 'title':
 				$photoApi->changeAlbumTitle($uid, $id['albumid'], $update);
-				break;
-			case 'intro':
-				$photoApi->changeAlbumIntro($uid, $id['albumid'], $update);
 				break;
 		}
 		return array('key' => $id);

@@ -18,5 +18,10 @@ class KPhoto_Dao extends Ko_Dao_Factory
 			'kind' => 'photo_list',
 			'key' => array('photoid', 'uid'),
 		),
+		'albumdigest' => array(
+			'type' => 'db_single',
+			'kind' => 'photo_albumdigest',
+			'key' => array('albumid'),
+		),
 	);
 }

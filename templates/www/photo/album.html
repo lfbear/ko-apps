@@ -73,8 +73,8 @@
 		    {/foreach}
 	    </div>
 	    {/for}
-	    <div class="clear"></div>
     </div>
+	<div class="clear"></div>
     {if $page.next}
     <div id="getmorediv" data-next="{$page.next}" data-boundary="{$page.next_boundary}" style="height: 50px; line-height: 50px;text-align: center;font-size: 14px; color: #AAAAAA;cursor: pointer;">加载更多</div>
     {/if}
@@ -327,7 +327,6 @@
 	                        photodiv.data('photoid', 0);
 	                        photodiv.data('imgwidth', 0);
 	                        photodiv.data('imgheight', 0);
-
 	                        photodiv.find('.photoimgdiv').css('height', '240px');
 	                        photodiv.find('.photoimgdiv').html('');
 	                        photodiv.find('.phototxtdiv').text('等待上传中...');

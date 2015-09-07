@@ -2,22 +2,6 @@
      data-uid="{$userinfo.uid}">
 </div>
 
-{literal}
-<script language="JavaScript">
-	function onalbumcoverload(imgdom) {
-		var img = $(imgdom);
-		var root = img.closest('.albumdiv');
-		var pcountdiv = root.find('.albumpcount');
-		var deletediv = root.find('.albumdelete');
-		pcountdiv.css('left', imgdom.offsetLeft + 3 + 'px');
-		pcountdiv.css('top', imgdom.offsetTop + 3 + 'px');
-		pcountdiv.show();
-		deletediv.css('left', imgdom.offsetWidth + imgdom.offsetLeft - 20 + 'px');
-		deletediv.css('top', imgdom.offsetTop + 3 + 'px');
-	}
-</script>
-{/literal}
-
 <div class="main">
     <div class="title left" style="padding-right: 36px;">
         <img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;">
@@ -32,9 +16,6 @@
             <div style="line-height: 60px;">
                 <input type="text" value="" id="addalbumtitle" placeholder="相册标题" style="width:300px; padding: 5px;">
             </div>
-            <div style="line-height: 20px;">
-                <textarea id="addalbumintro" placeholder="相册说明" style="height: 100px; width:300px; padding: 5px;"></textarea>
-            </div>
             <div style="line-height: 60px;">
                 <button id="btnOkAddAlbum">确定</button>
                 <button id="btnCancelAddAlbum">取消</button>
@@ -47,48 +28,57 @@
     {/if}
     <div class="clear"></div>
 
+	<div id="photolist">
+		<div class="photodiv left hide" style="width: 240px;padding: 5px;">
+			<div class="photoimgdiv" style="text-align: center;position: relative;width: 240px;height: 240px;">
+			</div>
+			<div class="phototxtdiv" style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;font-size: 12px; color: #aaaaaa;">
+			</div>
+		</div>
+	</div>
+	<div class="clear"></div>
+
     <div id="albumlist">
         {foreach $albumlist as $album}
         {if $logininfo.uid == $userinfo.uid || !$album.isrecycle}
-        <div class="albumdiv left" data-albumid="{$album.albumid}" style="width: 240px;height: 290px;padding: 5px;">
-            <div class="albumcoverdiv" style="text-align: center;height: 240px;line-height: 240px;position: relative;">
-	            <div class="albumpcount hide" style="position: absolute;top: 0px; left: 0px;line-height: 20px;padding: 3px;">{$album.pcount}</div>
-	            {if $logininfo.uid == $userinfo.uid && !$album.isrecycle}
-	            <div class="albumdelete hide" style="position: absolute;top: 0px; left: 0px;line-height: 20px;padding: 3px;"><a href="javascript:;" class="delAlbum">X</a></div>
-	            {/if}
-                <a href="album?uid={$album.uid}&albumid={$album.albumid}"><img src="{$album.cover}" style="vertical-align: middle;" onload="javascript: onalbumcoverload(this);"></a>
-            </div>
-            <div class="clear"></div>
-            <div style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;">
+        <div class="albumdiv" data-albumid="{$album.albumid}" style="padding: 0 50px 50px 50px;">
+            <div class="left" style="height: 40px;line-height: 40px;">
+	            <a href="album?uid={$album.uid}&albumid={$album.albumid}"><span class="txtAlbumtitle">{$album.title}</span></a>
                 {if $logininfo.uid == $userinfo.uid && !$album.isrecycle}
-                <span class="txtAlbumtitle">{$album.title}</span>
                 <span class="inputAlbumtitle hide">
-	                <input type="text" value="{$album.title}" placeholder="相册标题" style="text-align: center;width: 240px;height: 30px;outline: solid 1px;">
+	                <input type="text" value="{$album.title}" placeholder="相册标题" style="width: 240px;height: 30px;">
+	                <button class="btnSaveAlbumTitle small">保存</button>
                 </span>
-                {else}
-                {$album.title}
                 {/if}
+	            <span style="font-size: 12px;color: #aaaaaa;">({$album.pcount})</span>
             </div>
+	        {if $logininfo.uid == $userinfo.uid && !$album.isrecycle}
+	        <div class="right" style="height: 40px;line-height: 40px;font-size: 12px;color: #aaaaaa;">
+		        <a href="javascript:;" class="changeAlbumTitle">修改标题</a> |
+		        <a href="javascript:;" class="delAlbum">删除</a>
+	        </div>
+	        {/if}
             <div class="clear"></div>
+	        <div class="digestphotodiv">
+		        {foreach $album.digest as $digest}
+		        <div class="left" style="width: 60px;height: 60px;">
+			        <a href="item?uid={$digest.uid}&photoid={$digest.photoid}"><img src="{$digest.image}"></a>
+		        </div>
+		        {/foreach}
+	        </div>
+	        <div class="clear"></div>
         </div>
         {/if}
         {/foreach}
-        <div class="clear"></div>
     </div>
-
+	<div class="clear"></div>
 </div>
 
 
 {literal}
 <script language="JavaScript">
     (function(){
-	    $('body').delegate('.albumcoverdiv', 'mouseenter', function(){
-		    $(this).find('.albumdelete').show();
-	    });
-	    $('body').delegate('.albumcoverdiv', 'mouseleave', function(){
-		    $(this).find('.albumdelete').hide();
-	    });
-
+        //创建相册
         $(document).ready(function() {
             var btnShowaddAlbum = $('#btnShowAddAlbum').get(0);
             $('#addalbumdiv').css('top', (btnShowaddAlbum.offsetTop + btnShowaddAlbum.offsetHeight + 5) + 'px');
@@ -103,8 +93,7 @@
         });
         $('body').delegate('#btnOkAddAlbum', 'click', function(){
             var title = $('#addalbumtitle').val();
-            var intro = $('#addalbumintro').val();
-            $.post('/rest/photo/album/', {'update':{'title':title, 'intro':intro}}, function(data, status){
+            $.post('/rest/photo/album/', {'update':{'title':title}}, function(data, status){
                 if (data.errno) {
                     alert(data.error);
                 } else {
@@ -112,7 +101,10 @@
                 }
             }, 'json');
         });
+    })();
 
+    (function(){
+        //修改相册标题
         function saveAlbumTitle(root) {
             var oldVal = root.find('.txtAlbumtitle').text();
             var newVal = root.find('.inputAlbumtitle input').val();
@@ -135,17 +127,17 @@
                 root.find('.inputAlbumtitle').hide();
             }
         }
-        $('body').delegate('#albumlist .txtAlbumtitle', 'mouseover', function(){
-            var root = $(this).closest('.albumdiv');
-            root.find('.txtAlbumtitle').hide();
-	        var input = root.find('.inputAlbumtitle');
-            input.show();
-	        input.find('input').focus();
-        });
-        $('body').delegate('#albumlist .inputAlbumtitle', 'mouseout', function(){
-            var root = $(this).closest('.albumdiv');
-            saveAlbumTitle(root);
-        });
+	    $('body').delegate('.btnSaveAlbumTitle', 'click', function() {
+		    var root = $(this).closest('.albumdiv');
+		    saveAlbumTitle(root);
+	    });
+	    $('body').delegate('.changeAlbumTitle', 'click', function() {
+		    var root = $(this).closest('.albumdiv');
+		    root.find('.txtAlbumtitle').hide();
+		    var input = root.find('.inputAlbumtitle');
+		    input.show();
+		    input.find('input').focus();
+	    });
         $('body').delegate('#albumlist .inputAlbumtitle', 'keydown', function(e){
             var root = $(this).closest('.albumdiv');
             if (13 == e.keyCode) {
@@ -156,7 +148,10 @@
                 root.find('.inputAlbumtitle input').val(root.find('.txtAlbumtitle').text());
             }
         });
+    })();
 
+    (function(){
+        //删除相册
         $('body').delegate('.delAlbum', 'click', function(){
             var root = $(this).closest('.albumdiv');
             var uid = $('#userdata').data('uid');
@@ -171,7 +166,10 @@
                 }, 'json');
             }
         });
+    })();
 
+    (function(){
+        //上传照片
         $(document).ready(function() {
             var albumid = 0;
             var uploaderConfig = {
@@ -189,19 +187,17 @@
                 init: {
                     FilesAdded: function (up, files) {
                         plupload.each(files, function(file) {
-                            var photohtml = '<div class="left" id="' + file.id + '" style="width: 240px;height: 290px;padding: 5px;">' +
-                                    '<div class="photoimage" style="text-align: center;height: 240px;line-height: 240px;">' +
-                                    '</div>' +
-                                    '<div class="clear"></div>' +
-                                    '<div class="phototitle" style="width: 240px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;">' +
-                                    '等待上传中...</div>' +
-		                            '<div class="clear"></div>' +
-                                    '</div>';
-                            $('#albumlist').html(photohtml + $('#albumlist').html());
+	                        var photodiv = $('#photolist .photodiv:first').clone();
+	                        photodiv.attr('id', file.id);
+	                        photodiv.find('.photoimgdiv').css('height', '240px');
+	                        photodiv.find('.photoimgdiv').html('');
+	                        photodiv.find('.phototxtdiv').text('等待上传中...');
+	                        photodiv.show();
+	                        $('#photolist').append(photodiv);
                             if ('image/gif' == file.type) {
                                 var img = new mOxie.FileReader();
                                 img.onload = function() {
-                                    $('#albumlist [id=' + file.id + '] .photoimage').html('<img src="' + img.result + '" width="240px" height="240px">');
+                                    $('#photolist [id=' + file.id + '] .photoimgdiv').html('<img src="' + img.result + '" width="240px" height="240px">');
                                     img.destroy();
                                     img = null;
                                 };
@@ -221,7 +217,7 @@
                                         }
                                         img.downsize(width, height);
                                     }
-                                    $('#albumlist [id=' + file.id + '] .photoimage').html('<img src="' + img.getAsDataURL() + '" width="' + width + 'px" height="' + height + 'px">');
+                                    $('#photolist [id=' + file.id + '] .photoimgdiv').html('<img src="' + img.getAsDataURL() + '" width="' + width + 'px" height="' + height + 'px">');
                                     img.destroy();
                                     img = null;
                                 };
@@ -231,15 +227,15 @@
                         up.start();
                     },
                     UploadProgress: function (up, file) {
-                        $('#albumlist [id=' + file.id + '] .phototitle').html(file.percent + '%');
+                        $('#photolist [id=' + file.id + '] .phototxtdiv').html(file.percent + '%');
                     },
                     FileUploaded: function (up, file, info) {
                         eval('var data = ' + info.response);
                         if (data.errno) {
                             alert(data.error);
                         } else {
-                            $('#albumlist [id=' + file.id + '] .photoimage img').attr('src', data.data.after.image);
-                            $('#albumlist [id=' + file.id + '] .phototitle').text(data.data.after.title);
+                            $('#photolist [id=' + file.id + '] .photoimgdiv img').attr('src', data.data.after.image);
+                            $('#photolist [id=' + file.id + '] .phototxtdiv').text(data.data.after.title);
                             albumid = data.data.after.albumid;
                         }
                     },

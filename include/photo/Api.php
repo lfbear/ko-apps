@@ -51,13 +51,7 @@ class KPhoto_Api extends Ko_Busi_Api
 		$info = $this->albumDao->aGet($albumkey);
 		if (!empty($info)) {
 			$contentApi = new KContent_Api();
-			$aInfo = array(
-				KContent_Api::PHOTO_ALBUM_TITLE => array($albumid),
-				KContent_Api::PHOTO_ALBUM_INTRO => array($albumid),
-			);
-			$aText = $contentApi->aGetTextEx($aInfo);
-			$info['title'] = $aText[KContent_Api::PHOTO_ALBUM_TITLE][$albumid];
-			$info['intro'] = $aText[KContent_Api::PHOTO_ALBUM_INTRO][$albumid];
+			$info['title'] = $contentApi->sGetText(KContent_Api::PHOTO_ALBUM_TITLE, $albumid);
 			$info['isrecycle'] = $info['albumid'] == $this->_getRecycleAlbumid($uid);
 		}
 		return $info;
@@ -85,7 +79,7 @@ class KPhoto_Api extends Ko_Busi_Api
 		if ($count = count($photolist)) {
 			if ($count > $num) {
 				$next = array_pop($photolist);
-				$count --;
+				$count--;
 				$next = $next['photoid'];
 			}
 		}
@@ -105,8 +99,8 @@ class KPhoto_Api extends Ko_Busi_Api
 				$update['pos'] = $v['pos'] = $boundary_pos + $k + 1;
 			}
 			if ($k != 0) {
-				if ($photolist[$k-1]['photoid'] != $v['prev']) {
-					$update['prev'] = $v['prev'] = $photolist[$k-1]['photoid'];
+				if ($photolist[$k - 1]['photoid'] != $v['prev']) {
+					$update['prev'] = $v['prev'] = $photolist[$k - 1]['photoid'];
 				}
 			} else {
 				if ($boundary_photoid != $v['prev']) {
@@ -114,8 +108,8 @@ class KPhoto_Api extends Ko_Busi_Api
 				}
 			}
 			if ($k != $count - 1) {
-				if ($photolist[$k+1]['photoid'] != $v['next']) {
-					$update['next'] = $v['next'] = $photolist[$k+1]['photoid'];
+				if ($photolist[$k + 1]['photoid'] != $v['next']) {
+					$update['next'] = $v['next'] = $photolist[$k + 1]['photoid'];
 				}
 			} else {
 				if ($next != $v['next']) {
@@ -150,14 +144,14 @@ class KPhoto_Api extends Ko_Busi_Api
 		if ($count = count($photolist)) {
 			if ($start > 0) {
 				$prev = array_shift($photolist);
-				$count --;
+				$count--;
 				$prev = $prev['photoid'];
 			} else {
 				$prev = 0;
 			}
 			if ($count > $num) {
 				$next = array_pop($photolist);
-				$count --;
+				$count--;
 				$next = $next['photoid'];
 			} else {
 				$next = 0;
@@ -183,8 +177,8 @@ class KPhoto_Api extends Ko_Busi_Api
 				$update['pos'] = $v['pos'] = $start + $k + 1;
 			}
 			if ($k != 0) {
-				if ($photolist[$k-1]['photoid'] != $v['prev']) {
-					$update['prev'] = $v['prev'] = $photolist[$k-1]['photoid'];
+				if ($photolist[$k - 1]['photoid'] != $v['prev']) {
+					$update['prev'] = $v['prev'] = $photolist[$k - 1]['photoid'];
 				}
 			} else {
 				if ($prev != $v['prev']) {
@@ -192,8 +186,8 @@ class KPhoto_Api extends Ko_Busi_Api
 				}
 			}
 			if ($k != $count - 1) {
-				if ($photolist[$k+1]['photoid'] != $v['next']) {
-					$update['next'] = $v['next'] = $photolist[$k+1]['photoid'];
+				if ($photolist[$k + 1]['photoid'] != $v['next']) {
+					$update['next'] = $v['next'] = $photolist[$k + 1]['photoid'];
 				}
 			} else {
 				if ($next != $v['next']) {
@@ -211,27 +205,40 @@ class KPhoto_Api extends Ko_Busi_Api
 	public function getAllAlbumList($uid)
 	{
 		if (!$uid) {
-			$total = 0;
 			return array();
 		}
 		$option = new Ko_Tool_SQL();
 		$option->oWhere('uid = ?', $uid)->oOrderBy('sort desc');
 		$albumlist = $this->albumDao->aGetList($option);
 		$albumids = Ko_Tool_Utils::AObjs2ids($albumlist, 'albumid');
+		$digest = $this->_getDigest($albumids);
+		$allphotoids = array();
+		foreach ($digest as &$v) {
+			$v = array_slice($v, 0, 45);
+			$allphotoids = array_merge($allphotoids, $v);
+		}
+		unset($v);
+		foreach ($allphotoids as &$v) {
+			$v = array(
+				'uid' => $uid,
+				'photoid' => $v,
+			);
+		}
+		unset($v);
+		$photoinfos = $this->photoDao->aGetDetails($allphotoids, 'uid', 'photoid');
 		$contentApi = new KContent_Api();
-		$aInfo = array(
-			KContent_Api::PHOTO_ALBUM_TITLE => $albumids,
-			KContent_Api::PHOTO_ALBUM_INTRO => $albumids,
-		);
-		$aText = $contentApi->aGetTextEx($aInfo);
+		$aText = $contentApi->aGetText(KContent_Api::PHOTO_ALBUM_TITLE, $albumids);
 		$recycleid = $this->_getRecycleAlbumid($uid);
-		$api = new KStorage_Api;
+		$storageApi = new KStorage_Api();
 		foreach ($albumlist as &$v) {
-			$v['cover'] = ('' === $v['cover'])
-				? 'http://' . IMG_DOMAIN . '/default/cover.jpg' : $api->sGetUrl($v['cover'], 'imageView2/2/w/240/h/240');
-			$v['title'] = $aText[KContent_Api::PHOTO_ALBUM_TITLE][$v['albumid']];
-			$v['intro'] = $aText[KContent_Api::PHOTO_ALBUM_INTRO][$v['albumid']];
+			$v['title'] = $aText[$v['albumid']];
 			$v['isrecycle'] = $v['albumid'] == $recycleid;
+			$v['digest'] = $digest[$v['albumid']];
+			foreach ($v['digest'] as &$vv) {
+				$vv = $photoinfos[$vv];
+				$vv['image'] = $storageApi->sGetUrl($vv['image'], 'imageView2/1/w/60');
+			}
+			unset($vv);
 		}
 		unset($v);
 		return $albumlist;
@@ -269,24 +276,6 @@ class KPhoto_Api extends Ko_Busi_Api
 		return $contentApi->bSet(KContent_Api::PHOTO_ALBUM_TITLE, $albumid, $title);
 	}
 
-	public function changeAlbumIntro($uid, $albumid, $intro)
-	{
-		if (!$uid) {
-			return false;
-		}
-		$recycleid = $this->_getRecycleAlbumid($uid);
-		if ($albumid == $recycleid) {
-			return false;
-		}
-		$albumkey = compact('uid', 'albumid');
-		$album = $this->albumDao->aGet($albumkey);
-		if (empty($album)) {
-			return false;
-		}
-		$contentApi = new KContent_Api();
-		return $contentApi->bSet(KContent_Api::PHOTO_ALBUM_INTRO, $albumid, $intro);
-	}
-
 	public function deletePhoto($uid, $photoid)
 	{
 		if (!$uid) {
@@ -315,6 +304,8 @@ class KPhoto_Api extends Ko_Busi_Api
 				'albumid' => $recycleid,
 			);
 			$this->albumDao->iUpdate($recyclekey, array(), array('pcount' => 1));
+
+			$this->_resetAlbumDigest($photo['albumid']);
 		}
 		return true;
 	}
@@ -375,22 +366,23 @@ class KPhoto_Api extends Ko_Busi_Api
 			}
 
 			$albumkey = compact('uid', 'albumid');
-			$album = $this->albumDao->aGet($albumkey);
-			$update = empty($album['cover']) ? array('cover' => $image) : array();
+			$update = array();
 			$time = time();
 			$update['sort'] = $time;
 			$update['mtime'] = date('Y-m-d H:i:s', $time);
 			$this->albumDao->iUpdate($albumkey, $update, array('pcount' => 1));
+
+			$this->_resetAlbumDigest($albumid);
 		}
 		return $photoid;
 	}
 
-	public function addAlbum($uid, $title, $intro = '')
+	public function addAlbum($uid, $title)
 	{
 		if (!$uid) {
 			return 0;
 		}
-		return $this->_addAlbum($uid, $title, $intro);
+		return $this->_addAlbum($uid, $title);
 	}
 
 	private function _getRecycleAlbumid($uid)
@@ -420,7 +412,7 @@ class KPhoto_Api extends Ko_Busi_Api
 		return $albumid;
 	}
 
-	private function _addAlbum($uid, $title, $intro = '')
+	private function _addAlbum($uid, $title)
 	{
 		$time = time();
 		$data = array(
@@ -433,10 +425,46 @@ class KPhoto_Api extends Ko_Busi_Api
 		if ($albumid) {
 			$contentApi = new KContent_Api();
 			$contentApi->bSet(KContent_Api::PHOTO_ALBUM_TITLE, $albumid, $title);
-			if (strlen($intro)) {
-				$contentApi->bSet(KContent_Api::PHOTO_ALBUM_INTRO, $albumid, $intro);
-			}
 		}
 		return $albumid;
+	}
+
+	private function _resetAlbumDigest($albumid)
+	{
+		$option = new Ko_Tool_SQL();
+		$photolist = $this->photoDao->aGetList($option->oSelect('photoid')->oWhere('albumid = ?', $albumid)->oLimit(1000)->oOrderBy('sort desc, photoid desc'));
+		$count = count($photolist);
+		$step = max(1, floor($count / 50));
+		$total = min($count, 50 * $step);
+		$photoids = array();
+		for ($i = 0; $i < $total; $i += $step) {
+			$photoids[] = $photolist[$i]['photoid'];
+		}
+		$this->_setDigest($albumid, $photoids);
+	}
+
+	private function _getDigest($albumids)
+	{
+		$info = $this->albumdigestDao->aGetListByKeys($albumids);
+		foreach ($info as &$v) {
+			if (!empty($v)) {
+				$v = unserialize($v['photoids']);
+			}
+		}
+		unset($v);
+		return $info;
+	}
+
+	private function _setDigest($albumid, $photoids)
+	{
+		$strphotoids = serialize($photoids);
+		$data = array(
+			'albumid' => $albumid,
+			'photoids' => $strphotoids,
+		);
+		$update = array(
+			'photoids' => $strphotoids,
+		);
+		$this->albumdigestDao->aInsert($data, $update);
 	}
 }
