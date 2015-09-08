@@ -68,7 +68,14 @@ Ko_Web_Route::VGet('item', function () {
 	}
 	$photoinfo['image_src'] = $storageApi->sGetUrl($photoinfo['image'], '');
 	$photoinfo['image_small'] = $storageApi->sGetUrl($photoinfo['image'], 'imageView2/1/w/60');
-	$photoinfo['image'] = $storageApi->sGetUrl($photoinfo['image'], 'imageView2/2/w/600/h/600');
+	$agentinfo = KUser_agentApi::get();
+	if ($agentinfo['screen']['height'] < 1000) {
+		$photoinfo['image'] = $storageApi->sGetUrl($photoinfo['image'], 'imageView2/2/w/600/h/600');
+		$photoinfo['imagesize'] = 600;
+	} else {
+		$photoinfo['image'] = $storageApi->sGetUrl($photoinfo['image'], 'imageView2/2/w/800/h/800');
+		$photoinfo['imagesize'] = 800;
+	}
 	$albuminfo = $photoApi->getAlbumInfo($uid, $photoinfo['albumid']);
 	if ($albuminfo['isrecycle'] && $uid != $loginuid) {
 		Ko_Web_Response::VSetRedirect('/');

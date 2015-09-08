@@ -14,4 +14,8 @@
 	$('body').delegate('#loginlogodiv', 'mouseleave', function(){
 		$('#settingmenu').hide();
 	});
+	$.post('/rest/user/agent/',
+		{'method':'PUT', 'update': {'screen': {'width':window.screen.width, 'height':window.screen.height}}},
+		function(data, status){
+	}, 'json');
 })();

@@ -28,7 +28,7 @@
 
     <a name="image"></a>
     <div>
-        <div class="left" style="width: 600px;padding: 0 110px 0 110px;">
+        <div class="left" style="width: {$photoinfo.imagesize}px;padding: 0 {(800 - $photoinfo.imagesize) / 2 + 10}px 0 {(800 - $photoinfo.imagesize) / 2 + 10}px;">
             <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
                 <div class="left" style="width: 100px;">
                     {if $photoinfo.prev}
@@ -37,7 +37,7 @@
                     上一张
                     {/if}
                 </div>
-                <div class="left" style="width: 400px;text-align: center;">
+                <div class="left" style="width: {$photoinfo.imagesize - 200}px;text-align: center;">
                     {$photoinfo.pos} / {$albuminfo.pcount}
                 </div>
                 <div class="right">

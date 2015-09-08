@@ -19,7 +19,7 @@ class KSysmsg_Api extends Ko_Mode_Sysmsg
 
 		$userlist = $albumlist = $photolist = array();
 		foreach ($msglist as $v) {
-			if (KSysmsg_Api::PHOTO == $v['msgtype']) {
+			if (self::PHOTO == $v['msgtype']) {
 				$userlist[$v['content']['uid']] = $v['content']['uid'];
 				$albumlist[] = array('uid' => $v['content']['uid'], 'albumid' => $v['content']['albumid']);
 				$photolist = array_merge($photolist, $v['content']['photolist']);
@@ -32,11 +32,11 @@ class KSysmsg_Api extends Ko_Mode_Sysmsg
 		$photoinfos = $photoApi->getPhotoInfos($photolist);
 		$albuminfos = $photoApi->getAlbumInfos($albumlist);
 		foreach ($msglist as $k => &$v) {
-			if (KSysmsg_Api::PHOTO == $v['msgtype']) {
+			if (self::PHOTO == $v['msgtype']) {
 				$v['content']['userinfo'] = $userlist[$v['content']['uid']];
 				$v['content']['albuminfo'] = $albuminfos[$v['content']['albumid']];
 				if (empty($v['content']['albuminfo'])) {
-					$sysmsgApi->vDelete(0, $v['msgid']);
+					$this->vDelete(0, $v['msgid']);
 					unset($msglist[$k]);
 				} else {
 					$photolist = array();
@@ -49,7 +49,7 @@ class KSysmsg_Api extends Ko_Mode_Sysmsg
 					}
 					$v['content']['photolist'] = $photolist;
 					if (empty($photolist)) {
-						$sysmsgApi->vDelete(0, $v['msgid']);
+						$this->vDelete(0, $v['msgid']);
 						unset($msglist[$k]);
 					}
 				}
