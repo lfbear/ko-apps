@@ -33,6 +33,7 @@ class KRest_User_item
 
 	public function post($update, $after = null)
 	{
+		throw new Exception('注册功能已关闭', 1);
 		if (!preg_match('/^[_0-9a-z]{4,16}$/i', $update['username'])) {
 			throw new Exception('登录名称只能使用字母，数字和下划线，4-16个字符', 1);
 		}

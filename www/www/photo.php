@@ -68,6 +68,7 @@ Ko_Web_Route::VGet('item', function () {
 	}
 	$photoinfo['image_src'] = $storageApi->sGetUrl($photoinfo['image'], '');
 	$photoinfo['image_small'] = $storageApi->sGetUrl($photoinfo['image'], 'imageView2/1/w/60');
+	$photoinfo['image_exif'] = $storageApi->aGetImageExif($photoinfo['image']);
 	$agentinfo = KUser_agentApi::get();
 	if ($agentinfo['screen']['height'] < 1000) {
 		$photoinfo['image'] = $storageApi->sGetUrl($photoinfo['image'], 'imageView2/2/w/600/h/600');

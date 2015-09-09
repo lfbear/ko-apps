@@ -62,7 +62,43 @@
                     {/if}
                     <a href="{$photoinfo.image_src}" target="_blank">查看原图</a>
                 </div>
+                <div class="clear"></div>
             </div>
+            {if strlen($photoinfo.image_exif.DateTime)}
+            <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
+                {$photoinfo.image_exif.DateTime[4] = '-'}
+                {$photoinfo.image_exif.DateTime[7] = '-'}
+                拍摄于：{$photoinfo.image_exif.DateTime|substr:0:16}
+                {if strlen($photoinfo.image_exif.Make)}
+                    / {$photoinfo.image_exif.Make} {$photoinfo.image_exif.Model}
+                {/if}
+            </div>
+            {/if}
+            {if strlen($photoinfo.image_exif.FocalLength)}
+            <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
+                焦距： {$photoinfo.image_exif.FocalLength}
+            </div>
+            {/if}
+            {if strlen($photoinfo.image_exif.FNumber)}
+            <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
+                光圈： {$photoinfo.image_exif.FNumber}
+            </div>
+            {/if}
+            {if strlen($photoinfo.image_exif.ExposureTime)}
+            <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
+                快门： {$photoinfo.image_exif.ExposureTime}
+            </div>
+            {/if}
+            {if strlen($photoinfo.image_exif.ISOSpeedRatings)}
+            <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
+                感光度： {$photoinfo.image_exif.ISOSpeedRatings}
+            </div>
+            {/if}
+            {if strlen($photoinfo.image_exif.Flash)}
+            <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
+                闪光灯： {$photoinfo.image_exif.Flash}
+            </div>
+            {/if}
         </div>
         <div class="left" style="width: 140px;padding: 20px 20px 0 20px;text-align: center;">
             {foreach $prevlist as $prev}
@@ -81,7 +117,6 @@
         </div>
         <div class="clear"></div>
     </div>
-
 </div>
 
 
