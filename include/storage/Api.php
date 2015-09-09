@@ -7,6 +7,7 @@ class KStorage_Api extends Ko_Data_Qiniu
 		'uni' => 'uni',
 		'size' => 'size',
 		'fileinfo' => 'fileinfo',
+		'exif' => 'exif',
 	);
 
 	public function __construct()

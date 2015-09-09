@@ -23,5 +23,10 @@ class KStorage_Dao extends Ko_Dao_Factory
 			'kind' => 'image_fileinfo',
 			'key' => 'dest',
 		),
+		'exif' => array(
+			'type' => 'db_single',
+			'kind' => 'image_exif',
+			'key' => 'dest',
+		),
 	);
 }
