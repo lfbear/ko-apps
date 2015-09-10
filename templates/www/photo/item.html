@@ -99,6 +99,18 @@
                 闪光灯： {$photoinfo.image_exif.Flash}
             </div>
             {/if}
+	        {if (is_array($photoinfo.image_exif.GPSLatitude) || strlen($photoinfo.image_exif.GPSLatitude))
+	            && (is_array($photoinfo.image_exif.GPSLongitude) || strlen($photoinfo.image_exif.GPSLongitude))}
+	        <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
+		        坐标： {$photoinfo.image_exif.GPSLatitudeRef} {if is_array($photoinfo.image_exif.GPSLatitude)}{implode(', ', $photoinfo.image_exif.GPSLatitude)}{else}{$photoinfo.image_exif.GPSLatitude}{/if}
+		        , {$photoinfo.image_exif.GPSLongitudeRef} {if is_array($photoinfo.image_exif.GPSLongitude)}{implode(', ', $photoinfo.image_exif.GPSLongitude)}{else}{$photoinfo.image_exif.GPSLongitude}{/if}
+	        </div>
+	        {/if}
+	        {if strlen($photoinfo.image_exif.GPSAltitude)}
+	        <div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
+		        海拔： {if $photoinfo.image_exif.GPSAltitudeRef}-{$photoinfo.image_exif.GPSAltitude}{else}{$photoinfo.image_exif.GPSAltitude}{/if}
+	        </div>
+	        {/if}
         </div>
         <div class="left" style="width: 140px;padding: 20px 20px 0 20px;text-align: center;">
             {foreach $prevlist as $prev}
