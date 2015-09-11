@@ -87,7 +87,7 @@
 
 			    {if $logininfo.uid == $userinfo.uid}
 			    <div class="photocheckdiv left" style="width: 40px;line-height: 40px;text-align: center;">
-				    <input type="checkbox" style="vertical-align: middle;width: 32px;height: 32px;">
+				    <input type="checkbox" style="vertical-align: middle;width: 16px;height: 16px;">
 			    </div>
 			    {$txtwidth = 160}
 			    {else}
@@ -370,11 +370,15 @@
             });
             $('body').delegate('#photolist .photoeditdiv', 'click', function(){
                 var root = $(this).closest('.photodiv');
-                root.find('.txtPhototitle').hide();
-                root.find('.inputPhototitle').show();
-                root.find('.inputPhototitle input').focus();
-                var imgdomain = $('#globaldata').data('imgdomain')
-                $(this).find('img').attr('src', 'http://' + imgdomain + '/ok.png');
+	            if (root.find('.txtPhototitle').is(':visible')) {
+		            root.find('.txtPhototitle').hide();
+		            root.find('.inputPhototitle').show();
+		            root.find('.inputPhototitle input').focus();
+		            var imgdomain = $('#globaldata').data('imgdomain')
+		            $(this).find('img').attr('src', 'http://' + imgdomain + '/ok.png');
+	            } else {
+		            savePhotoTitle(root);
+	            }
 		    });
 	    }
     })();
