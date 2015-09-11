@@ -72,7 +72,7 @@
             {$photoimgheight = intval(240 * $photo.size.height / $photo.size.width)}
         {/if}
         {$colsData[$photo.photoid] = array($minindex, $photoimgwidth, $photoimgheight)}
-        {$colsHeight[$minindex] = $colsHeight[$minindex] + $photoimgheight + 40}
+        {$colsHeight[$minindex] = $colsHeight[$minindex] + $photoimgheight + 50}
     {/foreach}
     <div id="photolist">
 	    {for $i=0; $i<$cols; $i++}
@@ -86,21 +86,26 @@
 			    <div class="clear"></div>
 
 			    {if $logininfo.uid == $userinfo.uid}
-			    <div class="photocheckdiv left" style="width: 40px;line-height: 30px;text-align: center;">
-				    <input type="checkbox" style="vertical-align: middle;width: 30px;">
+			    <div class="photocheckdiv left" style="width: 40px;line-height: 40px;text-align: center;">
+				    <input type="checkbox" style="vertical-align: middle;width: 32px;height: 32px;">
 			    </div>
-			    {$txtwidth = 200}
+			    {$txtwidth = 160}
 			    {else}
-			    {$txtwidth = 240}
+			    {$txtwidth = 200}
 			    {/if}
-			    <div class="phototxtdiv left" style="width: {$txtwidth}px;overflow: hidden;line-height: 30px;height: 30px;white-space: nowrap;text-align: center;font-size: 12px; color: #aaaaaa;">
+			    <div class="phototxtdiv left" style="width: {$txtwidth}px;overflow: hidden;line-height: 40px;height: 40px;white-space: nowrap;text-align: center;font-size: 12px; color: #aaaaaa;">
 				    <span class="txtPhototitle">{$photo.title}</span>
 				    {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
-				    <span class="inputPhototitle hide" style="line-height: 30px;">
-					    <input type="text" value="{$photo.title}" placeholder="照片标题" style="text-align: center;width: {$txtwidth-10}px;height: 30px;">
+				    <span class="inputPhototitle hide" style="line-height: 40px;">
+					    <input type="text" value="{$photo.title}" placeholder="照片标题" style="text-align: center;width: {$txtwidth-10}px;height: 40px;">
 				    </span>
 				    {/if}
 			    </div>
+                {if $logininfo.uid == $userinfo.uid && !$albuminfo.isrecycle}
+                <div class="photoeditdiv left" style="width: 40px;line-height: 40px;text-align: center;">
+                    <img src="http://{$IMG_DOMAIN}/edit.png" style="vertical-align: middle;">
+                </div>
+                {/if}
 			    <div class="clear"></div>
 		    </div>
 		    {/if}
@@ -203,7 +208,7 @@
                 photoimgheight = parseInt(240 * imgheight / imgwidth);
             }
             colsData[photoid] = [minindex, photoimgwidth, photoimgheight];
-            colsHeight[minindex] += photoimgheight + 40;
+            colsHeight[minindex] += photoimgheight + 50;
         }
         function initWaterfallData()
         {
@@ -339,24 +344,18 @@
                                 root.find('.txtPhototitle').text(newVal);
                                 root.find('.txtPhototitle').show();
                                 root.find('.inputPhototitle').hide();
+                                var imgdomain = $('#globaldata').data('imgdomain')
+                                root.find('.photoeditdiv img').attr('src', 'http://' + imgdomain + '/edit.png');
                             }
                         }, 'json');
             } else {
                 root.find('.txtPhototitle').show();
                 root.find('.inputPhototitle').hide();
+                var imgdomain = $('#globaldata').data('imgdomain')
+                root.find('.photoeditdiv img').attr('src', 'http://' + imgdomain + '/edit.png');
             }
         }
 	    if ($('.inputPhototitle').length) {
-		    $('body').delegate('#photolist .txtPhototitle', 'mouseover', function(){
-			    var root = $(this).closest('.photodiv');
-			    root.find('.txtPhototitle').hide();
-			    root.find('.inputPhototitle').show();
-			    root.find('.inputPhototitle input').focus();
-		    });
-		    $('body').delegate('#photolist .inputPhototitle', 'mouseout', function(){
-			    var root = $(this).closest('.photodiv');
-			    savePhotoTitle(root);
-		    });
 		    $('body').delegate('#photolist .inputPhototitle', 'keydown', function(e){
 			    var root = $(this).closest('.photodiv');
 			    if (13 == e.keyCode) {
@@ -365,7 +364,17 @@
 				    root.find('.txtPhototitle').show();
 				    root.find('.inputPhototitle').hide();
 				    root.find('.inputPhototitle input').val(root.find('.txtPhototitle').text());
+                    var imgdomain = $('#globaldata').data('imgdomain')
+                    root.find('.photoeditdiv img').attr('src', 'http://' + imgdomain + '/edit.png');
 			    }
+            });
+            $('body').delegate('#photolist .photoeditdiv', 'click', function(){
+                var root = $(this).closest('.photodiv');
+                root.find('.txtPhototitle').hide();
+                root.find('.inputPhototitle').show();
+                root.find('.inputPhototitle input').focus();
+                var imgdomain = $('#globaldata').data('imgdomain')
+                $(this).find('img').attr('src', 'http://' + imgdomain + '/ok.png');
 		    });
 	    }
     })();
@@ -399,8 +408,9 @@
 	                        photodiv.data('imgheight', 0);
 	                        photodiv.find('.photoimgdiv').css('height', '240px');
 	                        photodiv.find('.photoimgdiv').html('');
-	                        photodiv.find('.photocheckdiv').text('');
-	                        photodiv.find('.phototxtdiv').text('等待上传中...');
+	                        photodiv.find('.photocheckdiv').html('&nbsp;');
+                            photodiv.find('.phototxtdiv').text('等待上传中...');
+                            photodiv.find('.photoeditdiv').html('&nbsp;');
 	                        $('#photolist_col' + (pos % 4)).prepend(photodiv);
 	                        pos ++;
 
