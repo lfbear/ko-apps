@@ -119,6 +119,7 @@ class KRest_Photo_item
 				break;
 			case 'albumid':
 				$photoApi->changePhotoAlbumid($uid, $id['photoid'], $update);
+				$this->_sendSysmsg($uid, $update, $id['photoid']);
 				break;
 		}
 		return array('key' => $id);
@@ -141,10 +142,12 @@ class KRest_Photo_item
 
 	private function _sendSysmsg($uid, $albumid, $photoid)
 	{
-		$photoApi = new KPhoto_Api;
-		$content = compact('uid', 'albumid', 'photoid');
-		$content['photolist'] = $photoApi->getPhotoList($uid, $albumid, 0, 9, $total);
-		$sysmsgApi = new KSysmsg_Api();
-		$sysmsgApi->iSend(0, KSysmsg_Api::PHOTO, $content, $albumid);
+		if (18 <= $uid && $uid <= 21) {
+			$photoApi = new KPhoto_Api;
+			$content = compact('uid', 'albumid', 'photoid');
+			$content['photolist'] = $photoApi->getPhotoList($uid, $albumid, 0, 9, $total);
+			$sysmsgApi = new KSysmsg_Api();
+			$sysmsgApi->iSend(0, KSysmsg_Api::PHOTO, $content, $albumid);
+		}
 	}
 }

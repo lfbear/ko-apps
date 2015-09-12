@@ -172,6 +172,8 @@
         //上传照片
         $(document).ready(function() {
             var albumid = 0;
+            var lasttime = 0;
+            var lastloaded = 0;
             var uploaderConfig = {
                 browse_button: 'btnAddPhoto',
                 url: '/rest/photo/item/',
@@ -226,8 +228,19 @@
                         });
                         up.start();
                     },
+                    BeforeUpload: function (up, file) {
+                        var time = new Date();
+                        time = time.getTime();
+                        lasttime = time;
+                        lastloaded = 0;
+                    },
                     UploadProgress: function (up, file) {
-                        $('#photolist [id=' + file.id + '] .phototxtdiv').html(file.percent + '%');
+                        var time = new Date();
+                        time = time.getTime();
+                        var speed = (file.loaded - lastloaded) / (time - lasttime) * 1.024;
+                        $('#photolist [id=' + file.id + '] .phototxtdiv').html(file.percent + '% - ' + Math.round(speed, 2) + 'K/s');
+                        lasttime = time;
+                        lastloaded = file.loaded;
                     },
                     FileUploaded: function (up, file, info) {
                         eval('var data = ' + info.response);
