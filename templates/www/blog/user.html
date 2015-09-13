@@ -1,0 +1,28 @@
+<div id="userdata" class="hide"
+     data-uid="{$userinfo.uid}">
+</div>
+
+<div class="main">
+	<div class="title left" style="padding-right: 36px;">
+		<img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;">
+	</div>
+	<div class="title left" style="padding-right: 5px;">
+		{$userinfo.nickname} 的博客
+	</div>
+	{if $logininfo.uid == $userinfo.uid}
+	<div class="title right" style="width:150px;text-align: center;">
+		<button id="btnAddPhoto">写博客</button>
+	</div>
+	{/if}
+	<div class="clear"></div>
+</div>
+
+{literal}
+<script language="JavaScript">
+	(function(){
+		$('body').delegate('#btnAddPhoto', 'click', function(){
+			window.location.href = 'post';
+		});
+	})();
+</script>
+{/literal}

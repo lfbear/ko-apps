@@ -1,0 +1,164 @@
+
+<div class="main">
+	<div class="title left" style="padding-right: 36px;">
+		<a href="user?uid={$userinfo.uid}"><img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;"></a>
+	</div>
+	<div class="title left" style="padding-right: 5px;">
+		<a href="user?uid={$userinfo.uid}">{$userinfo.nickname}</a> 的博客 &gt; 写博客
+	</div>
+	<div class="clear"></div>
+
+	<div style="height:50px;line-height: 50px;">
+		<input type="text" id="blogtitle" value="{$draft[2][$userinfo.uid]}" placeholder="输入博客标题" style="height:30px; width:800px;">
+	</div>
+	<div>
+		<textarea class="htmleditor_basic" id="blogcontent">{$draft[1][$userinfo.uid]}</textarea>
+	</div>
+	<div style="height:50px;line-height: 50px;">
+		<input type="text" id="blogtags" placeholder="输入博客分类，多个分类用空格分开" style="height:30px; width:300px;">
+	</div>
+	<div style="height:50px;line-height: 50px;">
+		<button id="blogpost">发表</button>
+	</div>
+</div>
+
+{literal}
+<script language="JavaScript">
+	(function(){
+		$('body').delegate('#blogtitle', 'change', function() {
+			var title = $('#blogtitle').val();
+			$.post('/rest/blog/draft/', {'method': 'PUT', 'put_style': 'title', 'update':{'title': title}}, function(data, status){
+				if (data.errno) {
+					alert(data.error);
+				}
+			}, 'json');
+		});
+		$(document).ready(function() {
+			inittinymce('basic', '.htmleditor_basic', 998, 400);
+		});
+		function inittinymce(mode, selector, width, height) {
+			var config = {
+				'selector': selector,
+				'language': 'zh_CN',
+				'width': width,
+				'height': height,
+				'menubar': false,
+				'save_onsavecallback': function(editor) {
+					var content = editor.getBody().innerHTML;
+					saveContent(content);
+				},
+				'setup': function(editor) {
+					editor.on('init', function(e) {
+						initplupload(editor);
+					});
+					editor.on('ProgressState', function(e) {
+						if (e.state) {
+							$('#mceu_imageko').css('z-index', 'auto');
+						}
+					});
+					editor.on('change', function(e) {
+						var content = editor.getBody().innerHTML;
+						saveContent(content);
+					});
+					editor.addButton('imageko', {
+						id: 'mceu_imageko',
+						icon: 'image',
+						tooltip: '插入图片'
+					});
+				}
+			};
+			if ('full' == mode) {
+				config.plugins = 'advlist anchor autosave charmap colorpicker code directionality emoticons fullscreen hr insertdatetime link media nonbreaking pagebreak preview print save searchreplace table textcolor visualblocks visualchars';
+				config.toolbar1 = 'undo redo | styleselect formatselect fontselect fontsizeselect | save';
+				config.toolbar2 = 'visualblocks visualchars | anchor insertdatetime nonbreaking hr pagebreak charmap emoticons table link unlink imageko media | print searchreplace fullscreen code preview';
+				config.toolbar3 = 'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | forecolor backcolor | blockquote subscript superscript | ltr rtl | removeformat';
+			} else {
+				config.plugins = 'advlist colorpicker link preview save textcolor';
+				config.toolbar1 = 'styleselect fontselect fontsizeselect forecolor backcolor | bullist numlist outdent indent | link imageko preview';
+			}
+			tinymce.init(config);
+		}
+		function saveContent(content) {
+			var title = $('#blogtitle').val();
+			$.post('/rest/blog/draft/', {'method': 'PUT', 'update':{'content': content, 'title': title}}, function(data, status){
+				if (data.errno) {
+					alert(data.error);
+					editor.isNotDirty = false;
+					return false;
+				} else {
+					return true;
+				}
+			}, 'json');
+		}
+		function initplupload(editor) {
+			var imgsize = 600;
+			var uploader = new plupload.Uploader({
+				browse_button: 'mceu_imageko',
+				url: '/rest/image/item/',
+				multipart_params: {after_style: 'default', after_decorate: 'imageView2/2/w/' + imgsize + '/h/' + imgsize},
+				filters: {
+					mime_types: [{title: '图片文件', extensions: 'jpg,gif,png'}],
+					max_file_size: '50mb'
+				},
+				init: {
+					FilesAdded: function(up, files) {
+						plupload.each(files, function(file) {
+							if ('image/gif' == file.type) {
+								var img = new mOxie.FileReader();
+								img.onload = function() {
+									var data = {
+										id: 'imageko_' + file.id,
+										onload: 'if (this.width > this.height && this.width > ' + imgsize + ') {this.width = ' + imgsize + ';} else if (this.height > ' + imgsize + ') {this.height = ' + imgsize + ';}',
+										src: img.result
+									};
+									editor.undoManager.transact(function() {
+										editor.selection.setContent(editor.dom.createHTML('img', data));
+									});
+								};
+								img.readAsDataURL(file.getSource());
+							} else {
+								var img = new mOxie.Image();
+								img.onload = function() {
+									var data = {
+										id: 'imageko_' + file.id,
+										src: img.getAsDataURL()
+									};
+									if (img.width > img.height && img.width > imgsize) {
+										data.width = imgsize;
+									} else if (img.height > imgsize){
+										data.height = imgsize;
+									}
+									editor.undoManager.transact(function() {
+										editor.selection.setContent(editor.dom.createHTML('img', data));
+									});
+									img.destroy();
+								};
+								img.load(file.getSource());
+							}
+						});
+						up.start();
+						editor.setProgressState(true);
+					},
+					FileUploaded: function(up, file, info) {
+						eval('var data = ' + info.response);
+						if (data.errno) {
+							editor.dom.select('#imageko_' + file.id)[0].remove();
+						} else {
+							editor.dom.select('#imageko_' + file.id)[0].src = data.data.after;
+						}
+					},
+					UploadComplete: function(up, files) {
+						editor.setProgressState(false);
+						up.destroy();
+						initplupload(editor);
+					},
+					Error: function(up, err) {
+						alert("Error #" + err.code + ": " + err.message + "\n");
+					}
+				}
+			});
+			uploader.init();
+		}
+	})();
+</script>
+{/literal}

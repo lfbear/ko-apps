@@ -2,8 +2,8 @@
 
 class KContent_Api extends Ko_Mode_Content
 {
-	const USER_DRAFT           = 1;
-	const UUID_DRAFT           = 2;
+	const DRAFT_CONTENT        = 1;
+	const DRAFT_TITLE          = 2;
 	const BLOG_TITLE           = 3;
 	const BLOG_CONTENT         = 4;
 	const USER_NICKNAME        = 5;
@@ -13,11 +13,11 @@ class KContent_Api extends Ko_Mode_Content
 	protected $_aConf = array(
 		'contentApi' => 'Func',
 		'app' => array(
-			self::USER_DRAFT => array(
+			self::DRAFT_CONTENT => array(
 				'type' => 'html',
 			),
-			self::UUID_DRAFT => array(
-				'type' => 'html',
+			self::DRAFT_TITLE => array(
+				'type' => 'text',
 			),
 			self::BLOG_TITLE => array(
 				'type' => 'text',
