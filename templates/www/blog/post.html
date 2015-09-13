@@ -1,3 +1,6 @@
+<div id="postdata" class="hide"
+     data-uid="{$userinfo.uid}">
+</div>
 
 <div class="main">
 	<div class="title left" style="padding-right: 36px;">
@@ -15,6 +18,9 @@
 		<textarea class="htmleditor_basic" id="blogcontent">{$draft[1][$userinfo.uid]}</textarea>
 	</div>
 	<div style="height:50px;line-height: 50px;">
+		{foreach $taginfos as $taginfo}
+		<label><input type="checkbox"> {$taginfo.tag}</label>
+		{/foreach}
 		<input type="text" id="blogtags" placeholder="输入博客分类，多个分类用空格分开" style="height:30px; width:300px;">
 	</div>
 	<div style="height:50px;line-height: 50px;">
@@ -25,6 +31,22 @@
 {literal}
 <script language="JavaScript">
 	(function(){
+		$('body').delegate('#blogpost', 'click', function() {
+			var title = $('#blogtitle').val();
+			var content = tinymce.EditorManager.get('blogcontent').getBody().innerHTML;
+			var tags = $('#blogtags').val();
+			if (!title.length) {
+				alert('请填写标题');
+				return false;
+			}
+			$.post('/rest/blog/item/', {'update': {'title':title, 'content':content, 'tags': tags}}, function(data, status){
+				if (data.errno) {
+					alert(data.error);
+				} else {
+					window.location.href = 'user?uid=' + $('#postdata').data('uid');
+				}
+			}, 'json');
+		});
 		$('body').delegate('#blogtitle', 'change', function() {
 			var title = $('#blogtitle').val();
 			$.post('/rest/blog/draft/', {'method': 'PUT', 'put_style': 'title', 'update':{'title': title}}, function(data, status){

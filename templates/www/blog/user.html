@@ -15,6 +15,26 @@
 	</div>
 	{/if}
 	<div class="clear"></div>
+
+	<div>
+		<div class="left" style="width: 200px;">
+			{foreach $taginfos as $taginfo}
+			<div style="height: 30px;line-height: 30px;">
+				<a href="?uid={$userinfo.uid}&tag={$taginfo.tag|escape:'url'}">{$taginfo.tag}({$taginfo.bcount})</a>
+			</div>
+			{/foreach}
+		</div>
+		<div class="left" style="width: 800px;">
+			{foreach $bloglist as $blog}
+			<div>
+				{$bloghtml[3][$blog.blogid]}<br>
+				{$blog.ctime}
+				{$bloghtml[4][$blog.blogid]}
+			</div>
+			{/foreach}
+		</div>
+		<div class="clear"></div>
+	</div>
 </div>
 
 {literal}
