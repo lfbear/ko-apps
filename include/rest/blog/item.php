@@ -49,6 +49,8 @@ class KRest_Blog_item
 		$contentApi->bSet(KContent_Api::DRAFT_CONTENT, $loginuid, '');
 		$contentApi->bSet(KContent_Api::DRAFT_TITLE, $loginuid, '');
 
+		$this->_sendSysmsg($loginuid, $blogid);
+
 		return array('key' => array('uid' => $loginuid, 'blogid' => $blogid));
 	}
 
@@ -84,5 +86,14 @@ class KRest_Blog_item
 		$blogApi = new KBlog_Api();
 		$blogApi->iDelete($loginuid, $id['blogid']);
 		return array('key' => $id);
+	}
+
+	private function _sendSysmsg($uid, $blogid)
+	{
+		if (18 <= $uid && $uid <= 21) {
+			$content = compact('uid', 'blogid');
+			$sysmsgApi = new KSysmsg_Api();
+			$sysmsgApi->iSend(0, KSysmsg_Api::BLOG, $content, $blogid);
+		}
 	}
 }

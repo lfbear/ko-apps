@@ -2,7 +2,6 @@
 
 define('MAIN_DOMAIN', 'zlog.cc');
 define('WWW_DOMAIN', 'www.' . MAIN_DOMAIN);
-define('KO_DOMAIN', 'ko.' . MAIN_DOMAIN);
 define('PASSPORT_DOMAIN', 'passport.' . MAIN_DOMAIN);
 define('XHPROF_DOMAIN', 'xhprof.' . MAIN_DOMAIN);
 define('IMG_DOMAIN', 'img.zhangchu.cc');

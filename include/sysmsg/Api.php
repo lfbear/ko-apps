@@ -3,13 +3,14 @@
 class KSysmsg_Api extends Ko_Mode_Sysmsg
 {
 	const PHOTO = 1;
+	const BLOG = 2;
 
 	protected $_aConf = array(
 		'content' => 'content',
 		'user' => 'user',
 		'merge' => 'merge',
 		'kind' => array(
-			'index' => array(self::PHOTO),
+			'index' => array(self::PHOTO, self::BLOG),
 		),
 	);
 
@@ -17,20 +18,25 @@ class KSysmsg_Api extends Ko_Mode_Sysmsg
 	{
 		$msglist = $this->aGetListSeq(0, 'index', $boundary, $num, $next, $next_boundary);
 
-		$userlist = $albumlist = $photolist = array();
+		$userlist = $albumlist = $photolist = $bloglist = array();
 		foreach ($msglist as $v) {
 			if (self::PHOTO == $v['msgtype']) {
 				$userlist[$v['content']['uid']] = $v['content']['uid'];
 				$albumlist[] = array('uid' => $v['content']['uid'], 'albumid' => $v['content']['albumid']);
 				$photolist = array_merge($photolist, $v['content']['photolist']);
+			} else if (self::BLOG == $v['msgtype']) {
+				$userlist[$v['content']['uid']] = $v['content']['uid'];
+				$bloglist[] = array('uid' => $v['content']['uid'], 'blogid' => $v['content']['blogid']);
 			}
 		}
 
 		$userlist = Ko_Tool_Adapter::VConv($userlist, array('list', array('user_baseinfo', array('logo80'))));
 		$storageApi = new KStorage_Api();
 		$photoApi = new KPhoto_Api();
+		$blogApi = new KBlog_Api();
 		$photoinfos = $photoApi->getPhotoInfos($photolist);
 		$albuminfos = $photoApi->getAlbumInfos($albumlist);
+		$bloginfos = $blogApi->aGetBlogInfos($bloglist);
 		foreach ($msglist as $k => &$v) {
 			if (self::PHOTO == $v['msgtype']) {
 				$v['content']['userinfo'] = $userlist[$v['content']['uid']];
@@ -52,6 +58,13 @@ class KSysmsg_Api extends Ko_Mode_Sysmsg
 						$this->vDelete(0, $v['msgid']);
 						unset($msglist[$k]);
 					}
+				}
+			} else if (self::BLOG == $v['msgtype']) {
+				$v['content']['userinfo'] = $userlist[$v['content']['uid']];
+				$v['content']['bloginfo'] = $bloginfos[$v['content']['blogid']];
+				if (empty($v['content']['bloginfo'])) {
+					$this->vDelete(0, $v['msgid']);
+					unset($msglist[$k]);
 				}
 			}
 		}

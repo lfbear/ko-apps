@@ -12,10 +12,20 @@ Ko_Web_Route::VGet('user', function () {
 	$blogApi = new KBlog_Api();
 	$taginfos = $blogApi->aGetAllTaginfo($uid);
 	$bloglist = $blogApi->aGetBlogList($uid, $tag, ($page - 1) * $num, $num, $total);
-	if (empty($bloglist) && strlen($tag)) {
-		Ko_Web_Response::VSetRedirect('?uid='.$uid);
-		Ko_Web_Response::VSend();
-		exit;
+	if (empty($bloglist)) {
+		if (strlen($tag)) {
+			if (1 == $page) {
+				Ko_Web_Response::VSetRedirect('?uid='.$uid);
+			} else {
+				Ko_Web_Response::VSetRedirect('?uid='.$uid.'&tag='.urlencode($tag));
+			}
+			Ko_Web_Response::VSend();
+			exit;
+		} else if (1 != $page) {
+			Ko_Web_Response::VSetRedirect('?uid='.$uid);
+			Ko_Web_Response::VSend();
+			exit;
+		}
 	}
 	if ('回收站' === $tag) {
 		$loginApi = new KUser_loginApi();

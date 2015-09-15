@@ -42,6 +42,32 @@ class KBlog_Api extends Ko_Busi_Api
 		return $ret;
 	}
 
+	public function aGetBlogInfos($list)
+	{
+		$blogids = Ko_Tool_Utils::AObjs2ids($list, 'blogid');
+		$infos = $this->blogDao->aGetDetails($list);
+		$contentApi = new KContent_Api();
+		$aText = $contentApi->aGetTextEx(array(
+			KContent_Api::BLOG_TITLE => $blogids,
+			KContent_Api::BLOG_CONTENT => array('ids' => $blogids, 'maxlength' => 1000, 'ext' => '...'),
+		));
+		$storageApi = new KStorage_Api();
+		foreach ($infos as &$v) {
+			if ('回收站' === $v['tags']) {
+				$v = array();
+			}
+			if (!empty($v)) {
+				$v['title'] = $aText[KContent_Api::BLOG_TITLE][$v['blogid']];
+				$v['content'] = $aText[KContent_Api::BLOG_CONTENT][$v['blogid']];
+				if (strlen($v['cover'])) {
+					$v['cover'] = $storageApi->sGetUrl($v['cover'], 'imageView2/1/w/300/h/200');
+				}
+			}
+		}
+		unset($v);
+		return $infos;
+	}
+
 	public function aGet($uid, $blogid)
 	{
 		$blogkey = compact('uid', 'blogid');

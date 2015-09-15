@@ -53,7 +53,7 @@
 			{foreach $bloglist as $blog}
 			<div class="blogdiv" data-blogid="{$blog.blogid}" style="padding-bottom: 30px;">
 				<div style="height:30px;line-height: 30px;">
-					<div class="left">
+					<div class="left" style="font-size: 20px;">
 						{if $blog.tags != '回收站'}
 						<a href="item?uid={$userinfo.uid}&blogid={$blog.blogid}">{$bloghtml[3][$blog.blogid]}</a>
 						{else}
@@ -79,15 +79,16 @@
 					{/if}
 					<div class="clear"></div>
 				</div>
-				<div style="line-height: 25px;font-size: 12px;color: #aaaaaa;">
+				<div style="line-height: 25px;font-size: 14px;color: #aaaaaa;">
 					{if strlen($blog.cover)}
-						<img class="left" src="{$blog.cover}" style="padding: 0 10px 10px 0;">
+						<img class="left" src="{$blog.cover}" style="padding: 6px 6px 6px 6px;">
 					{/if}
 					{$bloghtml[4][$blog.blogid]}
 				</div>
 				<div class="clear"></div>
 			</div>
 			{/foreach}
+			{if !empty($bloglist)}
 			<div style="height: 20px;line-height: 20px;font-size: 12px;color: #aaaaaa;">
 				<div class="left">
 					{if $page.no > 1}
@@ -105,6 +106,7 @@
 				</div>
 				<div class="clear"></div>
 			</div>
+			{/if}
 		</div>
 		<div class="clear"></div>
 	</div>
