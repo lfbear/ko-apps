@@ -1,5 +1,6 @@
 <div id="postdata" class="hide"
-     data-uid="{$userinfo.uid}">
+     data-uid="{$userinfo.uid}"
+	 data-blogid="{$bloginfo.blogid}">
 </div>
 
 <div class="main">
@@ -7,51 +8,70 @@
 		<a href="user?uid={$userinfo.uid}"><img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;"></a>
 	</div>
 	<div class="title left" style="padding-right: 5px;">
-		<a href="user?uid={$userinfo.uid}">{$userinfo.nickname}</a> 的博客 &gt; 写博客
+		<a href="user?uid={$userinfo.uid}">{$userinfo.nickname}</a> 的博客 &gt; {if $bloginfo.blogid}编辑博客{else}写博客{/if}
 	</div>
 	<div class="clear"></div>
 
 	<div style="height:50px;line-height: 50px;">
-		<input type="text" id="blogtitle" value="{$draft[2][$userinfo.uid]}" placeholder="输入博客标题" style="height:30px; width:800px;">
+		<input type="text" id="blogtitle" value="{if $bloginfo.blogid}{$blogcontent[3][$bloginfo.blogid]}{else}{$blogcontent[2][$userinfo.uid]}{/if}" placeholder="输入博客标题" style="height:30px; width:800px;">
 	</div>
 	<div>
-		<textarea class="htmleditor_basic" id="blogcontent">{$draft[1][$userinfo.uid]}</textarea>
+		<textarea class="htmleditor_basic hide" id="blogcontent">{if $bloginfo.blogid}{$blogcontent[4][$bloginfo.blogid]}{else}{$blogcontent[1][$userinfo.uid]}{/if}</textarea>
 	</div>
-	<div style="height:50px;line-height: 50px;">
+	<div id="taglistdiv" style="line-height: 50px;">
 		{foreach $taginfos as $taginfo}
-		<label><input type="checkbox"> {$taginfo.tag}</label>
+		{if '回收站' != $taginfo.tag && '未分类' != $taginfo.tag && '全部' != $taginfo.tag}
+			{if $bloginfo.blogid && in_array($taginfo.tag, $bloginfo.tags)}
+			<label><input type="checkbox" value="{$taginfo.tag}" checked> {$taginfo.tag}</label>
+			{else}
+			<label><input type="checkbox" value="{$taginfo.tag}"> {$taginfo.tag}</label>
+			{/if}
+		{/if}
 		{/foreach}
 		<input type="text" id="blogtags" placeholder="输入博客分类，多个分类用空格分开" style="height:30px; width:300px;">
 	</div>
 	<div style="height:50px;line-height: 50px;">
-		<button id="blogpost">发表</button>
+		<button id="blogpost">{if $bloginfo.blogid}修改{else}发表{/if}</button>
 	</div>
 </div>
 
 {literal}
 <script language="JavaScript">
 	(function(){
+		var blogid = parseInt($('#postdata').data('blogid'));
+		$('body').delegate('#blogtitle', 'change', function() {
+			if (!blogid) {
+				var title = $('#blogtitle').val();
+				$.post('/rest/blog/draft/', {'method': 'PUT', 'put_style': 'title', 'update':{'title': title}}, function(data, status){
+					if (data.errno) {
+						alert(data.error);
+					}
+				}, 'json');
+			}
+		});
 		$('body').delegate('#blogpost', 'click', function() {
 			var title = $('#blogtitle').val();
 			var content = tinymce.EditorManager.get('blogcontent').getBody().innerHTML;
 			var tags = $('#blogtags').val();
+			$('#taglistdiv input[type=checkbox]:checked').each(function(){
+				tags += ' ' + $(this).val();
+			});
 			if (!title.length) {
 				alert('请填写标题');
 				return false;
 			}
-			$.post('/rest/blog/item/', {'update': {'title':title, 'content':content, 'tags': tags}}, function(data, status){
+			var url = '/rest/blog/item/';
+			var params = {'update': {'title':title, 'content':content, 'tags': tags}};
+			if (blogid) {
+ 				var uid = $('#postdata').data('uid');
+				url += uid + '_' + blogid;
+				params['method'] = 'PUT';
+			}
+			$.post(url, params, function(data, status){
 				if (data.errno) {
 					alert(data.error);
 				} else {
-					window.location.href = 'user?uid=' + $('#postdata').data('uid');
-				}
-			}, 'json');
-		});
-		$('body').delegate('#blogtitle', 'change', function() {
-			var title = $('#blogtitle').val();
-			$.post('/rest/blog/draft/', {'method': 'PUT', 'put_style': 'title', 'update':{'title': title}}, function(data, status){
-				if (data.errno) {
-					alert(data.error);
+					window.location.href = 'item?uid=' + data.data.key.uid + '&blogid=' + data.data.key.blogid;
 				}
 			}, 'json');
 		});
@@ -101,16 +121,18 @@
 			tinymce.init(config);
 		}
 		function saveContent(content) {
-			var title = $('#blogtitle').val();
-			$.post('/rest/blog/draft/', {'method': 'PUT', 'update':{'content': content, 'title': title}}, function(data, status){
-				if (data.errno) {
-					alert(data.error);
-					editor.isNotDirty = false;
-					return false;
-				} else {
-					return true;
-				}
-			}, 'json');
+			if (!blogid) {
+				var title = $('#blogtitle').val();
+				$.post('/rest/blog/draft/', {'method': 'PUT', 'update':{'content': content, 'title': title}}, function(data, status){
+					if (data.errno) {
+						alert(data.error);
+						editor.isNotDirty = false;
+						return false;
+					} else {
+						return true;
+					}
+				}, 'json');
+			}
 		}
 		function initplupload(editor) {
 			var imgsize = 600;

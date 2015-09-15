@@ -1,0 +1,64 @@
+<div id="blogdata" class="hide"
+     data-uid="{$userinfo.uid}"
+     data-blogid="{$bloginfo.blogid}">
+</div>
+
+<div class="main">
+	<div class="title left" style="padding-right: 36px;">
+		<a href="user?uid={$userinfo.uid}"><img src="{$userinfo.logo80}" style="border-radius: 40px;vertical-align: middle;"></a>
+	</div>
+	<div class="title left" style="padding-right: 5px;">
+		<a href="user?uid={$userinfo.uid}">{$userinfo.nickname}</a> 的博客
+	</div>
+	<div class="clear"></div>
+
+	<div style="font-size: 20px;text-align: center;height: 50px;line-height: 50px;">
+		<b>{$blogcontent[3][$bloginfo.blogid]}</b>
+		{if $logininfo.uid == $userinfo.uid}
+		<span style="font-size: 12px;color: #aaaaaa;"><a href="javascript:;" class="editblog">编辑</a> <a href="javascript:;" class="delblog">删除</a></span>
+		{/if}
+	</div>
+
+	<div>
+		<div class="right" style="font-size: 12px;color: #aaaaaa;">
+			发表于：{$bloginfo.ctime|substr:0:16}
+		</div>
+		<div class="clear"></div>
+	</div>
+	{if $bloginfo.ctime != $bloginfo.mtime}
+	<div>
+		<div class="right" style="font-size: 12px;color: #aaaaaa;">
+			修改于：{$bloginfo.mtime|substr:0:16}
+		</div>
+		<div class="clear"></div>
+	</div>
+	{/if}
+
+	<div style="text-indent: 20px;line-height: 30px; font-size: 14px;">
+		{$blogcontent[4][$bloginfo.blogid]}
+	</div>
+</div>
+
+{literal}
+<script language="JavaScript">
+	(function(){
+		$('body').delegate('.editblog', 'click', function(){
+			var blogid = $('#blogdata').data('blogid');
+			window.location.href = 'post?blogid=' + blogid;
+		});
+		$('body').delegate('.delblog', 'click', function(){
+			var uid = $('#blogdata').data('uid');
+			var blogid = $('#blogdata').data('blogid');
+			if (confirm('你确认要删除这篇博客？')) {
+				$.post('/rest/blog/item/' + uid + '_' + blogid, {'method': 'DELETE'}, function(data, status){
+					if (data.errno) {
+						alert(data.error);
+					} else {
+						window.location.href = 'user?uid=' + uid;
+					}
+				}, 'json');
+			}
+		});
+	})();
+</script>
+{/literal}

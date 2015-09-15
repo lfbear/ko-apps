@@ -6,16 +6,19 @@ class KBlog_Api extends Ko_Busi_Api
 	{
 		$option = new Ko_Tool_SQL();
 		$option->oOffset($start)->oLimit($num)->oOrderBy('blogid desc')->oCalcFoundRows(true);
-		if (strlen($tag)) {
-			$list = $this->taglistDao->aGetList($option->oWhere('uid = ? and tag = ?', $uid, $tag));
-			$infos = $this->blogDao->aGetDetails($list);
-			foreach ($list as &$v) {
-				$v = $infos[$v['blogid']];
-			}
-			unset($v);
-		} else {
-			$list = $this->blogDao->aGetList($option->oWhere('uid = ?', $uid));
+		if (0 == strlen($tag)) {
+			$tag = '全部';
 		}
+		$list = $this->taglistDao->aGetList($option->oWhere('uid = ? and tag = ?', $uid, $tag));
+		$infos = $this->blogDao->aGetDetails($list);
+		$storageApi = new KStorage_Api();
+		foreach ($list as &$v) {
+			$v = $infos[$v['blogid']];
+			if (strlen($v['cover'])) {
+				$v['cover'] = $storageApi->sGetUrl($v['cover'], 'imageView2/1/w/300/h/200');
+			}
+		}
+		unset($v);
 		$total = $option->iGetFoundRows();
 		return $list;
 	}
@@ -23,7 +26,20 @@ class KBlog_Api extends Ko_Busi_Api
 	public function aGetAllTaginfo($uid)
 	{
 		$option = new Ko_Tool_SQL();
-		return $this->taginfoDao->aGetList($option->oWhere('uid = ?', $uid)->oOrderBy('mtime desc'));
+		$list = $this->taginfoDao->aGetList($option->oWhere('uid = ?', $uid)->oOrderBy('mtime desc'));
+		$ret = array();
+		foreach ($list as $v) {
+			if (0 == $v['bcount']) {
+				$taginfokey = array(
+					'uid' => $uid,
+					'tag' => $v['tag'],
+				);
+				$this->taginfoDao->iDelete($taginfokey);
+			} else {
+				$ret[] = $v;
+			}
+		}
+		return $ret;
 	}
 
 	public function aGet($uid, $blogid)
@@ -67,6 +83,9 @@ class KBlog_Api extends Ko_Busi_Api
 		if (empty($info)) {
 			return 0;
 		}
+		if ('回收站' === $info['tags']) {
+			return 0;
+		}
 
 		$oldtagarr = $this->_aGetTags($info['tags']);
 		$newtagarr = $this->_aGetTags($tags);
@@ -96,9 +115,41 @@ class KBlog_Api extends Ko_Busi_Api
 		if (empty($info)) {
 			return 0;
 		}
-		$subtags = $this->_aGetTags($info['tags']);
-		$this->_vSubTags($uid, $blogid, $subtags);
-		return $this->blogDao->iDelete($blogkey);
+		if ('回收站' === $info['tags']) {
+			$this->_vSubTags($uid, $blogid, array('回收站'));
+			$contentApi = new KContent_Api;
+			$contentApi->bSet(KContent_Api::BLOG_TITLE, $blogid, '');
+			$contentApi->bSet(KContent_Api::BLOG_CONTENT, $blogid, '');
+			return $this->blogDao->iDelete($blogkey);
+		} else {
+			$subtags = $this->_aGetTags($info['tags']);
+			$this->_vSubTags($uid, $blogid, $subtags);
+			$this->_vAddTags($uid, $blogid, array('回收站'));
+			$update = array(
+				'mtime' => date('Y-m-d H:i:s'),
+				'tags' => '回收站',
+			);
+			return $this->blogDao->iUpdate($blogkey, $update);
+		}
+	}
+
+	public function iReset($uid, $blogid)
+	{
+		$blogkey = compact('uid', 'blogid');
+		$info = $this->blogDao->aGet($blogkey);
+		if (empty($info)) {
+			return 0;
+		}
+		if ('回收站' !== $info['tags']) {
+			return 0;
+		}
+		$this->_vSubTags($uid, $blogid, array('回收站'));
+		$this->_vAddTags($uid, $blogid, array('全部', '未分类'));
+		$update = array(
+			'mtime' => date('Y-m-d H:i:s'),
+			'tags' => '全部 未分类',
+		);
+		return $this->blogDao->iUpdate($blogkey, $update);
 	}
 
 	private function _vAddTags($uid, $blogid, $tags)
@@ -131,10 +182,20 @@ class KBlog_Api extends Ko_Busi_Api
 
 	private function _aGetTags($tags)
 	{
-		if (!is_array($tags)) {
-			$tags = explode(' ', $tags);
+		if ('回收站' === $tags) {
+			return array('回收站');
 		}
-		return array_values(array_diff(array_unique($tags), array('')));
+		$tags = explode(' ', $tags);
+		$tags[] = '全部';
+		$tags = array_values(array_diff(array_unique($tags), array('', '未分类', '回收站')));
+		if (1 === count($tags)) {
+			$tags[] = '未分类';
+		}
+		foreach ($tags as &$tag) {
+			$tag = Ko_Tool_Str::SSubStr_UTF8($tag, 60);
+		}
+		unset($tag);
+		return $tags;
 	}
 
 	private function _sGetCover($content)

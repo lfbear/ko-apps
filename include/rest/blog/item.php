@@ -14,7 +14,21 @@ class KRest_Blog_item
 				'tags' => 'string',
 			)),
 		),
+		'putstylelist' => array(
+			'default' => array('hash', array(
+				'title' => 'string',
+				'content' => 'string',
+				'tags' => 'string',
+			)),
+			'reset' => 'any',
+		),
 	);
+
+	public function str2key($str)
+	{
+		list($uid, $blogid) = explode('_', $str);
+		return compact('uid', 'blogid');
+	}
 
 	public function post($update, $after = null, $post_style = 'default')
 	{
@@ -36,5 +50,39 @@ class KRest_Blog_item
 		$contentApi->bSet(KContent_Api::DRAFT_TITLE, $loginuid, '');
 
 		return array('key' => array('uid' => $loginuid, 'blogid' => $blogid));
+	}
+
+	public function put($id, $update, $before = null, $after = null, $put_style = 'default')
+	{
+		$loginApi = new KUser_loginApi();
+		$loginuid = $loginApi->iGetLoginUid();
+		if ($loginuid != $id['uid']) {
+			throw new Exception('修改博客失败', 1);
+		}
+
+		$blogApi = new KBlog_Api();
+		switch ($put_style)
+		{
+			case 'default':
+				$blogApi->iUpdate($loginuid, $id['blogid'], $update['title'], $update['content'], $update['tags']);
+				break;
+			case 'reset':
+				$blogApi->iReset($loginuid, $id['blogid']);
+				break;
+		}
+		return array('key' => $id);
+	}
+
+	public function delete($id, $before = null)
+	{
+		$loginApi = new KUser_loginApi();
+		$loginuid = $loginApi->iGetLoginUid();
+		if ($loginuid != $id['uid']) {
+			throw new Exception('删除博客失败', 1);
+		}
+
+		$blogApi = new KBlog_Api();
+		$blogApi->iDelete($loginuid, $id['blogid']);
+		return array('key' => $id);
 	}
 }
