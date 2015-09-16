@@ -37,6 +37,21 @@
 	<div style="text-indent: 32px;line-height: 30px; font-size: 14px;">
 		{$blogcontent[4][$bloginfo.blogid]}
 	</div>
+	<div class="clear"></div>
+
+	<div style="font-size: 12px;line-height: 30px;padding-top: 20px;">
+		{if isset($prevnext['prev'])}
+		<div class="left">
+			<a href="?uid={$userinfo.uid}&blogid={$prevnext['prev']['blogid']}&tag={$tag|escape:'url'}">&lt;&lt; {$prevnext['prev']['title']}</a>
+		</div>
+		{/if}
+		{if isset($prevnext['next'])}
+		<div class="right">
+			<a href="?uid={$userinfo.uid}&blogid={$prevnext['next']['blogid']}&tag={$tag|escape:'url'}">{$prevnext['next']['title']} &gt;&gt;</a>
+		</div>
+		{/if}
+		<div class="clear"></div>
+	</div>
 </div>
 
 {literal}

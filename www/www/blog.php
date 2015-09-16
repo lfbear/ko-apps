@@ -6,6 +6,9 @@ Ko_Web_Route::VGet('user', function () {
 	$uid = Ko_Web_Request::IGet('uid');
 	$tag = Ko_Web_Request::SGet('tag');
 	$page = max(1, Ko_Web_Request::IGet('page'));
+	if (0 == strlen($tag)) {
+		$tag = '全部';
+	}
 
 	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
 
@@ -100,6 +103,7 @@ Ko_Web_Route::VGet('post', function () {
 Ko_Web_Route::VGet('item', function () {
 	$uid = Ko_Web_Request::IGet('uid');
 	$blogid = Ko_Web_Request::IGet('blogid');
+	$tag = Ko_Web_Request::SGet('tag');
 
 	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
 
@@ -112,6 +116,11 @@ Ko_Web_Route::VGet('item', function () {
 		exit;
 	}
 
+	if (0 == strlen($tag)) {
+		$tag = $blogApi->sGetPriorTag($bloginfo['tags']);
+	}
+	$prevnextInfo = $blogApi->aGetPrevNextTitle($uid, $blogid, $tag);
+
 	$contentApi = new KContent_Api();
 	$htmlrender = new Ko_View_Render_HTML($contentApi);
 	$htmlrender->oSetData(KContent_Api::BLOG_TITLE, $blogid);
@@ -119,6 +128,8 @@ Ko_Web_Route::VGet('item', function () {
 
 	$render = new KRender_www;
 	$render->oSetTemplate('www/blog/item.html')
+		->oSetData('tag', $tag)
+		->oSetData('prevnext', $prevnextInfo)
 		->oSetData('userinfo', $userinfo)
 		->oSetData('bloginfo', $bloginfo)
 		->oSetData('blogcontent', $htmlrender)

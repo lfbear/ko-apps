@@ -2,17 +2,101 @@
 
 class KBlog_Api extends Ko_Busi_Api
 {
+	public function aGetPrevNextTitle($uid, $blogid, $tag)
+	{
+		$taglistkey = compact('uid', 'blogid', 'tag');
+		$info = $this->taglistDao->aGet($taglistkey);
+		$blogids = array();
+		if ($info['prev']) {
+			$blogids[] = $info['prev'];
+		}
+		if ($info['next']) {
+			$blogids[] = $info['next'];
+		}
+		$ret = array();
+		if (!empty($blogids)) {
+			$contentApi = new KContent_Api();
+			$aTitle = $contentApi->aGetText(KContent_Api::BLOG_TITLE, $blogids);
+			if ($info['prev']) {
+				$ret['prev'] = array('blogid' => $info['prev'], 'title' => $aTitle[$info['prev']]);
+			}
+			if ($info['next']) {
+				$ret['next'] = array('blogid' => $info['next'], 'title' => $aTitle[$info['next']]);
+			}
+		}
+		return $ret;
+	}
+
+	public function sGetPriorTag($tags)
+	{
+		$tagcount = count($tags);
+		if (1 == $tagcount) {
+			return $tag = $tags[0];
+		} else if (1 < $tagcount) {
+			$tags = array_values(array_diff($tags, array('未分类')));
+			$tagcount = count($tags);
+			if (1 == $tagcount) {
+				return $tag = $tags[0];
+			} else if (1 < $tagcount) {
+				$tags = array_values(array_diff($tags, array('全部')));
+				$tagcount = count($tags);
+				if (1 == $tagcount) {
+					return $tag = $tags[0];
+				}
+			}
+		}
+		return '全部';
+	}
+
 	public function aGetBlogList($uid, $tag, $start, $num, &$total)
 	{
 		$option = new Ko_Tool_SQL();
-		$option->oOffset($start)->oLimit($num)->oOrderBy('blogid desc')->oCalcFoundRows(true);
-		if (0 == strlen($tag)) {
-			$tag = '全部';
-		}
+		$offset = ($start > 0) ? $start - 1 : $start;
+		$addnum = ($start > 0) ? 2 : 1;
+		$limit = $num + $addnum;
+		$option->oOffset($offset)->oLimit($limit)->oOrderBy('blogid desc')->oCalcFoundRows(true);
 		$list = $this->taglistDao->aGetList($option->oWhere('uid = ? and tag = ?', $uid, $tag));
+		if ($count = count($list)) {
+			if ($start > 0) {
+				$prev = array_shift($list);
+				$count--;
+				$prev = $prev['blogid'];
+			} else {
+				$prev = 0;
+			}
+			if ($count > $num) {
+				$next = array_pop($list);
+				$count--;
+				$next = $next['blogid'];
+			} else {
+				$next = 0;
+			}
+		}
 		$infos = $this->blogDao->aGetDetails($list);
 		$storageApi = new KStorage_Api();
-		foreach ($list as &$v) {
+		foreach ($list as $k => &$v) {
+			$update = array();
+			if ($k != 0) {
+				if ($list[$k - 1]['blogid'] != $v['prev']) {
+					$update['prev'] = $v['prev'] = $list[$k - 1]['blogid'];
+				}
+			} else {
+				if ($prev != $v['prev']) {
+					$update['prev'] = $v['prev'] = $prev;
+				}
+			}
+			if ($k != $count - 1) {
+				if ($list[$k + 1]['blogid'] != $v['next']) {
+					$update['next'] = $v['next'] = $list[$k + 1]['blogid'];
+				}
+			} else {
+				if ($next != $v['next']) {
+					$update['next'] = $v['next'] = $next;
+				}
+			}
+			if (!empty($update)) {
+				$this->taglistDao->iUpdate($v, $update);
+			}
 			$v = $infos[$v['blogid']];
 			if (strlen($v['cover'])) {
 				$v['cover'] = $storageApi->sGetUrl($v['cover'], 'imageView2/1/w/300/h/200');
@@ -20,6 +104,20 @@ class KBlog_Api extends Ko_Busi_Api
 		}
 		unset($v);
 		$total = $option->iGetFoundRows();
+		$taginfokey = compact('uid', 'tag');
+		$taginfo = $this->taginfoDao->aGet($taginfokey);
+		if ($taginfo['bcount'] != $total) {
+			$data = array(
+				'uid' => $uid,
+				'tag' => $tag,
+				'bcount' => $total,
+				'mtime' => date('Y-m-d H:i:s'),
+			);
+			$update = array(
+				'bcount' => $total,
+			);
+			$this->taginfoDao->aInsert($data, $update);
+		}
 		return $list;
 	}
 

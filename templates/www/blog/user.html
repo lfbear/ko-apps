@@ -55,7 +55,7 @@
 				<div style="height:30px;line-height: 30px;">
 					<div class="left" style="font-size: 20px;">
 						{if $blog.tags != '回收站'}
-						<a href="item?uid={$userinfo.uid}&blogid={$blog.blogid}">{$bloghtml[3][$blog.blogid]}</a>
+						<a href="item?uid={$userinfo.uid}&blogid={$blog.blogid}&tag={$tag|escape:'url'}">{$bloghtml[3][$blog.blogid]}</a>
 						{else}
 						{$bloghtml[3][$blog.blogid]}
 						{/if}
