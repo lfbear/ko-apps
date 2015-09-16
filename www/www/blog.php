@@ -73,7 +73,7 @@ Ko_Web_Route::VGet('post', function () {
 	$htmlrender = new Ko_View_Render_HTML($contentApi);
 	if ($blogid) {
 		$bloginfo = $blogApi->aGet($uid, $blogid);
-		if (in_array('回收站', $bloginfo['tags'])) {
+		if (empty($bloginfo) || in_array('回收站', $bloginfo['tags'])) {
 			Ko_Web_Response::VSetRedirect('user?uid='.$uid);
 			Ko_Web_Response::VSend();
 			exit;
@@ -106,7 +106,7 @@ Ko_Web_Route::VGet('item', function () {
 	$blogApi = new KBlog_Api();
 	$taginfos = $blogApi->aGetAllTaginfo($uid);
 	$bloginfo = $blogApi->aGet($uid, $blogid);
-	if (in_array('回收站', $bloginfo['tags'])) {
+	if (empty($bloginfo) || in_array('回收站', $bloginfo['tags'])) {
 		Ko_Web_Response::VSetRedirect('user?uid='.$uid);
 		Ko_Web_Response::VSend();
 		exit;
