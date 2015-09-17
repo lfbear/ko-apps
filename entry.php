@@ -26,11 +26,11 @@ define('KO_XHPROF', false);
 define('KO_XHPROF_LIBDIR', CODE_ROOT . 'xhprof/xhprof_lib/');
 define('KO_XHPROF_WEBBASE', 'http://' . XHPROF_DOMAIN . '/xhprof_html/');
 define('KO_XHPROF_TMPDIR', COMMON_RUNDATA_PATH . 'xhprof/');
-require_once(CODE_ROOT . 'ko/ko.class.php');
 
-Ko_Web_Event::On('ko.bootstrap', 'before', function () {
-	Ko_Web_Config::VSetConf(COMMON_CONF_PATH . 'all.ini', COMMON_RUNDATA_PATH . 'all.php');
-});
+define('KO_CONFIG_SITE_INI', COMMON_CONF_PATH . 'all.ini');
+define('KO_CONFIG_SITE_CACHE', COMMON_RUNDATA_PATH . 'all.php');
+
+require_once(CODE_ROOT . 'ko/ko.class.php');
 
 Ko_Web_Event::On('ko.config', 'after', function () {
 	$appname = Ko_Web_Config::SGetAppName();
