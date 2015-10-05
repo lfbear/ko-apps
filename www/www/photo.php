@@ -1,7 +1,6 @@
 <?php
 
-function photoUserIndex()
-{
+Ko_Web_Route::VGet('user', function() {
 	$uid = Ko_Web_Request::IGet('uid');
 
 	$photoApi = new KPhoto_Api();
@@ -13,9 +12,7 @@ function photoUserIndex()
 		->oSetData('userinfo', $userinfo)
 		->oSetData('albumlist', $albumlist)
 		->oSend();
-}
-
-Ko_Web_Route::VGet('user', 'photoUserIndex');
+});
 
 Ko_Web_Route::VGet('album', function () {
 	static $num = 20;
