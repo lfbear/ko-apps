@@ -43,7 +43,7 @@
         {if $logininfo.uid == $userinfo.uid || !$album.isrecycle}
         <div class="albumdiv" data-albumid="{$album.albumid}" style="padding: 0 50px 50px 50px;">
             <div class="left" style="height: 40px;line-height: 40px;">
-	            <a href="album?uid={$album.uid}&albumid={$album.albumid}"><span class="txtAlbumtitle">{$album.title}</span></a>
+	            <a href="/photo/album?uid={$album.uid}&albumid={$album.albumid}"><span class="txtAlbumtitle">{$album.title}</span></a>
                 {if $logininfo.uid == $userinfo.uid && !$album.isrecycle}
                 <span class="inputAlbumtitle hide">
 	                <input type="text" value="{$album.title}" placeholder="相册标题" style="width: 240px;height: 30px;">
@@ -62,7 +62,7 @@
 	        <div class="digestphotodiv">
 		        {foreach $album.digest as $digest}
 		        <div class="left" style="width: 60px;height: 60px;">
-			        <a href="item?uid={$digest.uid}&photoid={$digest.photoid}"><img src="{$digest.image}"></a>
+			        <a href="/photo/item?uid={$digest.uid}&photoid={$digest.photoid}"><img src="{$digest.image}"></a>
 		        </div>
 		        {/foreach}
 	        </div>
@@ -254,7 +254,7 @@
                     },
                     UploadComplete: function (up, files) {
                         var uid = $('#userdata').data('uid');
-                        window.location.href = 'album?uid=' + uid + '&albumid=' + albumid;
+                        window.location.href = '/photo/album?uid=' + uid + '&albumid=' + albumid;
                     },
                     Error: function (up, err) {
                         alert("Error #" + err.code + ": " + err.message + "\n");

@@ -65,6 +65,10 @@ Ko_Web_Event::On('ko.error', '500', function ($errno, $errstr, $errfile, $errlin
 Ko_Web_Event::On('ko.dispatch', 'before', function () {
 	Ko_Tool_Adapter::VOn('user_baseinfo', array('KUser_baseinfoApi', 'AAdapter'));
 	Ko_Tool_Adapter::VOn('image_baseinfo', array('KStorage_Api', 'AAdapter'));
+	$appname = Ko_Web_Config::SGetAppName();
+	if ('zc' === $appname) {
+		$_GET['uid'] = 20;
+	}
 });
 
 Ko_Web_Event::On('ko.dispatch', '404', function () {
