@@ -1,3 +1,3 @@
 <?php
 
-include('../www/photo.php');
+include('../default/photo.php');

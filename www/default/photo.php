@@ -7,8 +7,8 @@ Ko_Web_Route::VGet('user', function() {
 	$albumlist = $photoApi->getAllAlbumDigest($uid);
 	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
 
-	$render = new KRender_www;
-	$render->oSetTemplate('www/photo/user.html')
+	$render = new KRender_default;
+	$render->oSetTemplate('default/photo/user.html')
 		->oSetData('userinfo', $userinfo)
 		->oSetData('albumlist', $albumlist)
 		->oSend();
@@ -34,12 +34,12 @@ Ko_Web_Route::VGet('album', function () {
 	$userinfo = Ko_Tool_Adapter::VConv($uid, array('user_baseinfo', array('logo80')));
 	$photolist = $photoApi->getPhotoListBySeq($uid, $albumid, '0_0_0', $num, $next, $next_boundary, 'imageView2/2/w/240');
 
-	$render = new KRender_www;
+	$render = new KRender_default;
 	if ($loginuid == $uid) {
 		$allalbumlist = $photoApi->getAllAlbumList($uid);
 		$render->oSetData('allalbumlist', $allalbumlist);
 	}
-	$render->oSetTemplate('www/photo/album.html')
+	$render->oSetTemplate('default/photo/album.html')
 		->oSetData('userinfo', $userinfo)
 		->oSetData('albuminfo', $albuminfo)
 		->oSetData('photolist', $photolist)
@@ -113,8 +113,8 @@ Ko_Web_Route::VGet('item', function () {
 		}
 	}
 
-	$render = new KRender_www;
-	$render->oSetTemplate('www/photo/item.html')
+	$render = new KRender_default;
+	$render->oSetTemplate('default/photo/item.html')
 		->oSetData('userinfo', $userinfo)
 		->oSetData('albuminfo', $albuminfo)
 		->oSetData('photoinfo', $photoinfo)

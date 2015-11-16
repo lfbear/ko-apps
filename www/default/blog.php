@@ -51,8 +51,8 @@ Ko_Web_Route::VGet('user', function () {
 		'no' => $page,
 		'data_total' => $total,
 	);
-	$render = new KRender_www;
-	$render->oSetTemplate('www/blog/user.html')
+	$render = new KRender_default;
+	$render->oSetTemplate('default/blog/user.html')
 		->oSetData('tag', $tag)
 		->oSetData('userinfo', $userinfo)
 		->oSetData('taginfos', $taginfos)
@@ -91,8 +91,8 @@ Ko_Web_Route::VGet('post', function () {
 		$htmlrender->oSetData(KContent_Api::DRAFT_TITLE, $uid);
 	}
 
-	$render = new KRender_www;
-	$render->oSetTemplate('www/blog/post.html')
+	$render = new KRender_default;
+	$render->oSetTemplate('default/blog/post.html')
 		->oSetData('userinfo', $userinfo)
 		->oSetData('bloginfo', $bloginfo)
 		->oSetData('blogcontent', $htmlrender)
@@ -126,8 +126,8 @@ Ko_Web_Route::VGet('item', function () {
 	$htmlrender->oSetData(KContent_Api::BLOG_TITLE, $blogid);
 	$htmlrender->oSetData(KContent_Api::BLOG_CONTENT, $blogid);
 
-	$render = new KRender_www;
-	$render->oSetTemplate('www/blog/item.html')
+	$render = new KRender_default;
+	$render->oSetTemplate('default/blog/item.html')
 		->oSetData('tag', $tag)
 		->oSetData('prevnext', $prevnextInfo)
 		->oSetData('userinfo', $userinfo)
