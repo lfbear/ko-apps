@@ -1,12 +1,14 @@
 <?php
 
-define('MAIN_DOMAIN', 'zlog.cc');
+error_reporting(E_ALL^E_NOTICE);
+
+define('MAIN_DOMAIN', 'imfw.cn');
 define('WWW_DOMAIN', 'www.' . MAIN_DOMAIN);
 define('PASSPORT_DOMAIN', 'passport.' . MAIN_DOMAIN);
 define('XHPROF_DOMAIN', 'xhprof.' . MAIN_DOMAIN);
-define('IMG_DOMAIN', 'img.zhangchu.cc');
+define('IMG_DOMAIN', 'img.imfw.cn');
 
-define('CODE_ROOT', '/usr/share/php/');
+define('CODE_ROOT', '/htdocs/');
 define('COMMON_CLASS_PATH', CODE_ROOT . 'apps/include/');
 define('COMMON_CONF_PATH', CODE_ROOT . 'apps/conf/');
 define('COMMON_RUNDATA_PATH', CODE_ROOT . 'apps/rundata/');
@@ -20,7 +22,7 @@ define('KO_DB_USER', 'demo');
 define('KO_DB_PASS', 'demodemo');
 define('KO_DB_NAME', 'demo');
 define('KO_MC_HOST', 'e77874bc68b911e4.m.cnbjalicm12pub001.ocs.aliyuncs.com:11211');
-define('KO_SMARTY_INC', CODE_ROOT . 'Smarty-3.1.21/libs/Smarty.class.php');
+define('KO_SMARTY_INC', CODE_ROOT . 'apps/smarty/libs/Smarty.class.php');
 define('KO_TEMPLATE_C_DIR', COMMON_RUNDATA_PATH . 'templates_c/');
 define('KO_XHPROF', false);
 define('KO_XHPROF_LIBDIR', CODE_ROOT . 'xhprof/xhprof_lib/');
